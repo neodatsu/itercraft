@@ -26,7 +26,8 @@ graph TB
     subgraph Application
         API[itercraft_api<br/>Spring Boot 4 / Java 25<br/>:8080]
         FRONT[itercraft_front<br/>React / Vite / TypeScript<br/>:3000]
-        FRONT -->|/healthcheck| API
+        API -.-|/healthcheck| API
+        FRONT -.-|/healthcheck| FRONT
     end
 
     subgraph Infrastructure
@@ -63,9 +64,6 @@ itercraft/
 │       └── test/            # Unit & integration tests
 └── itercraft_front/         # Frontend (:3000)
     └── src/
-        ├── types/           # TypeScript interfaces
-        ├── services/        # API calls
-        ├── hooks/           # Custom React hooks
         ├── pages/           # Pages by feature
         ├── components/      # Reusable components
         └── utils/           # Utilities
@@ -111,7 +109,7 @@ npm install
 npm run dev
 ```
 
-The frontend is available at `http://localhost:3000`.
+The frontend is available at `http://localhost:3000/healthcheck`.
 
 ### Run tests
 
@@ -132,8 +130,18 @@ Backend coverage report is generated in `itercraft_api/target/site/jacoco/index.
 ```bash
 cd devsecops/terraform
 # Configure env.sh with your credentials
-./tf.sh <module> init
-./tf.sh <module> apply
+
+# 1. Budget (cost alert)
+./tf.sh aws_budget init && ./tf.sh aws_budget apply
+
+# 2. ACM (SSL certificate)
+./tf.sh aws_acm init && ./tf.sh aws_acm apply
+
+# 3. Route 53 (DNS + ACM validation) - depends on ACM
+./tf.sh aws_route53 init && ./tf.sh aws_route53 apply
+
+# 4. ECR (container registries)
+./tf.sh aws_ecr init && ./tf.sh aws_ecr apply
 ```
 
 ### Build Docker images
