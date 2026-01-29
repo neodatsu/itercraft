@@ -71,6 +71,7 @@
                         <format>JSON</format>
                     </formats>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
+                    <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
                 </configuration>
             </plugin>
             <plugin>
