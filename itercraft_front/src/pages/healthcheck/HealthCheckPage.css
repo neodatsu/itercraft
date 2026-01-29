@@ -1,0 +1,30 @@
+.healthcheck-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.healthcheck-status {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.healthcheck-up .status {
+  color: #22c55e;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.healthcheck-down .status {
+  color: #ef4444;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.healthcheck-down .error {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
