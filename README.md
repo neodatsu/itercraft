@@ -13,6 +13,8 @@ graph TB
         GH -->|build & test| MVN[Maven + JaCoCo]
         GH -->|build & type check| VITE[Vite + TypeScript]
         GH -->|coverage report| PR[Pull Request]
+        GH -->|dependency check| OWASP[OWASP]
+        GH -->|code quality| SONAR[SonarCloud]
     end
 
     subgraph AWS
@@ -71,15 +73,16 @@ itercraft/
 
 ## Tech Stack
 
-| Layer          | Technology                     |
-|----------------|--------------------------------|
-| Backend        | Java 25, Spring Boot 4.0.2     |
-| Frontend       | React, TypeScript, Vite        |
-| Build          | Maven, JaCoCo, npm             |
-| Infrastructure | Terraform, Docker, Nginx       |
-| Cloud          | AWS (Route 53, ACM, ECR, Budgets) |
-| CI/CD          | GitHub Actions                 |
-| Region         | eu-west-1 (Ireland)            |
+| Layer          | Technology                         |
+|----------------|------------------------------------|
+| Backend        | Java 25, Spring Boot 4.0.2         |
+| Frontend       | React, TypeScript, Vite            |
+| Build          | Maven, JaCoCo, npm                 |
+| Security       | OWASP Dependency-Check, SonarCloud |
+| Infrastructure | Terraform, Docker, Nginx           |
+| Cloud          | AWS (Route 53, ACM, ECR, Budgets)  |
+| CI/CD          | GitHub Actions                     |
+| Region         | eu-west-1 (Ireland)                |
 
 ## Getting Started
 
