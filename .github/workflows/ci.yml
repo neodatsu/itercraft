@@ -34,11 +34,6 @@ jobs:
       - name: Build and test
         run: mvn clean verify --batch-mode
 
-      - name: SonarCloud Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar --batch-mode -Dsonar.projectKey=neodatsu_itercraft -Dsonar.organization=neodatsu -Dsonar.host.url=https://sonarcloud.io -Dsonar.java.binaries=target/classes -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
@@ -89,7 +84,6 @@ jobs:
   frontend:
     name: Frontend (itercraft_front)
     runs-on: ubuntu-latest
-    environment: itercraft
 
     defaults:
       run:
@@ -116,12 +110,49 @@ jobs:
       - name: Build
         run: npm run build
 
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    environment: itercraft
+    needs: [backend, frontend]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'oracle'
+          cache: maven
+
+      - name: Set up Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+          cache: npm
+          cache-dependency-path: itercraft_front/package-lock.json
+
+      - name: Build backend
+        working-directory: itercraft_api
+        run: mvn clean verify --batch-mode
+
+      - name: Build frontend
+        working-directory: itercraft_front
+        run: npm ci
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
-          projectBaseDir: itercraft_front
           args: >
-            -Dsonar.projectKey=neodatsu_itercraft_front
+            -Dsonar.projectKey=neodatsu_itercraft
             -Dsonar.organization=neodatsu
+            -Dsonar.java.binaries=itercraft_api/target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=itercraft_api/target/site/jacoco/jacoco.xml
+            -Dsonar.sources=itercraft_api/src/main,itercraft_front/src
+            -Dsonar.tests=itercraft_api/src/test
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/target/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
