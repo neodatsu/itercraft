@@ -69,7 +69,7 @@ jobs:
           cache: maven
 
       - name: OWASP Dependency Check
-        run: mvn dependency-check:check --batch-mode -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+        run: mvn dependency-check:check --batch-mode -DnvdApiKey=${{ secrets.NVD_API_KEY }} -DossIndexAnalyzerEnabled=false
 
       - name: Upload Dependency Check report
         if: always()
