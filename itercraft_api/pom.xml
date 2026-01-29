@@ -19,6 +19,9 @@
 
     <properties>
         <java.version>25</java.version>
+        <sonar.organization>neodatsu</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>neodatsu_itercraft</sonar.projectKey>
     </properties>
 
     <dependencies>
@@ -71,7 +74,7 @@
                         <format>JSON</format>
                     </formats>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
-                    <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
+                    <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                 </configuration>
             </plugin>
             <plugin>
