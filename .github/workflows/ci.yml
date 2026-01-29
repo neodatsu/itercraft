@@ -52,6 +52,7 @@ jobs:
   dependency-check:
     name: Dependency Check (itercraft_api)
     runs-on: ubuntu-latest
+    environment: itercraft
 
     defaults:
       run:
