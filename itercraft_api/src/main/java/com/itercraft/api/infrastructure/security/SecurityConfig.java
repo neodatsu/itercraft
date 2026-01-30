@@ -41,7 +41,7 @@ public class SecurityConfig {
             .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/healthcheck").permitAll()
+                .requestMatchers("/healthcheck", "/actuator/health", "/actuator/prometheus").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(opaque -> {}));

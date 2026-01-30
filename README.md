@@ -15,35 +15,49 @@ graph TB
         GH -->|coverage report| PR[Pull Request]
         GH -->|dependency check| OWASP[OWASP]
         GH -->|code quality| SONAR[SonarCloud]
+        GH -->|tag v*| ECR_PUSH[Push images to ECR]
     end
 
     subgraph AWS
-        R53[Route 53<br/>itercraft.com<br/>www + authent]
+        R53[Route 53<br/>itercraft.com]
         ACM[ACM<br/>SSL Certificate]
-        ECR[ECR<br/>itercraft_front<br/>itercraft_api]
+        ECR[ECR<br/>6 repos]
         BUD[Budgets<br/>10$ alert]
+        EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
+        SG[Security Group<br/>Cloudflare IPs only]
+        IAM[IAM Role<br/>ECR ReadOnly]
         R53 --> ACM
+        EC2 --> SG
+        EC2 --> IAM
+        IAM -->|pull images| ECR
     end
 
-    subgraph Application
-        API[itercraft_api<br/>Spring Boot 4 / Java 25<br/>:8080]
-        FRONT[itercraft_front<br/>React / Vite / TypeScript<br/>:3000]
-        KC[Keycloak 26<br/>OAuth2/OIDC + PKCE<br/>:8180]
-        PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
+    subgraph Cloudflare
+        CF[Cloudflare DNS<br/>NS override Route 53]
+        CF -->|proxy HTTPS| EC2
+    end
+
+    subgraph "Application (EC2 / docker-compose)"
+        TRAEFIK[Traefik v3<br/>Let's Encrypt<br/>:80 :443]
+        TRAEFIK -->|www| FRONT[itercraft_front<br/>React / Vite / TypeScript]
+        TRAEFIK -->|api| API[itercraft_api<br/>Spring Boot 4 / Java 25]
+        TRAEFIK -->|authent| KC[Keycloak 26<br/>OAuth2/OIDC + PKCE<br/>:8180]
+        TRAEFIK -->|grafana| GRAF[Grafana<br/>:3001]
         API -.-|/healthcheck| API
         FRONT -.-|/healthcheck| FRONT
         FRONT -->|auth| KC
         FRONT -->|API + CSRF| API
         API -->|token introspection| KC
-        API -->|JPA| PG
+        API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
+        PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
+        GRAF -->|query| PROM
     end
 
     subgraph Infrastructure
         TF[Terraform]
         DOCKER[Docker]
         TF --> AWS
-        DOCKER --> API
-        DOCKER --> FRONT
+        DOCKER --> TRAEFIK
     end
 ```
 
@@ -60,6 +74,12 @@ itercraft/
 │   │   ├── Dockerfile.postgres # PostgreSQL 17 + Liquibase
 │   │   ├── keycloak/
 │   │   │   └── itercraft-realm.json # Realm config (clients, user, roles)
+│   │   ├── prometheus/
+│   │   │   └── prometheus.yml       # Scrape config (itercraft-api)
+│   │   ├── grafana/
+│   │   │   └── datasource.yml       # Prometheus datasource provisioning
+│   │   ├── Dockerfile.prometheus    # Prometheus
+│   │   ├── Dockerfile.grafana       # Grafana (port 3001)
 │   │   └── postgres/
 │   │       └── entrypoint-wrapper.sh # Postgres + Liquibase bootstrap
 │   ├── liquibase/             # Database migrations
@@ -68,7 +88,8 @@ itercraft/
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_acm/         # SSL certificate (*.itercraft.com)
 │       ├── aws_budget/      # Cost alert (10$/month)
-│       ├── aws_ecr/         # Container registries (itercraft_api, itercraft_front)
+│       ├── aws_ec2/         # EC2 instance (Traefik + docker-compose)
+│       ├── aws_ecr/         # Container registries (6 repos)
 │       ├── aws_route53/     # DNS (CNAME www + authent + ACM validation)
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
@@ -98,8 +119,9 @@ itercraft/
 | Build          | Maven, JaCoCo, npm, Vitest                            |
 | Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)     |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection) |
-| Infrastructure | Terraform, Docker, Nginx                              |
-| Cloud          | AWS (Route 53, ACM, ECR, Budgets)                     |
+| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator |
+| Infrastructure | Terraform, Docker, Nginx, Traefik                     |
+| Cloud          | AWS (Route 53, ACM, ECR, EC2, Budgets), Cloudflare    |
 | CI/CD          | GitHub Actions                                        |
 | Region         | eu-west-1 (Ireland)                                   |
 
@@ -191,13 +213,31 @@ cd devsecops/terraform
 
 # 4. ECR (container registries)
 ./tf.sh aws_ecr init && ./tf.sh aws_ecr apply
+
+# 5. EC2 (application server)
+./tf.sh aws_ec2 init && ./tf.sh aws_ec2 apply
 ```
+
+### Deploy images (CI/CD)
+
+Le workflow `deploy.yml` est declenche automatiquement lors d'un tag `v*` :
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+GitHub Actions build les 6 images Docker, les tag avec la version + `latest`, et les push sur ECR.
+
+Secrets GitHub requis : `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ACCOUNT_ID`, `AWS_REGION`.
 
 ### API Endpoints
 
 | Method   | URL                                       | Auth          | Description                |
 |----------|-------------------------------------------|---------------|----------------------------|
 | `GET`    | `/healthcheck`                            | Public        | Health status              |
+| `GET`    | `/actuator/health`                        | Public        | Actuator health            |
+| `GET`    | `/actuator/prometheus`                    | Public        | Prometheus metrics         |
 | `GET`    | `/api/subscriptions`                      | Bearer        | User subscriptions + usage |
 | `GET`    | `/api/services`                           | Bearer        | All available services     |
 | `POST`   | `/api/subscriptions/{serviceCode}`        | Bearer + CSRF | Subscribe to a service     |
@@ -213,7 +253,9 @@ Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` co
 docker build -f devsecops/docker/Dockerfile.postgres  -t itercraft-postgres .
 docker build -f devsecops/docker/Dockerfile            -t itercraft-api .
 docker build -f devsecops/docker/Dockerfile.front      -t itercraft-front .
-docker build -f devsecops/docker/Dockerfile.keycloak   -t itercraft-keycloak .
+docker build -f devsecops/docker/Dockerfile.keycloak    -t itercraft-keycloak .
+docker build -f devsecops/docker/Dockerfile.prometheus  -t itercraft-prometheus .
+docker build -f devsecops/docker/Dockerfile.grafana     -t itercraft-grafana .
 ```
 
 ### Run - Dev (containers on localhost)
@@ -259,6 +301,12 @@ docker run --network itercraft --name api -p 8080:8080 \
 
 # Frontend
 docker run --network itercraft --name front -p 3000:3000 itercraft-front
+
+# Prometheus
+docker run --network itercraft --name prometheus -p 9090:9090 itercraft-prometheus
+
+# Grafana (admin/admin)
+docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```
 
 ### Run - Production
@@ -282,6 +330,10 @@ docker run --network itercraft --name api \
   itercraft-api
 
 docker run --network itercraft --name front -p 3000:3000 itercraft-front
+
+docker run --network itercraft --name prometheus -p 9090:9090 itercraft-prometheus
+
+docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```
 
 ## License

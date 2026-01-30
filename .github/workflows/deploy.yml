@@ -1,0 +1,59 @@
+name: Deploy to ECR
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build & Push Docker images to ECR
+    runs-on: ubuntu-latest
+    environment: itercraft
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Extract version from tag
+        id: version
+        run: echo "TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push images
+        run: |
+          ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          TAG=${{ steps.version.outputs.TAG }}
+
+          images=(
+            "itercraft_api:devsecops/docker/Dockerfile"
+            "itercraft_front:devsecops/docker/Dockerfile.front"
+            "itercraft_authent:devsecops/docker/Dockerfile.keycloak"
+            "itercraft_bdd:devsecops/docker/Dockerfile.postgres"
+            "itercraft_prometheus:devsecops/docker/Dockerfile.prometheus"
+            "itercraft_grafana:devsecops/docker/Dockerfile.grafana"
+          )
+
+          for entry in "${images[@]}"; do
+            REPO="${entry%%:*}"
+            DOCKERFILE="${entry#*:}"
+            echo "Building $REPO from $DOCKERFILE"
+            docker build -f "$DOCKERFILE" -t "$ECR/$REPO:$TAG" -t "$ECR/$REPO:latest" .
+            docker push "$ECR/$REPO:$TAG"
+            docker push "$ECR/$REPO:latest"
+          done
