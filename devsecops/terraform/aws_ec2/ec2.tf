@@ -154,6 +154,8 @@ resource "aws_instance" "app" {
                     - "--providers.docker=true"
                     - "--providers.docker.exposedbydefault=false"
                     - "--entrypoints.web.address=:80"
+                    - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+                    - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
                     - "--entrypoints.websecure.address=:443"
                     - "--certificatesresolvers.le.acme.httpchallenge=true"
                     - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
