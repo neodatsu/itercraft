@@ -1,0 +1,139 @@
+.home-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+
+/* Hero */
+.home-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.home-title {
+  font-size: 3rem;
+  margin-bottom: 0.8rem;
+}
+
+.home-brand {
+  background: linear-gradient(135deg, #818cf8, #6366f1, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home-subtitle {
+  font-size: 1.2rem;
+  color: #9090b0;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Sections */
+.home-section {
+  margin-bottom: 3rem;
+}
+
+.home-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #e0e0f0;
+}
+
+.home-section > p {
+  color: #b0b0c8;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.home-section strong {
+  color: #d0d0e8;
+}
+
+/* Cards */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.home-card {
+  padding: 1.4rem;
+  background: #1f2040;
+  border: 1px solid #2a2b50;
+  border-radius: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.home-card:hover {
+  border-color: #818cf8;
+  transform: translateY(-2px);
+}
+
+.home-card h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+  color: #e0e0f0;
+}
+
+.home-card p {
+  font-size: 0.9rem;
+  color: #9090b0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Stack */
+.home-stack {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+.home-stack-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem;
+  background: #1f2040;
+  border: 1px solid #2a2b50;
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+
+.home-stack-item:hover {
+  border-color: #4a4b70;
+}
+
+.home-stack-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.home-stack-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-stack-item strong {
+  font-size: 0.9rem;
+  color: #e0e0f0;
+}
+
+.home-stack-item span {
+  font-size: 0.82rem;
+  color: #8080a0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .home-cards,
+  .home-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .home-title {
+    font-size: 2.2rem;
+  }
+}

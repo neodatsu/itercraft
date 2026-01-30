@@ -1,0 +1,15 @@
+.dashboard-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.dashboard-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-welcome {
+  font-size: 1.2rem;
+  color: #ffffffde;
+}

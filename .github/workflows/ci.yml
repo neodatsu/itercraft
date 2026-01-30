@@ -107,6 +107,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
 
@@ -143,6 +146,10 @@ jobs:
         working-directory: itercraft_front
         run: npm ci
 
+      - name: Frontend tests with coverage
+        working-directory: itercraft_front
+        run: npx vitest run --coverage
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -152,7 +159,9 @@ jobs:
             -Dsonar.java.binaries=itercraft_api/target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=itercraft_api/target/site/jacoco/jacoco.xml
             -Dsonar.sources=itercraft_api/src/main,itercraft_front/src
-            -Dsonar.tests=itercraft_api/src/test
+            -Dsonar.tests=itercraft_api/src/test,itercraft_front/src
+            -Dsonar.test.inclusions=**/*.test.tsx,**/*.test.ts
+            -Dsonar.javascript.lcov.reportPaths=itercraft_front/coverage/lcov.info
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/target/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
