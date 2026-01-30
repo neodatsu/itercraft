@@ -38,7 +38,33 @@
         "openid",
         "profile",
         "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "iterapi-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "iterapi",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
       ]
+    },
+    {
+      "clientId": "iterapi",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "secret": "changeme",
+      "bearerOnly": false,
+      "consentRequired": false
     }
   ],
   "users": [
