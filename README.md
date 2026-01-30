@@ -24,9 +24,11 @@ graph TB
         ECR[ECR<br/>6 repos]
         BUD[Budgets<br/>10$ alert]
         EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
+        EIP[Elastic IP]
         SG[Security Group<br/>Cloudflare IPs only]
         IAM[IAM Role<br/>ECR ReadOnly]
         R53 --> ACM
+        EC2 --> EIP
         EC2 --> SG
         EC2 --> IAM
         IAM -->|pull images| ECR
@@ -34,7 +36,7 @@ graph TB
 
     subgraph Cloudflare
         CF[Cloudflare DNS<br/>NS override Route 53]
-        CF -->|proxy HTTPS| EC2
+        CF -->|proxy HTTPS| EIP
     end
 
     subgraph "Application (EC2 / docker-compose)"
