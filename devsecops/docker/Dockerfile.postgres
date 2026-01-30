@@ -1,0 +1,26 @@
+FROM postgres:17-alpine
+
+ENV POSTGRES_DB=itercraft
+ENV POSTGRES_USER=itercraft
+ENV POSTGRES_PASSWORD=itercraft
+
+# Install Liquibase
+ARG LIQUIBASE_VERSION=4.31.1
+RUN apk add --no-cache openjdk17-jre-headless bash curl \
+    && curl -L "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz" \
+       -o /tmp/liquibase.tar.gz \
+    && mkdir -p /opt/liquibase \
+    && tar -xzf /tmp/liquibase.tar.gz -C /opt/liquibase \
+    && rm /tmp/liquibase.tar.gz \
+    && ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
+
+# Copy changelogs
+COPY devsecops/liquibase/ /opt/liquibase/changelog/
+
+# Custom entrypoint that starts Postgres then runs Liquibase
+COPY devsecops/docker/postgres/entrypoint-wrapper.sh /usr/local/bin/entrypoint-wrapper.sh
+
+EXPOSE 5432
+
+ENTRYPOINT ["entrypoint-wrapper.sh"]
+CMD ["postgres"]

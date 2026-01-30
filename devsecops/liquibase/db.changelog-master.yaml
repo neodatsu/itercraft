@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: changelogs/001-init-schema.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changelogs/002-seed-services.yaml
+      relativeToChangelogFile: true

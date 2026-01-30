@@ -1,0 +1,54 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 006-seed-services
+      author: itercraft
+      changes:
+        - insert:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: code
+                  value: tondeuse
+              - column:
+                  name: label
+                  value: Tondeuse
+              - column:
+                  name: description
+                  value: Service de tondeuse pour l'entretien des espaces verts
+        - insert:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: code
+                  value: piscine
+              - column:
+                  name: label
+                  value: Piscine
+              - column:
+                  name: description
+                  value: Service de piscine pour l'entretien et la maintenance
+        - insert:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: id
+                  valueComputed: gen_random_uuid()
+              - column:
+                  name: code
+                  value: karcher
+              - column:
+                  name: label
+                  value: Karcher
+              - column:
+                  name: description
+                  value: Service de nettoyage haute pression

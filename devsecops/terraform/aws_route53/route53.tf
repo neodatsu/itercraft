@@ -49,6 +49,14 @@ resource "aws_route53_record" "www" {
   records = [var.domain_name]
 }
 
+resource "aws_route53_record" "db" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "db.${var.domain_name}"
+  type    = "CNAME"
+  ttl     = 300
+  records = [var.domain_name]
+}
+
 resource "aws_route53_record" "authent" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "authent.${var.domain_name}"

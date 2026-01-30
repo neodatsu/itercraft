@@ -1,0 +1,166 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 001-create-schema
+      author: itercraft
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS itercraft;
+
+  - changeSet:
+      id: 002-create-app-user
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: keycloak_sub
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-create-service
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: label
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 004-create-subscription
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: subscription
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: subscribed_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: itercraft
+            tableName: subscription
+            columnNames: user_id, service_id
+            constraintName: uq_subscription_user_service
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: subscription
+            baseColumnNames: user_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: app_user
+            referencedColumnNames: id
+            constraintName: fk_subscription_user
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: subscription
+            baseColumnNames: service_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: service
+            referencedColumnNames: id
+            constraintName: fk_subscription_service
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 005-create-service-usage
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: service_usage
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: subscription_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: service_usage
+            baseColumnNames: subscription_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: subscription
+            referencedColumnNames: id
+            constraintName: fk_usage_subscription
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: itercraft
+            tableName: service_usage
+            indexName: idx_usage_subscription
+            columns:
+              - column:
+                  name: subscription_id
