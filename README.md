@@ -28,8 +28,10 @@ graph TB
     subgraph Application
         API[itercraft_api<br/>Spring Boot 4 / Java 25<br/>:8080]
         FRONT[itercraft_front<br/>React / Vite / TypeScript<br/>:3000]
+        KC[Keycloak 26<br/>OAuth2/OIDC + PKCE<br/>:8180]
         API -.-|/healthcheck| API
         FRONT -.-|/healthcheck| FRONT
+        FRONT -->|auth| KC
     end
 
     subgraph Infrastructure
@@ -48,8 +50,11 @@ itercraft/
 ├── .github/workflows/     # CI/CD pipeline (backend + frontend)
 ├── devsecops/
 │   ├── docker/
-│   │   ├── Dockerfile       # Backend (multi-stage, Java 25)
-│   │   └── Dockerfile.front # Frontend (multi-stage, Nginx)
+│   │   ├── Dockerfile          # Backend (multi-stage, Java 25)
+│   │   ├── Dockerfile.front    # Frontend (multi-stage, Nginx)
+│   │   ├── Dockerfile.keycloak # Keycloak (multi-stage, realm import)
+│   │   └── keycloak/
+│   │       └── itercraft-realm.json # Realm config (client, user, roles)
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_acm/         # SSL certificate (*.itercraft.com)
 │       ├── aws_budget/      # Cost alert (10$/month)
@@ -79,6 +84,7 @@ itercraft/
 | Frontend       | React, TypeScript, Vite            |
 | Build          | Maven, JaCoCo, npm                 |
 | Security       | OWASP Dependency-Check, SonarCloud |
+| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE)    |
 | Infrastructure | Terraform, Docker, Nginx           |
 | Cloud          | AWS (Route 53, ACM, ECR, Budgets)  |
 | CI/CD          | GitHub Actions                     |
@@ -157,6 +163,15 @@ docker run -p 8080:8080 itercraft-api
 # Frontend
 docker build -f devsecops/docker/Dockerfile.front -t itercraft-front .
 docker run -p 3000:3000 itercraft-front
+
+# Keycloak
+docker build -f devsecops/docker/Dockerfile.keycloak -t itercraft-keycloak .
+
+# Local (http://localhost:8180)
+docker run -p 8180:8180 itercraft-keycloak
+
+# Production (https://authent.itercraft.com)
+docker run -p 8180:8180 -e KC_HOSTNAME=authent.itercraft.com itercraft-keycloak
 ```
 
 ## License
