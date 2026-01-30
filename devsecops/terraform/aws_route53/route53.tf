@@ -64,3 +64,11 @@ resource "aws_route53_record" "authent" {
   ttl     = 300
   records = [var.domain_name]
 }
+
+resource "aws_route53_record" "grafana" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "grafana.${var.domain_name}"
+  type    = "CNAME"
+  ttl     = 300
+  records = [var.domain_name]
+}

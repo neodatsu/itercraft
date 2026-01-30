@@ -116,6 +116,15 @@ resource "aws_iam_instance_profile" "ec2_ecr_profile" {
   role = aws_iam_role.ec2_ecr_role.name
 }
 
+resource "aws_eip" "app" {
+  domain   = "vpc"
+  instance = aws_instance.app.id
+
+  tags = {
+    Name = "app-eip"
+  }
+}
+
 resource "aws_instance" "app" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
@@ -253,4 +262,9 @@ resource "aws_instance" "app" {
   tags = {
     Name = "app-ec2"
   }
+}
+
+output "elastic_ip" {
+  description = "Elastic IP of the EC2 instance"
+  value       = aws_eip.app.public_ip
 }
