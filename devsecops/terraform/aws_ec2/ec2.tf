@@ -44,7 +44,7 @@ locals {
 
 resource "aws_security_group" "app_sg" {
   name        = "app-sg"
-  description = "SG EC2 app derrière Cloudflare"
+  description = "SG EC2 app behind Cloudflare"
   vpc_id      = var.vpc_id
 
   # IPv4 HTTP/HTTPS Cloudflare
@@ -109,6 +109,11 @@ resource "aws_iam_role" "ec2_ecr_role" {
 resource "aws_iam_role_policy_attachment" "ec2_ecr_attach" {
   role       = aws_iam_role.ec2_ecr_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_ssm_attach" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_instance_profile" "ec2_ecr_profile" {
