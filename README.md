@@ -210,26 +210,78 @@ Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` co
 ### Build Docker images
 
 ```bash
-# PostgreSQL + Liquibase
-docker build -f devsecops/docker/Dockerfile.postgres -t itercraft-postgres .
+docker build -f devsecops/docker/Dockerfile.postgres  -t itercraft-postgres .
+docker build -f devsecops/docker/Dockerfile            -t itercraft-api .
+docker build -f devsecops/docker/Dockerfile.front      -t itercraft-front .
+docker build -f devsecops/docker/Dockerfile.keycloak   -t itercraft-keycloak .
+```
+
+### Run - Dev (containers on localhost)
+
+Le backend accede aux autres services via `localhost` + port mapping Docker.
+`KC_HOSTNAME=localhost` (defini dans le Dockerfile) fixe l'issuer Keycloak a `http://localhost:8180`.
+
+```bash
+# PostgreSQL
 docker run -p 5432:5432 itercraft-postgres
 
-# Backend
-docker build -f devsecops/docker/Dockerfile -t itercraft-api .
-docker run -p 8080:8080 itercraft-api
-
-# Frontend
-docker build -f devsecops/docker/Dockerfile.front -t itercraft-front .
-docker run -p 3000:3000 itercraft-front
-
 # Keycloak
-docker build -f devsecops/docker/Dockerfile.keycloak -t itercraft-keycloak .
-
-# Local (http://localhost:8180)
 docker run -p 8180:8180 itercraft-keycloak
 
-# Production (https://authent.itercraft.com)
-docker run -p 8180:8180 -e KC_HOSTNAME=authent.itercraft.com itercraft-keycloak
+# Backend (sur le host, pas besoin de -e)
+cd itercraft_api && mvn spring-boot:run
+
+# Frontend
+cd itercraft_front && npm run dev
+```
+
+### Run - Dev (tout en containers)
+
+Les containers communiquent via le reseau Docker.
+Le backend doit connaitre les IP ou hostnames Docker des autres services.
+
+```bash
+# Creer un reseau
+docker network create itercraft
+
+# PostgreSQL
+docker run --network itercraft --name postgres -p 5432:5432 itercraft-postgres
+
+# Keycloak (KC_HOSTNAME=localhost pour que l'issuer matche le navigateur)
+docker run --network itercraft --name keycloak -p 8180:8180 itercraft-keycloak
+
+# Backend (DB_HOST et KEYCLOAK_URL pointent vers les hostnames Docker)
+docker run --network itercraft --name api -p 8080:8080 \
+  -e DB_HOST=postgres \
+  -e KEYCLOAK_URL=http://keycloak:8180 \
+  -e CORS_ORIGINS=http://localhost:3000 \
+  itercraft-api
+
+# Frontend
+docker run --network itercraft --name front -p 3000:3000 itercraft-front
+```
+
+### Run - Production
+
+```bash
+docker run --network itercraft --name postgres \
+  -e POSTGRES_PASSWORD=<secret> \
+  itercraft-postgres
+
+docker run --network itercraft --name keycloak \
+  -e KC_HOSTNAME=authent.itercraft.com \
+  -e KC_HOSTNAME_PORT=-1 \
+  itercraft-keycloak
+
+docker run --network itercraft --name api \
+  -e DB_HOST=postgres \
+  -e DB_PASSWORD=<secret> \
+  -e KEYCLOAK_URL=http://keycloak:8180 \
+  -e KEYCLOAK_CLIENT_SECRET=<secret> \
+  -e CORS_ORIGINS=https://www.itercraft.com \
+  itercraft-api
+
+docker run --network itercraft --name front -p 3000:3000 itercraft-front
 ```
 
 ## License
