@@ -18,7 +18,7 @@ graph TB
     end
 
     subgraph AWS
-        R53[Route 53<br/>itercraft.com]
+        R53[Route 53<br/>itercraft.com<br/>www + authent]
         ACM[ACM<br/>SSL Certificate]
         ECR[ECR<br/>itercraft_front<br/>itercraft_api]
         BUD[Budgets<br/>10$ alert]
@@ -59,7 +59,7 @@ itercraft/
 │       ├── aws_acm/         # SSL certificate (*.itercraft.com)
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ecr/         # Container registries (itercraft_api, itercraft_front)
-│       ├── aws_route53/     # DNS (CNAME www + ACM validation)
+│       ├── aws_route53/     # DNS (CNAME www + authent + ACM validation)
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
 ├── itercraft_api/           # Backend API (:8080)

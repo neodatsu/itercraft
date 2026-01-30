@@ -1,0 +1,14 @@
+.app-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background-color: #12132280;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #2a2b45;
+  font-size: 0.85rem;
+  color: #6b6b8a;
+}

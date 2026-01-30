@@ -1,0 +1,59 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background-color: #12132280;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #2a2b45;
+}
+
+.app-header-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.app-header-logo:hover {
+  color: #818cf8;
+}
+
+.app-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.app-header-link {
+  color: #b0b0c8;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.app-header-link:hover {
+  color: #818cf8;
+}
+
+.app-header-button {
+  padding: 0.45rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid #818cf8;
+  background: transparent;
+  color: #818cf8;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.app-header-button:hover {
+  background: #818cf8;
+  color: #121322;
+}
