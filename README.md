@@ -90,6 +90,7 @@ itercraft/
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ec2/         # EC2 instance (Traefik + docker-compose)
 │       ├── aws_ecr/         # Container registries (6 repos)
+│       ├── aws_oidc_github/ # OIDC provider + IAM role (GitHub Actions → ECR)
 │       ├── aws_route53/     # DNS (CNAME www + authent + ACM validation)
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
@@ -214,7 +215,10 @@ cd devsecops/terraform
 # 4. ECR (container registries)
 ./tf.sh aws_ecr init && ./tf.sh aws_ecr apply
 
-# 5. EC2 (application server)
+# 5. OIDC GitHub (IAM role for CI/CD → ECR push, no AWS keys needed)
+./tf.sh aws_oidc_github init && ./tf.sh aws_oidc_github apply
+
+# 6. EC2 (application server)
 ./tf.sh aws_ec2 init && ./tf.sh aws_ec2 apply
 ```
 
@@ -229,7 +233,9 @@ git push origin v1.0.0
 
 GitHub Actions build les 6 images Docker, les tag avec la version + `latest`, et les push sur ECR.
 
-Secrets GitHub requis : `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ACCOUNT_ID`, `AWS_REGION`.
+L'authentification utilise **OIDC** (OpenID Connect) : GitHub assume un role IAM directement aupres d'AWS, sans access keys stockees dans les secrets. Le module Terraform `aws_oidc_github` cree l'identity provider et le role `github-actions-ecr-push` restreint aux tags `v*` du repo.
+
+Seul secret GitHub requis : `AWS_ACCOUNT_ID`.
 
 ### API Endpoints
 
