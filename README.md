@@ -19,15 +19,12 @@ graph TB
     end
 
     subgraph AWS
-        R53[Route 53<br/>itercraft.com]
-        ACM[ACM<br/>SSL Certificate]
         ECR[ECR<br/>6 repos]
         BUD[Budgets<br/>10$ alert]
         EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
         EIP[Elastic IP]
         SG[Security Group<br/>Cloudflare IPs only]
-        IAM[IAM Role<br/>ECR ReadOnly]
-        R53 --> ACM
+        IAM[IAM Role<br/>ECR ReadOnly + SSM]
         EC2 --> EIP
         EC2 --> SG
         EC2 --> IAM
@@ -35,7 +32,7 @@ graph TB
     end
 
     subgraph Cloudflare
-        CF[Cloudflare DNS<br/>NS override Route 53]
+        CF[Cloudflare DNS<br/>itercraft.com]
         CF -->|proxy HTTPS| EIP
     end
 
@@ -88,12 +85,10 @@ itercraft/
 │   │   ├── db.changelog-master.yaml
 │   │   └── changelogs/        # 001-init-schema, 002-seed-services
 │   └── terraform/           # Infrastructure as Code
-│       ├── aws_acm/         # SSL certificate (*.itercraft.com)
 │       ├── aws_budget/      # Cost alert (10$/month)
-│       ├── aws_ec2/         # EC2 instance (Traefik + docker-compose)
+│       ├── aws_ec2/         # EC2 instance + Elastic IP + SSM (Traefik + docker-compose)
 │       ├── aws_ecr/         # Container registries (6 repos)
 │       ├── aws_oidc_github/ # OIDC provider + IAM role (GitHub Actions → ECR)
-│       ├── aws_route53/     # DNS (CNAME www + authent + ACM validation)
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
 ├── itercraft_api/           # Backend API (:8080)
@@ -124,7 +119,7 @@ itercraft/
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection) |
 | Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                     |
-| Cloud          | AWS (Route 53, ACM, ECR, EC2, Budgets), Cloudflare    |
+| Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM), Cloudflare  |
 | CI/CD          | GitHub Actions                                        |
 | Region         | eu-west-1 (Ireland)                                   |
 
@@ -208,20 +203,15 @@ cd devsecops/terraform
 # 1. Budget (cost alert)
 ./tf.sh aws_budget init && ./tf.sh aws_budget apply
 
-# 2. ACM (SSL certificate)
-./tf.sh aws_acm init && ./tf.sh aws_acm apply
-
-# 3. Route 53 (DNS + ACM validation) - depends on ACM
-./tf.sh aws_route53 init && ./tf.sh aws_route53 apply
-
-# 4. ECR (container registries)
+# 2. ECR (container registries)
 ./tf.sh aws_ecr init && ./tf.sh aws_ecr apply
 
-# 5. OIDC GitHub (IAM role for CI/CD → ECR push, no AWS keys needed)
+# 3. OIDC GitHub (IAM role for CI/CD → ECR push, no AWS keys needed)
 ./tf.sh aws_oidc_github init && ./tf.sh aws_oidc_github apply
 
-# 6. EC2 (application server)
+# 4. EC2 (application server + Elastic IP)
 ./tf.sh aws_ec2 init && ./tf.sh aws_ec2 apply
+# → Configure Cloudflare DNS with the Elastic IP output
 ```
 
 ### Deploy images (CI/CD)
