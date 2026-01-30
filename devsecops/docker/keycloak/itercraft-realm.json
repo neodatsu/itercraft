@@ -1,0 +1,70 @@
+{
+  "realm": "itercraft",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "iterfront",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "rootUrl": "https://www.itercraft.com",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://www.itercraft.com/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://www.itercraft.com"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": [
+        "openid",
+        "profile",
+        "email"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "healthcheck",
+      "enabled": true,
+      "email": "healthcheck@itercraft.com",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "healthcheck",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "Default user role"
+      }
+    ]
+  },
+  "defaultRoles": [
+    "user"
+  ]
+}
