@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: 'itercraft-api'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['api:8080']
+      - targets: ['back:8080']
