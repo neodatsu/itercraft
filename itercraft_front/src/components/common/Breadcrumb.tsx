@@ -1,0 +1,37 @@
+import { Link, useLocation } from 'react-router-dom';
+import './Breadcrumb.css';
+
+const labels: Record<string, string> = {
+  '/': 'Home',
+  '/dashboard': 'Dashboard',
+};
+
+export function Breadcrumb() {
+  const { pathname } = useLocation();
+
+  if (pathname === '/') return null;
+
+  const segments = pathname.split('/').filter(Boolean);
+  const crumbs = [{ path: '/', label: 'Home' }];
+
+  let current = '';
+  for (const seg of segments) {
+    current += `/${seg}`;
+    crumbs.push({ path: current, label: labels[current] ?? seg });
+  }
+
+  return (
+    <nav className="breadcrumb" aria-label="Breadcrumb">
+      {crumbs.map((crumb, i) => (
+        <span key={crumb.path}>
+          {i > 0 && <span className="breadcrumb-sep">/</span>}
+          {i === crumbs.length - 1 ? (
+            <span className="breadcrumb-current">{crumb.label}</span>
+          ) : (
+            <Link to={crumb.path} className="breadcrumb-link">{crumb.label}</Link>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}

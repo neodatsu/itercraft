@@ -20,12 +20,7 @@ export function Header() {
             </button>
           </>
         ) : (
-          <button
-            className="app-header-button"
-            onClick={() => keycloak.login({ redirectUri: `${window.location.origin}/dashboard` })}
-          >
-            Login
-          </button>
+          <Link to="/dashboard" className="app-header-button">Login</Link>
         )}
       </nav>
     </header>

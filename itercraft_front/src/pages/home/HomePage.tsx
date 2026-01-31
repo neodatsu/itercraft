@@ -30,7 +30,7 @@ export function HomePage() {
           </div>
           <div className="home-card">
             <h3>🔧 Infrastructure as Code</h3>
-            <p>Terraform stacks for AWS (Route 53, ACM, ECR, Budgets). Everything versioned, nothing manual.</p>
+            <p>Terraform stacks for AWS (EC2, ECR, Budgets) and Cloudflare (DNS, SSL). Everything versioned, nothing manual.</p>
           </div>
           <div className="home-card">
             <h3>🚀 CI/CD Pipeline</h3>
@@ -38,7 +38,7 @@ export function HomePage() {
           </div>
           <div className="home-card">
             <h3>🔒 Security by Design</h3>
-            <p>OAuth2/OIDC with PKCE via Keycloak, vulnerability scanning, SSL certificates managed as code.</p>
+            <p>OAuth2/OIDC with PKCE via Keycloak, vulnerability scanning, Cloudflare Flexible SSL, Traefik reverse proxy.</p>
           </div>
         </div>
       </section>
@@ -71,7 +71,7 @@ export function HomePage() {
             <span className="home-stack-icon">☁️</span>
             <div>
               <strong>Cloud</strong>
-              <span>AWS &middot; Terraform &middot; Docker &middot; Nginx</span>
+              <span>AWS &middot; Cloudflare &middot; Terraform &middot; Docker &middot; Traefik</span>
             </div>
           </div>
           <div className="home-stack-item">
@@ -79,6 +79,13 @@ export function HomePage() {
             <div>
               <strong>CI/CD</strong>
               <span>GitHub Actions &middot; JaCoCo &middot; SonarCloud</span>
+            </div>
+          </div>
+          <div className="home-stack-item">
+            <span className="home-stack-icon">📊</span>
+            <div>
+              <strong>Monitoring</strong>
+              <span>Prometheus &middot; Grafana</span>
             </div>
           </div>
           <div className="home-stack-item">

@@ -1,10 +1,12 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import type Keycloak from 'keycloak-js';
 import { keycloak } from './keycloak';
 
 interface AuthContextType {
   keycloak: Keycloak;
   authenticated: boolean;
+  initialized: boolean;
+  ensureInit: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -12,22 +14,25 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
+  const initPromise = useRef<Promise<boolean> | null>(null);
 
-  useEffect(() => {
-    keycloak.init({
-      onLoad: 'check-sso',
-      pkceMethod: 'S256',
-      checkLoginIframe: false,
-    }).then((auth) => {
-      setAuthenticated(auth);
-      setInitialized(true);
-    });
+  const ensureInit = useCallback(() => {
+    if (!initPromise.current) {
+      initPromise.current = keycloak.init({
+        onLoad: 'check-sso',
+        pkceMethod: 'S256',
+        checkLoginIframe: false,
+      }).then((auth) => {
+        setAuthenticated(auth);
+        setInitialized(true);
+        return auth;
+      });
+    }
+    return initPromise.current;
   }, []);
 
-  if (!initialized) return null;
-
   return (
-    <AuthContext.Provider value={{ keycloak, authenticated }}>
+    <AuthContext.Provider value={{ keycloak, authenticated, initialized, ensureInit }}>
       {children}
     </AuthContext.Provider>
   );

@@ -16,6 +16,8 @@ describe('Header', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { logout: vi.fn() } as never,
       authenticated: true,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Logout')).toBeInTheDocument();
@@ -26,6 +28,8 @@ describe('Header', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { login: vi.fn() } as never,
       authenticated: false,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Login')).toBeInTheDocument();
@@ -36,20 +40,22 @@ describe('Header', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { logout } as never,
       authenticated: true,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
     await userEvent.click(screen.getByText('Logout'));
     expect(logout).toHaveBeenCalled();
   });
 
-  it('calls keycloak.login on Login click', async () => {
-    const login = vi.fn();
+  it('Login link points to /dashboard', () => {
     mockUseAuth.mockReturnValue({
-      keycloak: { login } as never,
+      keycloak: {} as never,
       authenticated: false,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
-    await userEvent.click(screen.getByText('Login'));
-    expect(login).toHaveBeenCalled();
+    expect(screen.getByText('Login').closest('a')).toHaveAttribute('href', '/dashboard');
   });
 });

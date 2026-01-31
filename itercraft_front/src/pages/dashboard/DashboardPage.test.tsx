@@ -30,6 +30,8 @@ function setupAuth(username = 'testuser') {
   mockUseAuth.mockReturnValue({
     keycloak: { token: 'fake-token', tokenParsed: { preferred_username: username } } as never,
     authenticated: true,
+    initialized: true,
+    ensureInit: vi.fn().mockResolvedValue(true),
   });
 }
 
@@ -53,6 +55,8 @@ describe('DashboardPage', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { token: 'fake-token', tokenParsed: {} } as never,
       authenticated: true,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<DashboardPage />);
     await waitFor(() => {

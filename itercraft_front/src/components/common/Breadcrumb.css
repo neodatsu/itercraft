@@ -1,0 +1,24 @@
+.breadcrumb {
+  padding: 0.5rem 2rem;
+  font-size: 0.85rem;
+  color: #8080a0;
+  background-color: #12132240;
+}
+
+.breadcrumb-link {
+  color: #818cf8;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-sep {
+  margin: 0 0.5rem;
+  color: #4a4a6a;
+}
+
+.breadcrumb-current {
+  color: #b0b0c8;
+}
