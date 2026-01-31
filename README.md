@@ -196,6 +196,19 @@ Backend coverage report is generated in `itercraft_api/target/site/jacoco/index.
 
 ### Deploy infrastructure
 
+#### Required credentials
+
+1. **AWS** : configurer `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` et `AWS_MFA_SERIAL` dans `devsecops/terraform/env.sh`
+2. **Cloudflare API Token** :
+   - Cloudflare Dashboard → My Profile → API Tokens → Create Token
+   - Template : **Edit zone DNS**
+   - Ajouter la permission : Zone → Zone Settings → Edit
+   - Zone Resources : Include → itercraft.com
+   - Copier le token dans `TF_VAR_cloudflare_api_token` dans `env.sh`
+3. **GitHub Secrets** (pour le CI/CD) : `AWS_ACCOUNT_ID` dans les secrets de l'environment `itercraft`
+
+#### Terraform apply
+
 ```bash
 cd devsecops/terraform
 # Configure env.sh with your credentials
@@ -209,7 +222,7 @@ cd devsecops/terraform
 # 3. OIDC GitHub (IAM role for CI/CD → ECR push, no AWS keys needed)
 ./tf.sh aws_oidc_github init && ./tf.sh aws_oidc_github apply
 
-# 4. EC2 + Cloudflare DNS (application server + Elastic IP + DNS records)
+# 4. EC2 + Cloudflare DNS (Elastic IP + DNS records + SSL Flexible)
 ./tf.sh aws_ec2 init && ./tf.sh aws_ec2 apply
 ```
 
