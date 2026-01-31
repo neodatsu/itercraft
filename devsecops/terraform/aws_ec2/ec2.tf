@@ -193,6 +193,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.back.entrypoints=web"
                     - "traefik.http.routers.back.middlewares=https-proto"
                     - "traefik.http.services.back.loadbalancer.server.port=8080"
+                    - "traefik.docker.network=app_public"
                   environment:
                     - DB_HOST=bdd
                     - DB_PASSWORD=${var.db_password}
@@ -213,6 +214,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.authent.middlewares=https-proto"
                     - "traefik.http.middlewares.https-proto.headers.customrequestheaders.X-Forwarded-Proto=https"
                     - "traefik.http.services.authent.loadbalancer.server.port=8180"
+                    - "traefik.docker.network=app_public"
                   environment:
                     - KC_HOSTNAME=https://authent.${var.domain_name}
                     - KC_PROXY_HEADERS=xforwarded
@@ -248,6 +250,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.grafana.entrypoints=web"
                     - "traefik.http.routers.grafana.middlewares=https-proto"
                     - "traefik.http.services.grafana.loadbalancer.server.port=3001"
+                    - "traefik.docker.network=app_public"
                   networks:
                     - public
                     - internal
