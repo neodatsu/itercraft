@@ -41,3 +41,9 @@ variable "keycloak_client_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token with DNS edit and Zone Settings edit permissions"
+  type        = string
+  sensitive   = true
+}

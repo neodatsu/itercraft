@@ -37,7 +37,7 @@ graph TB
     end
 
     subgraph "Application (EC2 / docker-compose)"
-        TRAEFIK[Traefik v3<br/>Let's Encrypt<br/>:80 :443]
+        TRAEFIK[Traefik v3<br/>reverse proxy<br/>:80]
         TRAEFIK -->|www| FRONT[itercraft_front<br/>React / Vite / TypeScript]
         TRAEFIK -->|api| API[itercraft_api<br/>Spring Boot 4 / Java 25]
         TRAEFIK -->|authent| KC[Keycloak 26<br/>OAuth2/OIDC + PKCE<br/>:8180]
@@ -86,7 +86,7 @@ itercraft/
 │   │   └── changelogs/        # 001-init-schema, 002-seed-services
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_budget/      # Cost alert (10$/month)
-│       ├── aws_ec2/         # EC2 instance + Elastic IP + SSM (Traefik + docker-compose)
+│       ├── aws_ec2/         # EC2 + Elastic IP + SSM + Cloudflare DNS (Traefik + docker-compose)
 │       ├── aws_ecr/         # Container registries (6 repos)
 │       ├── aws_oidc_github/ # OIDC provider + IAM role (GitHub Actions → ECR)
 │       ├── env.sh           # Environment variables (not committed)
@@ -209,9 +209,8 @@ cd devsecops/terraform
 # 3. OIDC GitHub (IAM role for CI/CD → ECR push, no AWS keys needed)
 ./tf.sh aws_oidc_github init && ./tf.sh aws_oidc_github apply
 
-# 4. EC2 (application server + Elastic IP)
+# 4. EC2 + Cloudflare DNS (application server + Elastic IP + DNS records)
 ./tf.sh aws_ec2 init && ./tf.sh aws_ec2 apply
-# → Configure Cloudflare DNS with the Elastic IP output
 ```
 
 ### Deploy images (CI/CD)

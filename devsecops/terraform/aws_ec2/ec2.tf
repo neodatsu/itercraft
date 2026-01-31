@@ -4,12 +4,20 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
+    }
   }
   required_version = ">= 1.5.0"
 }
 
 provider "aws" {
   region = var.aws_region
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
 
 # AMI Ubuntu 22.04 LTS
@@ -47,18 +55,20 @@ resource "aws_security_group" "app_sg" {
   description = "SG EC2 app behind Cloudflare"
   vpc_id      = var.vpc_id
 
-  # IPv4 HTTP/HTTPS Cloudflare
+  # IPv4 HTTP Cloudflare
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.cloudflare_ipv4
   }
+
+  # IPv6 HTTP Cloudflare
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    ipv6_cidr_blocks = local.cloudflare_ipv6
   }
 
   # Sortie
@@ -154,19 +164,10 @@ resource "aws_instance" "app" {
                     - "--providers.docker=true"
                     - "--providers.docker.exposedbydefault=false"
                     - "--entrypoints.web.address=:80"
-                    - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-                    - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-                    - "--entrypoints.websecure.address=:443"
-                    - "--certificatesresolvers.le.acme.httpchallenge=true"
-                    - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
-                    - "--certificatesresolvers.le.acme.email=admin@${var.domain_name}"
-                    - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
                   ports:
                     - "80:80"
-                    - "443:443"
                   volumes:
                     - /var/run/docker.sock:/var/run/docker.sock:ro
-                    - ./letsencrypt:/letsencrypt
                   networks:
                     - public
                   restart: always
@@ -176,8 +177,7 @@ resource "aws_instance" "app" {
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.front.rule=Host(\`www.${var.domain_name}\`)"
-                    - "traefik.http.routers.front.entrypoints=websecure"
-                    - "traefik.http.routers.front.tls.certresolver=le"
+                    - "traefik.http.routers.front.entrypoints=web"
                     - "traefik.http.services.front.loadbalancer.server.port=3000"
                   networks:
                     - public
@@ -188,8 +188,7 @@ resource "aws_instance" "app" {
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.back.rule=Host(\`api.${var.domain_name}\`)"
-                    - "traefik.http.routers.back.entrypoints=websecure"
-                    - "traefik.http.routers.back.tls.certresolver=le"
+                    - "traefik.http.routers.back.entrypoints=web"
                     - "traefik.http.services.back.loadbalancer.server.port=8080"
                   environment:
                     - DB_HOST=bdd
@@ -207,8 +206,7 @@ resource "aws_instance" "app" {
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.authent.rule=Host(\`authent.${var.domain_name}\`)"
-                    - "traefik.http.routers.authent.entrypoints=websecure"
-                    - "traefik.http.routers.authent.tls.certresolver=le"
+                    - "traefik.http.routers.authent.entrypoints=web"
                     - "traefik.http.services.authent.loadbalancer.server.port=8180"
                   environment:
                     - KC_HOSTNAME=https://authent.${var.domain_name}
@@ -241,8 +239,7 @@ resource "aws_instance" "app" {
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.grafana.rule=Host(\`grafana.${var.domain_name}\`)"
-                    - "traefik.http.routers.grafana.entrypoints=websecure"
-                    - "traefik.http.routers.grafana.tls.certresolver=le"
+                    - "traefik.http.routers.grafana.entrypoints=web"
                     - "traefik.http.services.grafana.loadbalancer.server.port=3001"
                   networks:
                     - public
@@ -263,4 +260,60 @@ resource "aws_instance" "app" {
 output "elastic_ip" {
   description = "Elastic IP of the EC2 instance"
   value       = aws_eip.app.public_ip
+}
+
+# --- Cloudflare DNS ---
+
+data "cloudflare_zone" "main" {
+  name = var.domain_name
+}
+
+resource "cloudflare_record" "apex" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "@"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = true
+}
+
+resource "cloudflare_record" "www" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "www"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = true
+}
+
+resource "cloudflare_record" "api" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "api"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = true
+}
+
+resource "cloudflare_record" "authent" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "authent"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = true
+}
+
+resource "cloudflare_record" "grafana" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "grafana"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = true
+}
+
+resource "cloudflare_zone_settings_override" "ssl" {
+  zone_id = data.cloudflare_zone.main.id
+
+  settings {
+    ssl                      = "flexible"
+    always_use_https         = "on"
+    automatic_https_rewrites = "on"
+  }
 }
