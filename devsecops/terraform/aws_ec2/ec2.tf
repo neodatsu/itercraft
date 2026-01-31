@@ -164,6 +164,7 @@ resource "aws_instance" "app" {
                     - "--providers.docker=true"
                     - "--providers.docker.exposedbydefault=false"
                     - "--entrypoints.web.address=:80"
+                    - "--entrypoints.web.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22"
                   ports:
                     - "80:80"
                   volumes:
@@ -178,6 +179,7 @@ resource "aws_instance" "app" {
                     - "traefik.enable=true"
                     - "traefik.http.routers.front.rule=Host(\`www.${var.domain_name}\`)"
                     - "traefik.http.routers.front.entrypoints=web"
+                    - "traefik.http.routers.front.middlewares=https-proto"
                     - "traefik.http.services.front.loadbalancer.server.port=3000"
                   networks:
                     - public
@@ -189,6 +191,7 @@ resource "aws_instance" "app" {
                     - "traefik.enable=true"
                     - "traefik.http.routers.back.rule=Host(\`api.${var.domain_name}\`)"
                     - "traefik.http.routers.back.entrypoints=web"
+                    - "traefik.http.routers.back.middlewares=https-proto"
                     - "traefik.http.services.back.loadbalancer.server.port=8080"
                   environment:
                     - DB_HOST=bdd
@@ -207,12 +210,15 @@ resource "aws_instance" "app" {
                     - "traefik.enable=true"
                     - "traefik.http.routers.authent.rule=Host(\`authent.${var.domain_name}\`)"
                     - "traefik.http.routers.authent.entrypoints=web"
+                    - "traefik.http.routers.authent.middlewares=https-proto"
+                    - "traefik.http.middlewares.https-proto.headers.customrequestheaders.X-Forwarded-Proto=https"
                     - "traefik.http.services.authent.loadbalancer.server.port=8180"
                   environment:
                     - KC_HOSTNAME=https://authent.${var.domain_name}
                     - KC_PROXY_HEADERS=xforwarded
                     - KC_HTTP_ENABLED=true
                     - KC_HOSTNAME_STRICT=false
+                    - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
                   networks:
                     - public
                     - internal
@@ -240,6 +246,7 @@ resource "aws_instance" "app" {
                     - "traefik.enable=true"
                     - "traefik.http.routers.grafana.rule=Host(\`grafana.${var.domain_name}\`)"
                     - "traefik.http.routers.grafana.entrypoints=web"
+                    - "traefik.http.routers.grafana.middlewares=https-proto"
                     - "traefik.http.services.grafana.loadbalancer.server.port=3001"
                   networks:
                     - public
