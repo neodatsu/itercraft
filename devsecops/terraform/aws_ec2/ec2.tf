@@ -52,27 +52,13 @@ resource "aws_security_group" "app_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = local.cloudflare_ipv4
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = local.cloudflare_ipv4
-  }
-
-  # IPv6 HTTP/HTTPS Cloudflare
-  ingress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    ipv6_cidr_blocks = local.cloudflare_ipv6
-  }
-  ingress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    ipv6_cidr_blocks = local.cloudflare_ipv6
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Sortie
@@ -192,6 +178,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.front.rule=Host(\`www.${var.domain_name}\`)"
                     - "traefik.http.routers.front.entrypoints=websecure"
                     - "traefik.http.routers.front.tls.certresolver=le"
+                    - "traefik.http.services.front.loadbalancer.server.port=3000"
                   networks:
                     - public
                   restart: always
@@ -203,6 +190,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.back.rule=Host(\`api.${var.domain_name}\`)"
                     - "traefik.http.routers.back.entrypoints=websecure"
                     - "traefik.http.routers.back.tls.certresolver=le"
+                    - "traefik.http.services.back.loadbalancer.server.port=8080"
                   environment:
                     - DB_HOST=bdd
                     - DB_PASSWORD=${var.db_password}
@@ -221,9 +209,12 @@ resource "aws_instance" "app" {
                     - "traefik.http.routers.authent.rule=Host(\`authent.${var.domain_name}\`)"
                     - "traefik.http.routers.authent.entrypoints=websecure"
                     - "traefik.http.routers.authent.tls.certresolver=le"
+                    - "traefik.http.services.authent.loadbalancer.server.port=8180"
                   environment:
-                    - KC_HOSTNAME=authent.${var.domain_name}
-                    - KC_HOSTNAME_PORT=-1
+                    - KC_HOSTNAME=https://authent.${var.domain_name}
+                    - KC_PROXY_HEADERS=xforwarded
+                    - KC_HTTP_ENABLED=true
+                    - KC_HOSTNAME_STRICT=false
                   networks:
                     - public
                     - internal

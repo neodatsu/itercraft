@@ -18,6 +18,7 @@ jobs:
     env:
       AWS_REGION: eu-west-1
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      DOMAIN_NAME: itercraft.com
 
     steps:
       - uses: actions/checkout@v4
@@ -40,9 +41,18 @@ jobs:
           ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           TAG=${{ steps.version.outputs.TAG }}
 
+          # Front (with build args for production URLs)
+          docker build -f devsecops/docker/Dockerfile.front \
+            --build-arg VITE_KEYCLOAK_URL=https://authent.$DOMAIN_NAME \
+            --build-arg VITE_KEYCLOAK_REALM=itercraft \
+            --build-arg VITE_API_URL=https://api.$DOMAIN_NAME \
+            -t "$ECR/itercraft_front:$TAG" -t "$ECR/itercraft_front:latest" .
+          docker push "$ECR/itercraft_front:$TAG"
+          docker push "$ECR/itercraft_front:latest"
+
+          # Other images (no build args needed)
           images=(
             "itercraft_api:devsecops/docker/Dockerfile"
-            "itercraft_front:devsecops/docker/Dockerfile.front"
             "itercraft_authent:devsecops/docker/Dockerfile.keycloak"
             "itercraft_bdd:devsecops/docker/Dockerfile.postgres"
             "itercraft_prometheus:devsecops/docker/Dockerfile.prometheus"
