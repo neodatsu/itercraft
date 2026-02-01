@@ -11,6 +11,7 @@ import com.itercraft.api.domain.subscription.SubscriptionRepository;
 import com.itercraft.api.infrastructure.web.dto.ServiceDto;
 import com.itercraft.api.infrastructure.web.dto.UsageDto;
 import com.itercraft.api.infrastructure.web.dto.UserSubscriptionDto;
+import com.itercraft.api.infrastructure.sse.SseService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -24,15 +25,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final ServiceRepository serviceRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final ServiceUsageRepository serviceUsageRepository;
+    private final SseService sseService;
+    private static final String SSE_EVENT_TYPE = "subscription-change";
 
     public SubscriptionServiceImpl(AppUserRepository appUserRepository,
                                    ServiceRepository serviceRepository,
                                    SubscriptionRepository subscriptionRepository,
-                                   ServiceUsageRepository serviceUsageRepository) {
+                                   ServiceUsageRepository serviceUsageRepository,
+                                   SseService sseService) {
         this.appUserRepository = appUserRepository;
         this.serviceRepository = serviceRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.serviceUsageRepository = serviceUsageRepository;
+        this.sseService = sseService;
     }
 
     @Override
@@ -43,6 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new IllegalStateException("Already subscribed to service: " + serviceCode);
         }
         subscriptionRepository.save(new Subscription(user, service));
+        sseService.broadcast(SSE_EVENT_TYPE);
     }
 
     @Override
@@ -50,12 +56,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         AppUser user = findUser(keycloakSub);
         ServiceEntity service = findService(serviceCode);
         subscriptionRepository.deleteByUserAndService(user, service);
+        sseService.broadcast(SSE_EVENT_TYPE);
     }
 
     @Override
     public void addUsage(String keycloakSub, String serviceCode) {
         Subscription subscription = findSubscription(keycloakSub, serviceCode);
         serviceUsageRepository.save(new ServiceUsage(subscription));
+        sseService.broadcast(SSE_EVENT_TYPE);
     }
 
     @Override
@@ -67,6 +75,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new IllegalStateException("Usage does not belong to this subscription");
         }
         serviceUsageRepository.delete(usage);
+        sseService.broadcast(SSE_EVENT_TYPE);
     }
 
     @Override

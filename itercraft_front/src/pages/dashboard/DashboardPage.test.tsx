@@ -2,6 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DashboardPage } from './DashboardPage';
 
+class MockEventSource {
+  onmessage: ((event: MessageEvent) => void) | null = null;
+  close = vi.fn();
+  addEventListener = vi.fn();
+}
+vi.stubGlobal('EventSource', MockEventSource);
+
 vi.mock('../../auth/AuthProvider', () => ({
   useAuth: vi.fn(),
 }));

@@ -8,6 +8,7 @@ import com.itercraft.api.domain.subscription.ServiceUsage;
 import com.itercraft.api.domain.subscription.ServiceUsageRepository;
 import com.itercraft.api.domain.subscription.Subscription;
 import com.itercraft.api.domain.subscription.SubscriptionRepository;
+import com.itercraft.api.infrastructure.sse.SseService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,6 +30,7 @@ class SubscriptionServiceImplTest {
     @Mock private ServiceRepository serviceRepository;
     @Mock private SubscriptionRepository subscriptionRepository;
     @Mock private ServiceUsageRepository serviceUsageRepository;
+    @Mock private SseService sseService;
 
     @InjectMocks
     private SubscriptionServiceImpl subscriptionService;
@@ -48,6 +50,7 @@ class SubscriptionServiceImplTest {
         subscriptionService.subscribe(SUB, SERVICE_CODE);
 
         verify(subscriptionRepository).save(any(Subscription.class));
+        verify(sseService).broadcast("subscription-change");
     }
 
     @Test
@@ -73,6 +76,7 @@ class SubscriptionServiceImplTest {
         subscriptionService.unsubscribe(SUB, SERVICE_CODE);
 
         verify(subscriptionRepository).deleteByUserAndService(user, service);
+        verify(sseService).broadcast("subscription-change");
     }
 
     @Test
@@ -88,6 +92,7 @@ class SubscriptionServiceImplTest {
         subscriptionService.addUsage(SUB, SERVICE_CODE);
 
         verify(serviceUsageRepository).save(any(ServiceUsage.class));
+        verify(sseService).broadcast("subscription-change");
     }
 
     @Test
@@ -104,6 +109,7 @@ class SubscriptionServiceImplTest {
         subscriptionService.removeUsage(SUB, SERVICE_CODE, usage.getId());
 
         verify(serviceUsageRepository).delete(usage);
+        verify(sseService).broadcast("subscription-change");
     }
 
     @Test

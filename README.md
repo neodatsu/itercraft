@@ -47,6 +47,7 @@ graph TB
         FRONT -.-|/healthcheck| FRONT
         FRONT -->|auth| KC
         FRONT -->|API + CSRF| API
+        FRONT -->|SSE /api/events| API
         API -->|token introspection| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
@@ -120,6 +121,7 @@ itercraft/
 | Accessibility  | Lighthouse CI (score ≥ 90 en CI)                             |
 | Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)            |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)        |
+| Real-time      | Server-Sent Events (SSE, SseEmitter)                         |
 | Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator        |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                            |
 | Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM), Cloudflare         |
@@ -251,6 +253,7 @@ Seul secret GitHub requis : `AWS_ACCOUNT_ID`.
 | `GET`    | `/healthcheck`                            | Public        | Health status              |
 | `GET`    | `/actuator/health`                        | Public        | Actuator health            |
 | `GET`    | `/actuator/prometheus`                    | Public        | Prometheus metrics         |
+| `GET`    | `/api/events`                             | Public        | SSE stream (real-time)     |
 | `GET`    | `/api/subscriptions`                      | Bearer        | User subscriptions + usage |
 | `GET`    | `/api/services`                           | Bearer        | All available services     |
 | `POST`   | `/api/subscriptions/{serviceCode}`        | Bearer + CSRF | Subscribe to a service     |

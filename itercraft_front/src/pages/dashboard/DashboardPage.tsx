@@ -111,6 +111,13 @@ export function DashboardPage() {
     refresh().finally(() => setLoading(false));
   }, [refresh]);
 
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL as string;
+    const es = new EventSource(`${apiUrl}/api/events`);
+    es.addEventListener('subscription-change', () => { refresh(); });
+    return () => es.close();
+  }, [refresh]);
+
   const availableServices = services.filter(
     s => !subscriptions.some(sub => sub.serviceCode === s.code)
   );
