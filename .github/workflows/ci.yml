@@ -14,6 +14,8 @@ jobs:
     name: Backend (itercraft_api)
     runs-on: ubuntu-latest
     environment: itercraft
+    outputs:
+      coverage: ${{ steps.coverage.outputs.coverage }}
 
     defaults:
       run:
@@ -33,6 +35,23 @@ jobs:
 
       - name: Build and test
         run: mvn clean verify --batch-mode
+
+      - name: Extract coverage
+        id: coverage
+        if: always()
+        run: |
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            MISSED=$(grep -oP 'type="INSTRUCTION" missed="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ | bc)
+            COVERED=$(grep -oP 'type="INSTRUCTION"[^/]*covered="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ | bc)
+            TOTAL=$((MISSED + COVERED))
+            if [ "$TOTAL" -gt 0 ]; then
+              echo "coverage=$((COVERED * 100 / TOTAL))%" >> "$GITHUB_OUTPUT"
+            else
+              echo "coverage=N/A" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "coverage=N/A" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload test results
         if: failure()
@@ -56,6 +75,8 @@ jobs:
     name: Dependency Check (itercraft_api)
     runs-on: ubuntu-latest
     environment: itercraft
+    outputs:
+      summary: ${{ steps.cves.outputs.summary }}
 
     defaults:
       run:
@@ -72,7 +93,19 @@ jobs:
           cache: maven
 
       - name: OWASP Dependency Check
-        run: mvn dependency-check:check --batch-mode -DnvdApiKey=${{ secrets.NVD_API_KEY }} -DossindexAnalyzerEnabled=false
+        run: mvn dependency-check:check --batch-mode -DnvdApiKey=${{ secrets.NVD_API_KEY }} -DossindexAnalyzerEnabled=false -DformatsRequested=HTML,JSON
+
+      - name: Summarize CVEs
+        id: cves
+        if: always()
+        run: |
+          REPORT="target/dependency-check-report.json"
+          if [ -f "$REPORT" ]; then
+            HIGH=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.cvssv3?.baseScore >= 7)] | length' "$REPORT")
+            echo "summary=${HIGH} CVE(s) ≥ 7.0" >> "$GITHUB_OUTPUT"
+          else
+            echo "summary=N/A" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload Dependency Check report
         if: always()
@@ -117,6 +150,8 @@ jobs:
     name: Lighthouse Accessibility
     runs-on: ubuntu-latest
     needs: [frontend]
+    outputs:
+      accessibility: ${{ steps.scores.outputs.accessibility }}
 
     defaults:
       run:
@@ -139,16 +174,31 @@ jobs:
         run: npm run build
 
       - name: Run Lighthouse CI
+        id: lhci
         uses: treosh/lighthouse-ci-action@v12
         with:
           uploadArtifacts: true
           configPath: itercraft_front/lighthouserc.json
+
+      - name: Extract scores
+        id: scores
+        if: always()
+        run: |
+          RESULT=$(find /tmp -name "lhr-*.json" 2>/dev/null | head -1)
+          if [ -n "$RESULT" ]; then
+            A11Y=$(jq '.categories.accessibility.score * 100' "$RESULT")
+            echo "accessibility=${A11Y}%" >> "$GITHUB_OUTPUT"
+          else
+            echo "accessibility=N/A" >> "$GITHUB_OUTPUT"
+          fi
 
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
     environment: itercraft
     needs: [backend, frontend]
+    outputs:
+      dashboard_url: ${{ steps.sonar_url.outputs.dashboard_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -196,3 +246,49 @@ jobs:
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/target/**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud URL
+        id: sonar_url
+        run: echo "dashboard_url=https://sonarcloud.io/dashboard?id=neodatsu_itercraft" >> "$GITHUB_OUTPUT"
+
+  slack-notify:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, dependency-check, lighthouse, sonarcloud]
+    if: always()
+    environment: itercraft
+    steps:
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "CI Itercraft — ${{ github.ref_name }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Backend:* ${{ needs.backend.result == 'success' && '✅' || '❌' }} ${{ needs.backend.result }}" },
+                    { "type": "mrkdwn", "text": "*Frontend:* ${{ needs.frontend.result == 'success' && '✅' || '❌' }} ${{ needs.frontend.result }}" },
+                    { "type": "mrkdwn", "text": "*OWASP:* ${{ needs.dependency-check.result == 'success' && '✅' || '⚠️' }} ${{ needs.dependency-check.outputs.summary }}" },
+                    { "type": "mrkdwn", "text": "*Lighthouse:* ${{ needs.lighthouse.outputs.accessibility }}" },
+                    { "type": "mrkdwn", "text": "*SonarCloud:* <${{ needs.sonarcloud.outputs.dashboard_url }}|Dashboard>" },
+                    { "type": "mrkdwn", "text": "*Coverage:* ${{ needs.backend.outputs.coverage }}" }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    { "type": "mrkdwn", "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le workflow>" }
+                  ]
+                }
+              ]
+            }
