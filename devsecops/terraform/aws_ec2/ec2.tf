@@ -187,6 +187,9 @@ resource "aws_instance" "app" {
 
                 back:
                   image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_api:latest
+                  depends_on:
+                    bdd:
+                      condition: service_healthy
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.back.rule=Host(\`api.${var.domain_name}\`)"
@@ -230,6 +233,11 @@ resource "aws_instance" "app" {
                   image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_bdd:latest
                   environment:
                     - POSTGRES_PASSWORD=${var.db_password}
+                  healthcheck:
+                    test: ["CMD-SHELL", "pg_isready"]
+                    interval: 5s
+                    timeout: 3s
+                    retries: 5
                   volumes:
                     - pgdata:/var/lib/postgresql/data
                   networks:
