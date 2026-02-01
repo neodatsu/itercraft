@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import './Breadcrumb.css';
 
 const labels: Record<string, string> = {
-  '/': 'Home',
-  '/dashboard': 'Dashboard',
+  '/': 'Accueil',
+  '/dashboard': 'Tableau de bord',
   '/cookies': 'Politique de cookies',
   '/mentions-legales': 'Mentions légales',
   '/confidentialite': 'Confidentialité',
@@ -15,7 +15,7 @@ export function Breadcrumb() {
   if (pathname === '/') return null;
 
   const segments = pathname.split('/').filter(Boolean);
-  const crumbs = [{ path: '/', label: 'Home' }];
+  const crumbs = [{ path: '/', label: 'Accueil' }];
 
   let current = '';
   for (const seg of segments) {

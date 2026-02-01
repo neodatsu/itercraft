@@ -7,8 +7,8 @@ describe('HealthCheckPage', () => {
     expect(screen.getByText('UP')).toBeInTheDocument();
   });
 
-  it('renders Health Check title', () => {
+  it('renders title', () => {
     render(<HealthCheckPage />);
-    expect(screen.getByText('Health Check')).toBeInTheDocument();
+    expect(screen.getByText('État de santé')).toBeInTheDocument();
   });
 });

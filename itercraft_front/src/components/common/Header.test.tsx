@@ -12,7 +12,7 @@ import { useAuth } from '../../auth/AuthProvider';
 const mockUseAuth = vi.mocked(useAuth);
 
 describe('Header', () => {
-  it('renders Logout button when authenticated', () => {
+  it('renders Déconnexion button when authenticated', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { logout: vi.fn() } as never,
       authenticated: true,
@@ -20,11 +20,11 @@ describe('Header', () => {
       ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
-    expect(screen.getByText('Logout')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Déconnexion')).toBeInTheDocument();
+    expect(screen.getByText('Tableau de bord')).toBeInTheDocument();
   });
 
-  it('renders Login button when not authenticated', () => {
+  it('renders Connexion button when not authenticated', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { login: vi.fn() } as never,
       authenticated: false,
@@ -32,10 +32,10 @@ describe('Header', () => {
       ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByText('Connexion')).toBeInTheDocument();
   });
 
-  it('calls keycloak.logout on Logout click', async () => {
+  it('calls keycloak.logout on Déconnexion click', async () => {
     const logout = vi.fn();
     mockUseAuth.mockReturnValue({
       keycloak: { logout } as never,
@@ -44,11 +44,11 @@ describe('Header', () => {
       ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
-    await userEvent.click(screen.getByText('Logout'));
+    await userEvent.click(screen.getByText('Déconnexion'));
     expect(logout).toHaveBeenCalled();
   });
 
-  it('Login link points to /dashboard', () => {
+  it('Connexion link points to /dashboard', () => {
     mockUseAuth.mockReturnValue({
       keycloak: {} as never,
       authenticated: false,
@@ -56,6 +56,6 @@ describe('Header', () => {
       ensureInit: vi.fn().mockResolvedValue(true),
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
-    expect(screen.getByText('Login').closest('a')).toHaveAttribute('href', '/dashboard');
+    expect(screen.getByText('Connexion').closest('a')).toHaveAttribute('href', '/dashboard');
   });
 });

@@ -9,15 +9,15 @@ describe('HomePage', () => {
 
   it('renders philosophy section', () => {
     render(<HomePage />);
-    expect(screen.getByText(/Philosophy/)).toBeInTheDocument();
+    expect(screen.getByText(/Philosophie/)).toBeInTheDocument();
   });
 
   it('renders principles cards', () => {
     render(<HomePage />);
     expect(screen.getByText(/Software Craftsmanship/)).toBeInTheDocument();
     expect(screen.getByText(/Infrastructure as Code/)).toBeInTheDocument();
-    expect(screen.getByText(/CI\/CD Pipeline/)).toBeInTheDocument();
-    expect(screen.getByText(/Security by Design/)).toBeInTheDocument();
+    expect(screen.getByText(/Pipeline CI\/CD/)).toBeInTheDocument();
+    expect(screen.getByText(/Sécurité by Design/)).toBeInTheDocument();
   });
 
   it('renders tech stack section', () => {

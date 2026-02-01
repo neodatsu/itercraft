@@ -58,10 +58,10 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText('testuser')).toBeInTheDocument();
     });
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Tableau de bord')).toBeInTheDocument();
   });
 
-  it('renders fallback "User" when no token info', async () => {
+  it('renders fallback "Utilisateur" when no token info', async () => {
     mockUseAuth.mockReturnValue({
       keycloak: { token: 'fake-token', tokenParsed: {} } as never,
       authenticated: true,
@@ -70,14 +70,14 @@ describe('DashboardPage', () => {
     });
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('User')).toBeInTheDocument();
+      expect(screen.getByText('Utilisateur')).toBeInTheDocument();
     });
   });
 
   it('shows empty message when no subscriptions', async () => {
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('No subscriptions yet.')).toBeInTheDocument();
+      expect(screen.getByText('Aucun abonnement pour le moment.')).toBeInTheDocument();
     });
   });
 
@@ -114,12 +114,12 @@ describe('DashboardPage', () => {
     });
 
     await user.selectOptions(screen.getByRole('combobox'), 'piscine');
-    await user.click(screen.getByText('Subscribe'));
+    await user.click(screen.getByText("S'abonner"));
 
     expect(mockSubscribe).toHaveBeenCalledWith('fake-token', 'piscine');
   });
 
-  it('calls unsubscribe when clicking Unsubscribe', async () => {
+  it('calls unsubscribe when clicking Se désabonner', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 0 },
     ]);
@@ -131,7 +131,7 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByText('Unsubscribe'));
+    await user.click(screen.getByText('Se désabonner'));
     expect(mockUnsubscribe).toHaveBeenCalledWith('fake-token', 'tondeuse');
   });
 
@@ -151,7 +151,7 @@ describe('DashboardPage', () => {
     expect(mockAddUsage).toHaveBeenCalledWith('fake-token', 'tondeuse');
   });
 
-  it('calls removeUsage with usage id when clicking Delete on a usage row', async () => {
+  it('calls removeUsage with usage id when clicking Supprimer on a usage row', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 1 },
     ]);
@@ -166,10 +166,10 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
     await waitFor(() => {
-      expect(screen.getByText('Delete')).toBeInTheDocument();
+      expect(screen.getByText('Supprimer')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByText('Delete'));
+    await user.click(screen.getByText('Supprimer'));
     expect(mockRemoveUsage).toHaveBeenCalledWith('fake-token', 'tondeuse', 'usage-123');
   });
 
