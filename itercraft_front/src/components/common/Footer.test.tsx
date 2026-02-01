@@ -9,9 +9,10 @@ describe('Footer', () => {
     expect(screen.getByText(new RegExp(`${year}.*Itercraft`))).toBeInTheDocument();
   });
 
-  it('renders cookie policy link', () => {
+  it('renders legal links', () => {
     render(<Footer />, { wrapper: MemoryRouter });
-    const link = screen.getByRole('link', { name: /politique de cookies/i });
-    expect(link).toHaveAttribute('href', '/cookies');
+    expect(screen.getByRole('link', { name: /mentions légales/i })).toHaveAttribute('href', '/mentions-legales');
+    expect(screen.getByRole('link', { name: /confidentialité/i })).toHaveAttribute('href', '/confidentialite');
+    expect(screen.getByRole('link', { name: /cookies/i })).toHaveAttribute('href', '/cookies');
   });
 });

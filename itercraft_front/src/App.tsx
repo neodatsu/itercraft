@@ -7,6 +7,8 @@ import { HomePage } from './pages/home/HomePage';
 import { HealthCheckPage } from './pages/healthcheck/HealthCheckPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { CookiePolicyPage } from './pages/cookies/CookiePolicyPage';
+import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
+import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
 import { CookieConsent } from './components/common/CookieConsent';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
@@ -28,6 +30,8 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/cookies" element={<CookiePolicyPage />} />
+                <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+                <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
               </Routes>
             </main>
             <Footer />
