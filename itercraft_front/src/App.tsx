@@ -11,6 +11,7 @@ import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
 import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
 import { CookieConsent } from './components/common/CookieConsent';
 import { ArchitecturePage } from './pages/architecture/ArchitecturePage';
+import { SseDiagramsPage } from './pages/sse/SseDiagramsPage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
                 <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
                 <Route path="/architecture" element={<ArchitecturePage />} />
+                <Route path="/sse" element={<SseDiagramsPage />} />
               </Routes>
             </main>
             <Footer />

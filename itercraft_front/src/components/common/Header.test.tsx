@@ -34,6 +34,8 @@ describe('Header', () => {
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Architecture')).toBeInTheDocument();
     expect(screen.getByText('Architecture').closest('a')).toHaveAttribute('href', '/architecture');
+    expect(screen.getByText('SSE')).toBeInTheDocument();
+    expect(screen.getByText('SSE').closest('a')).toHaveAttribute('href', '/sse');
   });
 
   it('renders Connexion button when not authenticated', () => {

@@ -8,6 +8,7 @@ const labels: Record<string, string> = {
   '/mentions-legales': 'Mentions légales',
   '/confidentialite': 'Confidentialité',
   '/architecture': 'Architecture',
+  '/sse': 'Server-Sent Events',
 };
 
 export function Breadcrumb() {
