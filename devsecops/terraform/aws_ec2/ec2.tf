@@ -234,7 +234,7 @@ resource "aws_instance" "app" {
                   environment:
                     - POSTGRES_PASSWORD=${var.db_password}
                   healthcheck:
-                    test: ["CMD-SHELL", "pg_isready"]
+                    test: ["CMD-SHELL", "pg_isready -U itercraft"]
                     interval: 5s
                     timeout: 3s
                     retries: 5
