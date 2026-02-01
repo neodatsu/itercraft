@@ -9,9 +9,11 @@ import com.itercraft.api.domain.subscription.ServiceUsageRepository;
 import com.itercraft.api.domain.subscription.Subscription;
 import com.itercraft.api.domain.subscription.SubscriptionRepository;
 import com.itercraft.api.infrastructure.web.dto.ServiceDto;
+import com.itercraft.api.infrastructure.web.dto.UsageDto;
 import com.itercraft.api.infrastructure.web.dto.UserSubscriptionDto;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,11 +59,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public void removeUsage(String keycloakSub, String serviceCode) {
+    public void removeUsage(String keycloakSub, String serviceCode, UUID usageId) {
         Subscription subscription = findSubscription(keycloakSub, serviceCode);
-        ServiceUsage usage = serviceUsageRepository
-                .findFirstBySubscriptionOrderByUsedAtDesc(subscription)
-                .orElseThrow(() -> new IllegalStateException("No usage to remove for service: " + serviceCode));
+        ServiceUsage usage = serviceUsageRepository.findById(usageId)
+                .orElseThrow(() -> new IllegalStateException("Usage not found: " + usageId));
+        if (!usage.getSubscription().getId().equals(subscription.getId())) {
+            throw new IllegalStateException("Usage does not belong to this subscription");
+        }
         serviceUsageRepository.delete(usage);
     }
 
@@ -75,6 +79,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                                 serviceUsageRepository.countBySubscription(sub)))
                         .toList())
                 .orElse(List.of());
+    }
+
+    @Override
+    public List<UsageDto> getUsageHistory(String keycloakSub, String serviceCode) {
+        Subscription subscription = findSubscription(keycloakSub, serviceCode);
+        return serviceUsageRepository.findBySubscriptionOrderByUsedAtDesc(subscription).stream()
+                .map(usage -> new UsageDto(usage.getId(), usage.getUsedAt()))
+                .toList();
     }
 
     @Override

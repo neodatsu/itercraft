@@ -152,3 +152,69 @@
   outline: none;
   border-color: #818cf8;
 }
+
+/* Service header */
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.service-header h2 {
+  margin-bottom: 0;
+}
+
+/* Usage detail */
+.usage-detail {
+  margin-top: 0.5rem;
+}
+
+.usage-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  color: #b0b0c8;
+}
+
+.usage-filter select {
+  padding: 0.3rem 0.6rem;
+  background: #1f2040;
+  border: 1px solid #2a2b50;
+  border-radius: 4px;
+  color: #e0e0f0;
+  font-size: 0.85rem;
+}
+
+.usage-filter select:focus {
+  outline: none;
+  border-color: #818cf8;
+}
+
+.usage-count-label {
+  color: #8080a0;
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.usage-table {
+  font-size: 0.9rem;
+}
+
+.usage-index {
+  color: #8080a0;
+  width: 50px;
+}
+
+.usage-actions {
+  text-align: right;
+  width: 80px;
+}
+
+.usage-loading {
+  color: #8080a0;
+  font-style: italic;
+  font-size: 0.9rem;
+}

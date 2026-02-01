@@ -91,7 +91,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void removeUsage_shouldDeleteLatestUsage() {
+    void removeUsage_shouldDeleteById() {
         AppUser user = new AppUser(SUB);
         ServiceEntity service = mockService();
         Subscription subscription = new Subscription(user, service);
@@ -99,26 +99,25 @@ class SubscriptionServiceImplTest {
         when(appUserRepository.findByKeycloakSub(SUB)).thenReturn(Optional.of(user));
         when(serviceRepository.findByCode(SERVICE_CODE)).thenReturn(Optional.of(service));
         when(subscriptionRepository.findByUserAndService(user, service)).thenReturn(Optional.of(subscription));
-        when(serviceUsageRepository.findFirstBySubscriptionOrderByUsedAtDesc(subscription))
-                .thenReturn(Optional.of(usage));
+        when(serviceUsageRepository.findById(usage.getId())).thenReturn(Optional.of(usage));
 
-        subscriptionService.removeUsage(SUB, SERVICE_CODE);
+        subscriptionService.removeUsage(SUB, SERVICE_CODE, usage.getId());
 
         verify(serviceUsageRepository).delete(usage);
     }
 
     @Test
-    void removeUsage_shouldThrowWhenNoUsage() {
+    void removeUsage_shouldThrowWhenUsageNotFound() {
         AppUser user = new AppUser(SUB);
         ServiceEntity service = mockService();
         Subscription subscription = new Subscription(user, service);
+        var fakeId = java.util.UUID.randomUUID();
         when(appUserRepository.findByKeycloakSub(SUB)).thenReturn(Optional.of(user));
         when(serviceRepository.findByCode(SERVICE_CODE)).thenReturn(Optional.of(service));
         when(subscriptionRepository.findByUserAndService(user, service)).thenReturn(Optional.of(subscription));
-        when(serviceUsageRepository.findFirstBySubscriptionOrderByUsedAtDesc(subscription))
-                .thenReturn(Optional.empty());
+        when(serviceUsageRepository.findById(fakeId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> subscriptionService.removeUsage(SUB, SERVICE_CODE))
+        assertThatThrownBy(() -> subscriptionService.removeUsage(SUB, SERVICE_CODE, fakeId))
                 .isInstanceOf(IllegalStateException.class);
     }
 

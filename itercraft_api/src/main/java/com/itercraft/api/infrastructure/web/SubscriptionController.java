@@ -2,8 +2,10 @@ package com.itercraft.api.infrastructure.web;
 
 import com.itercraft.api.application.subscription.SubscriptionService;
 import com.itercraft.api.infrastructure.web.dto.ServiceDto;
+import com.itercraft.api.infrastructure.web.dto.UsageDto;
 import com.itercraft.api.infrastructure.web.dto.UserSubscriptionDto;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -48,6 +50,12 @@ public class SubscriptionController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/subscriptions/{serviceCode}/usages")
+    public ResponseEntity<List<UsageDto>> getUsageHistory(@PathVariable String serviceCode,
+                                                          BearerTokenAuthentication token) {
+        return ResponseEntity.ok(subscriptionService.getUsageHistory(extractSub(token), serviceCode));
+    }
+
     @PostMapping("/subscriptions/{serviceCode}/usages")
     public ResponseEntity<Void> addUsage(@PathVariable String serviceCode,
                                          BearerTokenAuthentication token) {
@@ -55,10 +63,11 @@ public class SubscriptionController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/subscriptions/{serviceCode}/usages")
+    @DeleteMapping("/subscriptions/{serviceCode}/usages/{usageId}")
     public ResponseEntity<Void> removeUsage(@PathVariable String serviceCode,
+                                            @PathVariable UUID usageId,
                                             BearerTokenAuthentication token) {
-        subscriptionService.removeUsage(extractSub(token), serviceCode);
+        subscriptionService.removeUsage(extractSub(token), serviceCode, usageId);
         return ResponseEntity.noContent().build();
     }
 

@@ -9,6 +9,7 @@ vi.mock('../../auth/AuthProvider', () => ({
 vi.mock('../../api/subscriptionApi', () => ({
   getSubscriptions: vi.fn(),
   getServices: vi.fn(),
+  getUsageHistory: vi.fn(),
   subscribe: vi.fn(),
   unsubscribe: vi.fn(),
   addUsage: vi.fn(),
@@ -21,6 +22,7 @@ import * as api from '../../api/subscriptionApi';
 const mockUseAuth = vi.mocked(useAuth);
 const mockGetSubscriptions = vi.mocked(api.getSubscriptions);
 const mockGetServices = vi.mocked(api.getServices);
+const mockGetUsageHistory = vi.mocked(api.getUsageHistory);
 const mockSubscribe = vi.mocked(api.subscribe);
 const mockUnsubscribe = vi.mocked(api.unsubscribe);
 const mockAddUsage = vi.mocked(api.addUsage);
@@ -41,6 +43,7 @@ describe('DashboardPage', () => {
     setupAuth();
     mockGetSubscriptions.mockResolvedValue([]);
     mockGetServices.mockResolvedValue([]);
+    mockGetUsageHistory.mockResolvedValue([]);
   });
 
   it('renders username and dashboard title', async () => {
@@ -71,7 +74,7 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('renders subscriptions table', async () => {
+  it('renders subscription section with service label', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 3 },
     ]);
@@ -79,7 +82,6 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
-    expect(screen.getByText('3')).toBeInTheDocument();
   });
 
   it('shows available services to subscribe', async () => {
@@ -110,7 +112,7 @@ describe('DashboardPage', () => {
     expect(mockSubscribe).toHaveBeenCalledWith('fake-token', 'piscine');
   });
 
-  it('calls unsubscribe when removing a service', async () => {
+  it('calls unsubscribe when clicking Unsubscribe', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 0 },
     ]);
@@ -122,11 +124,11 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByText('Remove'));
+    await user.click(screen.getByText('Unsubscribe'));
     expect(mockUnsubscribe).toHaveBeenCalledWith('fake-token', 'tondeuse');
   });
 
-  it('calls addUsage when clicking +', async () => {
+  it('calls addUsage when clicking + Usage', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 1 },
     ]);
@@ -138,13 +140,16 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByText('+'));
+    await user.click(screen.getByText('+ Usage'));
     expect(mockAddUsage).toHaveBeenCalledWith('fake-token', 'tondeuse');
   });
 
-  it('calls removeUsage when clicking -', async () => {
+  it('calls removeUsage with usage id when clicking Delete on a usage row', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 2 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 1 },
+    ]);
+    mockGetUsageHistory.mockResolvedValue([
+      { id: 'usage-123', usedAt: '2026-01-15T10:30:00Z' },
     ]);
     mockRemoveUsage.mockResolvedValue(undefined);
     const user = userEvent.setup();
@@ -153,20 +158,28 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
+    await waitFor(() => {
+      expect(screen.getByText('Delete')).toBeInTheDocument();
+    });
 
-    await user.click(screen.getByText('-'));
-    expect(mockRemoveUsage).toHaveBeenCalledWith('fake-token', 'tondeuse');
+    await user.click(screen.getByText('Delete'));
+    expect(mockRemoveUsage).toHaveBeenCalledWith('fake-token', 'tondeuse', 'usage-123');
   });
 
-  it('disables - button when usageCount is 0', async () => {
+  it('renders usage history table with dates', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 0 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 2 },
+    ]);
+    mockGetUsageHistory.mockResolvedValue([
+      { id: 'u1', usedAt: '2026-01-15T10:30:00Z' },
+      { id: 'u2', usedAt: '2025-06-20T14:00:00Z' },
     ]);
     render(<DashboardPage />);
     await waitFor(() => {
       expect(screen.getByText('Tondeuse')).toBeInTheDocument();
     });
-
-    expect(screen.getByText('-')).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText('2 usages')).toBeInTheDocument();
+    });
   });
 });

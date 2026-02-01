@@ -25,6 +25,11 @@ export interface UserSubscription {
   usageCount: number;
 }
 
+export interface UsageRecord {
+  id: string;
+  usedAt: string;
+}
+
 export interface ServiceInfo {
   code: string;
   label: string;
@@ -46,6 +51,15 @@ export async function getServices(accessToken: string): Promise<ServiceInfo[]> {
     credentials: 'include',
   });
   if (!res.ok) throw new Error('Failed to fetch services');
+  return res.json();
+}
+
+export async function getUsageHistory(accessToken: string, serviceCode: string): Promise<UsageRecord[]> {
+  const res = await fetch(`${API_URL}/api/subscriptions/${serviceCode}/usages`, {
+    headers: authHeaders(accessToken),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to fetch usage history');
   return res.json();
 }
 
@@ -76,8 +90,8 @@ export async function addUsage(accessToken: string, serviceCode: string): Promis
   if (!res.ok) throw new Error('Failed to add usage');
 }
 
-export async function removeUsage(accessToken: string, serviceCode: string): Promise<void> {
-  const res = await fetch(`${API_URL}/api/subscriptions/${serviceCode}/usages`, {
+export async function removeUsage(accessToken: string, serviceCode: string, usageId: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/subscriptions/${serviceCode}/usages/${usageId}`, {
     method: 'DELETE',
     headers: mutationHeaders(accessToken),
     credentials: 'include',

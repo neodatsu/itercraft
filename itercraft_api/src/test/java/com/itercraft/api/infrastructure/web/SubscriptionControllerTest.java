@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,12 +72,13 @@ class SubscriptionControllerTest {
 
     @Test
     void removeUsage_shouldReturn204() throws Exception {
-        mockMvc.perform(delete("/api/subscriptions/tondeuse/usages")
+        UUID usageId = UUID.randomUUID();
+        mockMvc.perform(delete("/api/subscriptions/tondeuse/usages/" + usageId)
                         .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB)))
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(subscriptionService).removeUsage(SUB, "tondeuse");
+        verify(subscriptionService).removeUsage(SUB, "tondeuse", usageId);
     }
 
     @Test
