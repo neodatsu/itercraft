@@ -4,6 +4,7 @@ import './Breadcrumb.css';
 const labels: Record<string, string> = {
   '/': 'Home',
   '/dashboard': 'Dashboard',
+  '/cookies': 'Politique de cookies',
 };
 
 export function Breadcrumb() {

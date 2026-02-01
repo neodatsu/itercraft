@@ -1,0 +1,30 @@
+.cookie-consent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1f2040;
+  border-top: 1px solid #2a2b50;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 1000;
+  flex-wrap: wrap;
+}
+
+.cookie-consent p {
+  margin: 0;
+  color: #d0d0e8;
+  font-size: 0.95rem;
+}
+
+.cookie-consent a {
+  color: #818cf8;
+}
+
+.cookie-consent-buttons {
+  display: flex;
+  gap: 0.6rem;
+}

@@ -6,6 +6,8 @@ import { Footer } from './components/common/Footer';
 import { HomePage } from './pages/home/HomePage';
 import { HealthCheckPage } from './pages/healthcheck/HealthCheckPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
+import { CookiePolicyPage } from './pages/cookies/CookiePolicyPage';
+import { CookieConsent } from './components/common/CookieConsent';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
 function App() {
@@ -25,9 +27,11 @@ function App() {
                     <DashboardPage />
                   </ProtectedRoute>
                 } />
+                <Route path="/cookies" element={<CookiePolicyPage />} />
               </Routes>
             </main>
             <Footer />
+            <CookieConsent />
           </AuthProvider>
         } />
       </Routes>

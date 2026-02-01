@@ -1,0 +1,76 @@
+.cookie-policy {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.cookie-policy h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.cookie-policy .cookie-policy-intro {
+  color: #b0b0c8;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.cookie-policy h2 {
+  font-size: 1.3rem;
+  color: #e0e0f0;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.cookie-policy table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1f2040;
+  border: 1px solid #2a2b50;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.cookie-policy th,
+.cookie-policy td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+
+.cookie-policy thead {
+  background: #252650;
+}
+
+.cookie-policy th {
+  color: #b0b0c8;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cookie-policy tbody tr {
+  border-top: 1px solid #2a2b50;
+}
+
+.cookie-policy td {
+  color: #e0e0f0;
+  font-size: 0.9rem;
+}
+
+.cookie-policy code {
+  background: #252650;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.cookie-policy-legal {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a2b50;
+  color: #8080a0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
