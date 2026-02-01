@@ -145,18 +145,20 @@ export function DashboardPage() {
           <p className="dashboard-empty">No subscriptions yet.</p>
         </section>
       ) : (
-        subscriptions.map(sub => (
-          <section key={sub.serviceCode} className="dashboard-section">
-            <div className="service-header">
-              <h2>{sub.serviceLabel}</h2>
-              <div className="dashboard-actions">
-                <button className="btn btn-sm btn-primary" onClick={() => handleAddUsage(sub.serviceCode)}>+ Usage</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleUnsubscribe(sub.serviceCode)}>Unsubscribe</button>
+        <div className="services-grid">
+          {subscriptions.map(sub => (
+            <section key={sub.serviceCode} className="dashboard-section">
+              <div className="service-header">
+                <h2>{sub.serviceLabel}</h2>
+                <div className="dashboard-actions">
+                  <button className="btn btn-sm btn-primary" onClick={() => handleAddUsage(sub.serviceCode)}>+ Usage</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleUnsubscribe(sub.serviceCode)}>Unsubscribe</button>
+                </div>
               </div>
-            </div>
-            <UsageTable serviceCode={sub.serviceCode} token={token} refreshKey={refreshKey} onRefresh={refresh} />
-          </section>
-        ))
+              <UsageTable serviceCode={sub.serviceCode} token={token} refreshKey={refreshKey} onRefresh={refresh} />
+            </section>
+          ))}
+        </div>
       )}
 
       {availableServices.length > 0 && (
