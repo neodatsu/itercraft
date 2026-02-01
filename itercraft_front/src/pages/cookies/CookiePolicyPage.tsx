@@ -9,8 +9,8 @@ export function CookiePolicyPage() {
         et recommandations de la CNIL), nous vous informons de l'utilisation de cookies et
         technologies similaires sur l'ensemble de nos services. Les cookies listés ci-dessous sont
         strictement nécessaires au fonctionnement technique du site et ne requièrent pas de
-        consentement au titre de l'article 82 de la loi Informatique et Libertés. Aucun cookie de
-        traçage publicitaire ou analytique n'est utilisé.
+        consentement au titre de l'article 82 de la loi Informatique et Libertés. Les cookies de
+        mesure d'audience (Google Analytics) ne sont déposés qu'après acceptation de votre part.
       </p>
 
       <h2>Cookies du domaine www (application front-end)</h2>
@@ -29,6 +29,40 @@ export function CookiePolicyPage() {
             <td>Mémorisation du choix de l'utilisateur concernant les cookies (localStorage)</td>
             <td>Permanent</td>
             <td>Itercraft</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Cookies de mesure d'audience (Google Analytics)</h2>
+      <p className="cookie-policy-note">
+        Ces cookies ne sont déposés que si vous acceptez les cookies via le bandeau de consentement.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Cookie</th>
+            <th>Finalité</th>
+            <th>Durée</th>
+            <th>Responsable</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>_ga</code></td>
+            <td>Distinction des visiteurs uniques</td>
+            <td>2 ans</td>
+            <td>
+              Google —{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                Politique de confidentialité
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td><code>_ga_NMSXHLBJZK</code></td>
+            <td>Maintien de l'état de session</td>
+            <td>2 ans</td>
+            <td>Google</td>
           </tr>
         </tbody>
       </table>
@@ -106,9 +140,9 @@ export function CookiePolicyPage() {
           <strong>Responsable du traitement :</strong> Itercraft
         </p>
         <p>
-          <strong>Base légale :</strong> Intérêt légitime — les cookies listés ci-dessus sont
-          strictement nécessaires à la fourniture du service demandé par l'utilisateur (exemption de
+          <strong>Base légale :</strong> Intérêt légitime pour les cookies techniques (exemption de
           consentement au titre de l'article 82 de la loi Informatique et Libertés).
+          Consentement pour les cookies de mesure d'audience (Google Analytics).
         </p>
         <p>
           <strong>Vos droits :</strong> Vous pouvez à tout moment supprimer les cookies via les

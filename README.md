@@ -15,6 +15,7 @@ graph TB
         GH -->|coverage report| PR[Pull Request]
         GH -->|dependency check| OWASP[OWASP]
         GH -->|code quality| SONAR[SonarCloud]
+        GH -->|accessibility| LH[Lighthouse CI]
         GH -->|tag v*| ECR_PUSH[Push images to ECR]
     end
 
@@ -109,19 +110,21 @@ itercraft/
 
 ## Tech Stack
 
-| Layer          | Technology                                            |
-|----------------|-------------------------------------------------------|
-| Backend        | Java 25, Spring Boot 4.0.2, Spring Security           |
-| Frontend       | React, TypeScript, Vite                               |
-| Database       | PostgreSQL 17, Liquibase (schema migrations)          |
-| Build          | Maven, JaCoCo, npm, Vitest                            |
-| Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)     |
-| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection) |
-| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator |
-| Infrastructure | Terraform, Docker, Nginx, Traefik                     |
-| Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM), Cloudflare  |
-| CI/CD          | GitHub Actions                                        |
-| Region         | eu-west-1 (Ireland)                                   |
+| Layer          | Technology                                                   |
+|----------------|--------------------------------------------------------------|
+| Backend        | Java 25, Spring Boot 4.0.2, Spring Security                  |
+| Frontend       | React, TypeScript, Vite                                      |
+| Database       | PostgreSQL 17, Liquibase (schema migrations)                 |
+| Build          | Maven, JaCoCo, npm, Vitest                                   |
+| Analytics      | Google Analytics (GA4, après consentement uniquement)        |
+| Accessibility  | Lighthouse CI (score ≥ 90 en CI)                             |
+| Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)            |
+| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)        |
+| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator        |
+| Infrastructure | Terraform, Docker, Nginx, Traefik                            |
+| Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM), Cloudflare         |
+| CI/CD          | GitHub Actions                                               |
+| Region         | eu-west-1 (Ireland)                                          |
 
 ## Getting Started
 

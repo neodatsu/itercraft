@@ -66,6 +66,13 @@
   font-size: 0.85rem;
 }
 
+.cookie-policy-note {
+  color: #8080a0;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-bottom: 0.8rem;
+}
+
 .cookie-policy-legal {
   margin-top: 2.5rem;
   padding-top: 1.5rem;

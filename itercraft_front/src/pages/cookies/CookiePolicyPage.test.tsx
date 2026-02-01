@@ -17,4 +17,10 @@ describe('CookiePolicyPage', () => {
     render(<CookiePolicyPage />);
     expect(screen.getByText('XSRF-TOKEN')).toBeInTheDocument();
   });
+
+  it('lists Google Analytics cookies', () => {
+    render(<CookiePolicyPage />);
+    expect(screen.getByText('_ga')).toBeInTheDocument();
+    expect(screen.getByText('_ga_NMSXHLBJZK')).toBeInTheDocument();
+  });
 });
