@@ -203,6 +203,7 @@ resource "aws_instance" "app" {
                     - KEYCLOAK_URL=http://authent:8180
                     - KEYCLOAK_CLIENT_SECRET=${var.keycloak_client_secret}
                     - CORS_ORIGINS=https://www.${var.domain_name}
+                    - METEOFRANCE_API_TOKEN=${var.meteo_api_key}
                   networks:
                     - public
                     - internal

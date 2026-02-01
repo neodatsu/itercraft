@@ -1,0 +1,68 @@
+.meteo-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.meteo-container h1 {
+  margin-bottom: 1.5rem;
+}
+
+.meteo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.meteo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meteo-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.meteo-field input,
+.meteo-field select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.meteo-field input {
+  width: 120px;
+}
+
+.meteo-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.meteo-map {
+  text-align: center;
+}
+
+.meteo-map img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.meteo-loading {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+}
+
+.meteo-error {
+  color: #c0392b;
+  text-align: center;
+  padding: 1rem;
+}

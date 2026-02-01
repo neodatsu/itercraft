@@ -47,3 +47,9 @@ variable "cloudflare_api_token" {
   type        = string
   sensitive   = true
 }
+
+variable "meteo_api_key" {
+  description = "MeteoFrance API Key"
+  type        = string
+  sensitive   = true
+}

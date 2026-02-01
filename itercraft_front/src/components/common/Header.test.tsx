@@ -22,6 +22,8 @@ describe('Header', () => {
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Déconnexion')).toBeInTheDocument();
     expect(screen.getByText('Tableau de bord')).toBeInTheDocument();
+    expect(screen.getByText('Météo')).toBeInTheDocument();
+    expect(screen.getByText('Météo').closest('a')).toHaveAttribute('href', '/meteo');
   });
 
   it('renders Architecture link always', () => {
@@ -47,6 +49,7 @@ describe('Header', () => {
     });
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Connexion')).toBeInTheDocument();
+    expect(screen.queryByText('Météo')).not.toBeInTheDocument();
   });
 
   it('calls keycloak.logout on Déconnexion click', async () => {
