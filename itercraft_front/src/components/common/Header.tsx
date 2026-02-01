@@ -9,6 +9,7 @@ export function Header() {
     <header className="app-header">
       <Link to="/" className="app-header-logo">itercraft</Link>
       <nav className="app-header-nav">
+        <Link to="/architecture" className="app-header-link">Architecture</Link>
         {authenticated ? (
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>

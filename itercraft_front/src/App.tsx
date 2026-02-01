@@ -10,6 +10,7 @@ import { CookiePolicyPage } from './pages/cookies/CookiePolicyPage';
 import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
 import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
 import { CookieConsent } from './components/common/CookieConsent';
+import { ArchitecturePage } from './pages/architecture/ArchitecturePage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/cookies" element={<CookiePolicyPage />} />
                 <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
                 <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
+                <Route path="/architecture" element={<ArchitecturePage />} />
               </Routes>
             </main>
             <Footer />

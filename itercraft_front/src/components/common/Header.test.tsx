@@ -24,6 +24,18 @@ describe('Header', () => {
     expect(screen.getByText('Tableau de bord')).toBeInTheDocument();
   });
 
+  it('renders Architecture link always', () => {
+    mockUseAuth.mockReturnValue({
+      keycloak: {} as never,
+      authenticated: false,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
+    });
+    render(<MemoryRouter><Header /></MemoryRouter>);
+    expect(screen.getByText('Architecture')).toBeInTheDocument();
+    expect(screen.getByText('Architecture').closest('a')).toHaveAttribute('href', '/architecture');
+  });
+
   it('renders Connexion button when not authenticated', () => {
     mockUseAuth.mockReturnValue({
       keycloak: { login: vi.fn() } as never,

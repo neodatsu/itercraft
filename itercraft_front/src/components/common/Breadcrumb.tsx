@@ -7,6 +7,7 @@ const labels: Record<string, string> = {
   '/cookies': 'Politique de cookies',
   '/mentions-legales': 'Mentions légales',
   '/confidentialite': 'Confidentialité',
+  '/architecture': 'Architecture',
 };
 
 export function Breadcrumb() {
