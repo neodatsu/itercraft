@@ -1,3 +1,6 @@
+![CI](https://github.com/neodatsu/itercraft/actions/workflows/ci.yml/badge.svg)
+![Lighthouse Accessibility](https://img.shields.io/badge/lighthouse-accessibility%20%E2%89%A5%2090-brightgreen?logo=lighthouse)
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
