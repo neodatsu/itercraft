@@ -13,10 +13,9 @@ public class MeteoServiceImpl implements MeteoService {
     private static final double BBOX_OFFSET = 0.5;
 
     public MeteoServiceImpl(
-            RestClient.Builder restClientBuilder,
             @Value("${meteofrance.api.base-url}") String baseUrl,
             @Value("${meteofrance.api.token}") String apiToken) {
-        this.restClient = restClientBuilder.baseUrl(baseUrl).build();
+        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
         this.apiToken = apiToken;
     }
 
