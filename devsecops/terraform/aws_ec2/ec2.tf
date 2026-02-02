@@ -222,6 +222,7 @@ resource "aws_instance" "app" {
                     - "traefik.docker.network=app_public"
                   environment:
                     - KC_BOOTSTRAP_ADMIN_PASSWORD=${var.keycloak_admin_password}
+                    - KEYCLOAK_HEALTHCHECK_PASSWORD=${var.keycloak_healthcheck_password}
                     - KC_HOSTNAME=https://authent.${var.domain_name}
                     - KC_PROXY_HEADERS=xforwarded
                     - KC_HTTP_ENABLED=true

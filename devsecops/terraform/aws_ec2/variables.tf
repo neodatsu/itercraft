@@ -60,6 +60,12 @@ variable "anthropic_api_key" {
   sensitive   = true
 }
 
+variable "keycloak_healthcheck_password" {
+  description = "Keycloak healthcheck user password"
+  type        = string
+  sensitive   = true
+}
+
 variable "keycloak_admin_password" {
   description = "Keycloak admin password"
   type        = string

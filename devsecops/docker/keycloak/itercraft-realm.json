@@ -76,7 +76,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "healthcheck",
+          "value": "__HEALTHCHECK_PASSWORD__",
           "temporary": false
         }
       ]
