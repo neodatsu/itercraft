@@ -6,6 +6,16 @@ import './MeteoPage.css';
 const DEFAULT_LAT = 48.8566;
 const DEFAULT_LON = 2.3522;
 
+async function reverseGeocode(lat: number, lon: number): Promise<string> {
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=fr`,
+    { headers: { 'User-Agent': 'Itercraft/1.0' } },
+  );
+  if (!res.ok) return '';
+  const data = await res.json();
+  return data.display_name ?? '';
+}
+
 export function MeteoPage() {
   const { keycloak } = useAuth();
   const token = keycloak.token ?? '';
@@ -17,16 +27,21 @@ export function MeteoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [address, setAddress] = useState('');
 
   const loadMap = useCallback(async (mapLat: number, mapLon: number, mapLayer: string) => {
     setLoading(true);
     setError(null);
     try {
-      const url = await fetchMeteoMap(token, mapLayer, mapLat, mapLon);
+      const [url, addr] = await Promise.all([
+        fetchMeteoMap(token, mapLayer, mapLat, mapLon),
+        reverseGeocode(mapLat, mapLon),
+      ]);
       setImageUrl(prev => {
         if (prev) URL.revokeObjectURL(prev);
         return url;
       });
+      setAddress(addr);
     } catch {
       setError('Impossible de charger la carte météo.');
     } finally {
@@ -70,6 +85,8 @@ export function MeteoPage() {
     e.preventDefault();
     loadMap(lat, lon, layer);
   }
+
+  const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.02},${lat - 0.015},${lon + 0.02},${lat + 0.015}&layer=mapnik&marker=${lat},${lon}`;
 
   return (
     <div className="meteo-container">
@@ -121,11 +138,31 @@ export function MeteoPage() {
         </div>
       </form>
 
+      {address && (
+        <p className="meteo-address">{address}</p>
+      )}
+
       {loading && <p className="meteo-loading">Chargement de la carte...</p>}
       {error && <p className="meteo-error">{error}</p>}
-      {imageUrl && !loading && (
-        <div className="meteo-map">
-          <img src={imageUrl} alt={`Carte météo — ${LAYERS.find(l => l.code === layer)?.label}`} />
+
+      {!loading && (imageUrl || address) && (
+        <div className="meteo-grid">
+          <div className="meteo-map">
+            <h2>Plan</h2>
+            <iframe
+              title="OpenStreetMap"
+              src={osmUrl}
+              width="100%"
+              height="350"
+              style={{ border: '1px solid #ddd', borderRadius: 8 }}
+            />
+          </div>
+          {imageUrl && (
+            <div className="meteo-map">
+              <h2>{LAYERS.find(l => l.code === layer)?.label}</h2>
+              <img src={imageUrl} alt={`Carte météo — ${LAYERS.find(l => l.code === layer)?.label}`} />
+            </div>
+          )}
         </div>
       )}
     </div>
