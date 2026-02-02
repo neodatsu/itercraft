@@ -23,7 +23,7 @@ graph TB
     subgraph AWS
         ECR[ECR<br/>7 repos]
         BUD[Budgets<br/>10$ alert]
-        EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
+        EC2[EC2 t3a.large<br/>Ubuntu 22.04]
         EIP[Elastic IP]
         SG[Security Group<br/>Cloudflare IPs only]
         IAM[IAM Role<br/>ECR ReadOnly + SSM]

@@ -30,7 +30,7 @@ public class OllamaServiceImpl implements OllamaService {
             @Value("${ollama.model}") String model) {
         var requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofSeconds(10));
-        requestFactory.setReadTimeout(Duration.ofSeconds(120));
+        requestFactory.setReadTimeout(Duration.ofSeconds(300));
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .requestFactory(requestFactory)
