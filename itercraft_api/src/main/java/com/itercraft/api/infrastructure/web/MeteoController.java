@@ -42,7 +42,7 @@ public class MeteoController {
             @RequestParam double lat,
             @RequestParam double lon,
             @RequestParam String location) {
-        byte[] image = meteoService.getMapImage(layer, lat, lon, 512, 512);
+        byte[] image = meteoService.getMapImage(layer, lat, lon, 256, 256);
         String analysis = ollamaService.analyzeWeatherImage(image, layer, location);
         return ResponseEntity.ok(Map.of("analysis", analysis));
     }

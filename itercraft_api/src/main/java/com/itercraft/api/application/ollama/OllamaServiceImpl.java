@@ -55,12 +55,14 @@ public class OllamaServiceImpl implements OllamaService {
 
         log.info("Requesting Ollama analysis: model={}, layer={}, location={}", model, layerLabel, location);
 
-        String responseJson = restClient.post()
+        byte[] responseBytes = restClient.post()
                 .uri("/api/generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(requestBody)
                 .retrieve()
-                .body(String.class);
+                .body(byte[].class);
+
+        String responseJson = new String(responseBytes, java.nio.charset.StandardCharsets.UTF_8);
 
         log.debug("Ollama raw response: {}", responseJson);
 
