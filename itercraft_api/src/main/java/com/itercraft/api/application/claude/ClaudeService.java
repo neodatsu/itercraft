@@ -1,6 +1,5 @@
-package com.itercraft.api.application.ollama;
+package com.itercraft.api.application.claude;
 
-public interface OllamaService {
-
+public interface ClaudeService {
     String analyzeWeatherImage(byte[] imageData, String layerLabel, String location);
 }

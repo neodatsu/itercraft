@@ -38,7 +38,7 @@ jobs:
 
       - name: Clean existing images from ECR
         run: |
-          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_ollama)
+          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana)
           for REPO in "${REPOS[@]}"; do
             echo "Cleaning $REPO..."
             IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json)
@@ -68,7 +68,6 @@ jobs:
             "itercraft_bdd:devsecops/docker/Dockerfile.postgres"
             "itercraft_prometheus:devsecops/docker/Dockerfile.prometheus"
             "itercraft_grafana:devsecops/docker/Dockerfile.grafana"
-            "itercraft_ollama:devsecops/docker/Dockerfile.ollama"
           )
 
           for entry in "${images[@]}"; do

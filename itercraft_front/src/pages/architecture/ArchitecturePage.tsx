@@ -18,6 +18,7 @@ C4Context
   System_Ext(ga, "Google Analytics", "Mesure d'audience (consentement RGPD)")
   System_Ext(slack, "Slack", "Notifications CI/CD")
   System_Ext(meteofrance, "Météo France", "API AROME PI (cartes WMS)")
+  System_Ext(claude, "Claude API", "API Anthropic (analyse d'images météo)")
 
   Rel(user, itercraft, "Utilise", "HTTPS")
   Rel(itercraft, keycloak, "Authentification", "OAuth2/OIDC PKCE")
@@ -28,6 +29,7 @@ C4Context
   Rel(itercraft, ga, "Envoie métriques", "HTTPS")
   Rel(itercraft, aws, "Hébergé sur", "EC2")
   Rel(itercraft, meteofrance, "Cartes météo", "HTTPS")
+  Rel(itercraft, claude, "Analyse météo", "HTTPS")
 `;
 
 const containerDiagram = `
@@ -44,9 +46,9 @@ C4Container
     Container(kc, "Keycloak 26", "Serveur d'identité", "Realm itercraft, client iterfront, OIDC PKCE")
     Container(prom, "Prometheus", "Monitoring", "Collecte métriques /actuator/prometheus")
     Container(grafana, "Grafana", "Tableaux de bord", "Visualisation des métriques applicatives")
-    Container(ollama, "Ollama", "Vision IA (moondream)", "Analyse d'images météo via API /api/generate")
   }
 
+  System_Ext(claude2, "Claude API", "API Anthropic (analyse vision)")
   System_Ext(meteofrance2, "Météo France", "API AROME PI (cartes WMS)")
 
   Rel(user, traefik, "HTTPS", "443")
@@ -60,7 +62,7 @@ C4Container
   Rel(api, kc, "Validation token", "HTTP")
   Rel(prom, api, "Scrape métriques", "/actuator/prometheus")
   Rel(grafana, prom, "Requêtes", "PromQL")
-  Rel(api, ollama, "Analyse image", "HTTP :11434")
+  Rel(api, claude2, "Analyse image", "HTTPS")
   Rel(api, meteofrance2, "Cartes WMS", "HTTPS")
 `;
 

@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "instance_type" {
   description = "Type EC2"
   type        = string
-  default     = "t3a.large"
+  default     = "t3a.medium"
 }
 
 variable "vpc_id" {
@@ -50,6 +50,12 @@ variable "cloudflare_api_token" {
 
 variable "meteo_api_key" {
   description = "MeteoFrance API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "anthropic_api_key" {
+  description = "Anthropic API Key (Claude)"
   type        = string
   sensitive   = true
 }

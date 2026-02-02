@@ -1,15 +1,15 @@
-package com.itercraft.api.application.ollama;
+package com.itercraft.api.application.claude;
 
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OllamaServiceImplTest {
+class ClaudeServiceImplTest {
 
     @Test
     void constructor_shouldCreateServiceWithoutError() {
-        OllamaServiceImpl service = new OllamaServiceImpl(
-                "http://localhost:11434", "moondream");
+        ClaudeServiceImpl service = new ClaudeServiceImpl(
+                "test-key", "claude-sonnet-4-20250514");
         assertThat(service).isNotNull();
     }
 }

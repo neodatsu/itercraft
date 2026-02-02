@@ -1,7 +1,7 @@
 package com.itercraft.api.infrastructure.web;
 
 import com.itercraft.api.application.meteo.MeteoService;
-import com.itercraft.api.application.ollama.OllamaService;
+import com.itercraft.api.application.claude.ClaudeService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +16,9 @@ import java.util.Map;
 public class MeteoController {
 
     private final MeteoService meteoService;
-    private final OllamaService ollamaService;
+    private final ClaudeService ollamaService;
 
-    public MeteoController(MeteoService meteoService, OllamaService ollamaService) {
+    public MeteoController(MeteoService meteoService, ClaudeService ollamaService) {
         this.meteoService = meteoService;
         this.ollamaService = ollamaService;
     }
@@ -42,7 +42,7 @@ public class MeteoController {
             @RequestParam double lat,
             @RequestParam double lon,
             @RequestParam String location) {
-        byte[] image = meteoService.getMapImage(layer, lat, lon, 256, 256);
+        byte[] image = meteoService.getMapImage(layer, lat, lon, 512, 512);
         String analysis = ollamaService.analyzeWeatherImage(image, layer, location);
         return ResponseEntity.ok(Map.of("analysis", analysis));
     }

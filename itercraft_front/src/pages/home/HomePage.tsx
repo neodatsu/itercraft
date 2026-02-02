@@ -99,7 +99,7 @@ export function HomePage() {
             <span className="home-stack-icon">🤖</span>
             <div>
               <strong>IA / Vision</strong>
-              <span>Ollama &middot; Moondream &middot; Analyse d'images météo</span>
+              <span>Claude API &middot; Anthropic &middot; Analyse d'images météo</span>
             </div>
           </div>
           <div className="home-stack-item">
