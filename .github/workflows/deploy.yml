@@ -57,6 +57,7 @@ jobs:
             "itercraft_bdd:devsecops/docker/Dockerfile.postgres"
             "itercraft_prometheus:devsecops/docker/Dockerfile.prometheus"
             "itercraft_grafana:devsecops/docker/Dockerfile.grafana"
+            "itercraft_ollama:devsecops/docker/Dockerfile.ollama"
           )
 
           for entry in "${images[@]}"; do

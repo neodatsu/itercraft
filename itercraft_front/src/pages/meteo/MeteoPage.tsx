@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
-import { fetchMeteoMap, LAYERS } from '../../api/meteoApi';
+import { fetchMeteoAnalysis, fetchMeteoMap, LAYERS } from '../../api/meteoApi';
 import './MeteoPage.css';
 
 const DEFAULT_LAT = 48.8566;
@@ -28,10 +28,13 @@ export function MeteoPage() {
   const [error, setError] = useState<string | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
   const [address, setAddress] = useState('');
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const loadMap = useCallback(async (mapLat: number, mapLon: number, mapLayer: string) => {
     setLoading(true);
     setError(null);
+    setAnalysis(null);
     try {
       const [url, addr] = await Promise.all([
         fetchMeteoMap(token, mapLayer, mapLat, mapLon),
@@ -42,9 +45,18 @@ export function MeteoPage() {
         return url;
       });
       setAddress(addr);
+      setLoading(false);
+
+      // Launch AI analysis in background (non-blocking)
+      if (addr) {
+        setAnalysisLoading(true);
+        fetchMeteoAnalysis(token, mapLayer, mapLat, mapLon, addr)
+          .then(setAnalysis)
+          .catch(() => { /* graceful degradation */ })
+          .finally(() => setAnalysisLoading(false));
+      }
     } catch {
       setError('Impossible de charger la carte météo.');
-    } finally {
       setLoading(false);
     }
   }, [token]);
@@ -163,6 +175,17 @@ export function MeteoPage() {
               <img src={imageUrl} alt={`Carte météo — ${LAYERS.find(l => l.code === layer)?.label}`} />
             </div>
           )}
+        </div>
+      )}
+
+      {analysisLoading && (
+        <p className="meteo-analysis-loading">Analyse IA en cours...</p>
+      )}
+
+      {analysis && (
+        <div className="meteo-analysis">
+          <h2>Analyse météorologique</h2>
+          <p>{analysis}</p>
         </div>
       )}
     </div>

@@ -35,3 +35,25 @@ export async function fetchMeteoMap(
   const blob = await res.blob();
   return URL.createObjectURL(blob);
 }
+
+export async function fetchMeteoAnalysis(
+  accessToken: string,
+  layer: string,
+  lat: number,
+  lon: number,
+  location: string,
+): Promise<string> {
+  const params = new URLSearchParams({
+    layer,
+    lat: String(lat),
+    lon: String(lon),
+    location,
+  });
+  const res = await fetch(`${API_URL}/api/meteo/analyze?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Analyse indisponible');
+  const data = await res.json();
+  return data.analysis;
+}

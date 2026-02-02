@@ -300,7 +300,56 @@ output "prometheus_repository_url" {
   value       = aws_ecr_repository.itercraft_prometheus.repository_url
 }
 
+resource "aws_ecr_repository" "itercraft_ollama" {
+  name                 = "itercraft_ollama"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_ollama" {
+  repository = aws_ecr_repository.itercraft_ollama.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
 output "grafana_repository_url" {
   description = "ECR repository URL for itercraft_grafana"
   value       = aws_ecr_repository.itercraft_grafana.repository_url
+}
+
+output "ollama_repository_url" {
+  description = "ECR repository URL for itercraft_ollama"
+  value       = aws_ecr_repository.itercraft_ollama.repository_url
 }

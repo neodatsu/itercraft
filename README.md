@@ -17,10 +17,11 @@ graph TB
         GH -->|code quality| SONAR[SonarCloud]
         GH -->|accessibility| LH[Lighthouse CI]
         GH -->|tag v*| ECR_PUSH[Push images to ECR]
+        GH -->|notify| SLACK[Slack]
     end
 
     subgraph AWS
-        ECR[ECR<br/>6 repos]
+        ECR[ECR<br/>7 repos]
         BUD[Budgets<br/>10$ alert]
         EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
         EIP[Elastic IP]
@@ -50,6 +51,9 @@ graph TB
         FRONT -->|SSE /api/events| API
         API -->|token introspection| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
+        OLLAMA[Ollama<br/>moondream<br/>:11434]
+        API -->|analyze image| OLLAMA
+        API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
         GRAF -->|query| PROM
     end
@@ -79,6 +83,7 @@ itercraft/
 │   │   │   └── prometheus.yml       # Scrape config (itercraft-api)
 │   │   ├── grafana/
 │   │   │   └── datasource.yml       # Prometheus datasource provisioning
+│   │   ├── Dockerfile.ollama        # Ollama (moondream vision model)
 │   │   ├── Dockerfile.prometheus    # Prometheus
 │   │   ├── Dockerfile.grafana       # Grafana (port 3001)
 │   │   └── postgres/
@@ -89,7 +94,7 @@ itercraft/
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ec2/         # EC2 + Elastic IP + SSM + Cloudflare DNS (Traefik + docker-compose)
-│       ├── aws_ecr/         # Container registries (6 repos)
+│       ├── aws_ecr/         # Container registries (7 repos)
 │       ├── aws_oidc_github/ # OIDC provider + IAM role (GitHub Actions → ECR)
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
@@ -121,6 +126,7 @@ itercraft/
 | Accessibility  | Lighthouse CI (score ≥ 90 en CI)                             |
 | Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)            |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)        |
+| IA / Vision    | Ollama, Moondream (analyse d'images météo)                   |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                         |
 | Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator        |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                            |
@@ -155,6 +161,9 @@ The backend is configured via environment variables (with defaults for local dev
 | `KEYCLOAK_CLIENT_ID`     | `iterapi`               | Confidential client for introspection  |
 | `KEYCLOAK_CLIENT_SECRET` | `changeme`              | Client secret                          |
 | `CORS_ORIGINS`           | `http://localhost:3000` | Allowed CORS origins (comma-separated) |
+| `METEOFRANCE_API_TOKEN`  | `changeme`              | Météo France API key                   |
+| `OLLAMA_URL`             | `http://localhost:11434`| Ollama API base URL                    |
+| `OLLAMA_MODEL`           | `moondream`             | Ollama vision model                    |
 
 The frontend uses a `.env` file:
 
@@ -240,7 +249,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-GitHub Actions build les 6 images Docker, les tag avec la version + `latest`, et les push sur ECR.
+GitHub Actions build les 7 images Docker, les tag avec la version + `latest`, et les push sur ECR.
 
 L'authentification utilise **OIDC** (OpenID Connect) : GitHub assume un role IAM directement aupres d'AWS, sans access keys stockees dans les secrets. Le module Terraform `aws_oidc_github` cree l'identity provider et le role `github-actions-ecr-push` restreint aux tags `v*` du repo.
 
@@ -260,6 +269,8 @@ Seul secret GitHub requis : `AWS_ACCOUNT_ID`.
 | `DELETE` | `/api/subscriptions/{serviceCode}`        | Bearer + CSRF | Unsubscribe                |
 | `POST`   | `/api/subscriptions/{serviceCode}/usages` | Bearer + CSRF | Add usage                  |
 | `DELETE` | `/api/subscriptions/{serviceCode}/usages` | Bearer + CSRF | Remove usage               |
+| `GET`    | `/api/meteo/map`                          | Bearer        | Weather map image (PNG)    |
+| `GET`    | `/api/meteo/analyze`                      | Bearer        | AI weather analysis (JSON) |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 
@@ -272,6 +283,7 @@ docker build -f devsecops/docker/Dockerfile.front      -t itercraft-front .
 docker build -f devsecops/docker/Dockerfile.keycloak    -t itercraft-keycloak .
 docker build -f devsecops/docker/Dockerfile.prometheus  -t itercraft-prometheus .
 docker build -f devsecops/docker/Dockerfile.grafana     -t itercraft-grafana .
+docker build -f devsecops/docker/Dockerfile.ollama      -t itercraft-ollama .
 ```
 
 ### Run - Dev (containers on localhost)
@@ -313,6 +325,7 @@ docker run --network itercraft --name api -p 8080:8080 \
   -e DB_HOST=postgres \
   -e KEYCLOAK_URL=http://keycloak:8180 \
   -e CORS_ORIGINS=http://localhost:3000 \
+  -e OLLAMA_URL=http://ollama:11434 \
   itercraft-api
 
 # Frontend
@@ -323,6 +336,9 @@ docker run --network itercraft --name prometheus -p 9090:9090 itercraft-promethe
 
 # Grafana (admin/admin)
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
+
+# Ollama (vision AI)
+docker run --network itercraft --name ollama -p 11434:11434 itercraft-ollama
 ```
 
 ### Run - Production

@@ -204,6 +204,7 @@ resource "aws_instance" "app" {
                     - KEYCLOAK_CLIENT_SECRET=${var.keycloak_client_secret}
                     - CORS_ORIGINS=https://www.${var.domain_name}
                     - METEOFRANCE_API_TOKEN=${var.meteo_api_key}
+                    - OLLAMA_URL=http://ollama:11434
                   networks:
                     - public
                     - internal
@@ -262,6 +263,11 @@ resource "aws_instance" "app" {
                     - "traefik.docker.network=app_public"
                   networks:
                     - public
+                    - internal
+                  restart: always
+                ollama:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_ollama:latest
+                  networks:
                     - internal
                   restart: always
               volumes:

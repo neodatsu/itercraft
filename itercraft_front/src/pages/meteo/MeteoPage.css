@@ -84,6 +84,31 @@
   margin-bottom: 0.5rem;
 }
 
+.meteo-analysis {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.meteo-analysis h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.meteo-analysis p {
+  color: #555;
+  line-height: 1.6;
+}
+
+.meteo-analysis-loading {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
   .meteo-grid {
     grid-template-columns: 1fr;

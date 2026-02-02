@@ -16,14 +16,18 @@ C4Context
   System_Ext(github, "GitHub Actions", "Pipeline CI/CD, tests, analyse de sécurité")
   System_Ext(sonar, "SonarCloud", "Analyse qualité et couverture de code")
   System_Ext(ga, "Google Analytics", "Mesure d'audience (consentement RGPD)")
+  System_Ext(slack, "Slack", "Notifications CI/CD")
+  System_Ext(meteofrance, "Météo France", "API AROME PI (cartes WMS)")
 
   Rel(user, itercraft, "Utilise", "HTTPS")
   Rel(itercraft, keycloak, "Authentification", "OAuth2/OIDC PKCE")
   Rel(cloudflare, itercraft, "Proxy", "HTTPS")
   Rel(github, itercraft, "Déploie", "Docker / ECR")
   Rel(github, sonar, "Analyse", "API")
+  Rel(github, slack, "Notifications", "Webhook")
   Rel(itercraft, ga, "Envoie métriques", "HTTPS")
   Rel(itercraft, aws, "Hébergé sur", "EC2")
+  Rel(itercraft, meteofrance, "Cartes météo", "HTTPS")
 `;
 
 const containerDiagram = `
@@ -40,7 +44,10 @@ C4Container
     Container(kc, "Keycloak 26", "Serveur d'identité", "Realm itercraft, client iterfront, OIDC PKCE")
     Container(prom, "Prometheus", "Monitoring", "Collecte métriques /actuator/prometheus")
     Container(grafana, "Grafana", "Tableaux de bord", "Visualisation des métriques applicatives")
+    Container(ollama, "Ollama", "Vision IA (moondream)", "Analyse d'images météo via API /api/generate")
   }
+
+  System_Ext(meteofrance2, "Météo France", "API AROME PI (cartes WMS)")
 
   Rel(user, traefik, "HTTPS", "443")
   Rel(traefik, front, "Proxy", "/")
@@ -53,6 +60,8 @@ C4Container
   Rel(api, kc, "Validation token", "HTTP")
   Rel(prom, api, "Scrape métriques", "/actuator/prometheus")
   Rel(grafana, prom, "Requêtes", "PromQL")
+  Rel(api, ollama, "Analyse image", "HTTP :11434")
+  Rel(api, meteofrance2, "Cartes WMS", "HTTPS")
 `;
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
