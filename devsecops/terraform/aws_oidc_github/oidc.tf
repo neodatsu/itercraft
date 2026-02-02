@@ -71,7 +71,9 @@ resource "aws_iam_role_policy" "ecr_push" {
           "ecr:PutImage",
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload"
+          "ecr:CompleteLayerUpload",
+          "ecr:ListImages",
+          "ecr:BatchDeleteImage"
         ]
         Resource = "arn:aws:ecr:${var.aws_region}:${var.account_id}:repository/itercraft_*"
       }

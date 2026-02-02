@@ -9,7 +9,7 @@ class OllamaServiceImplTest {
     @Test
     void constructor_shouldCreateServiceWithoutError() {
         OllamaServiceImpl service = new OllamaServiceImpl(
-                "http://localhost:11434", "llava");
+                "http://localhost:11434", "moondream");
         assertThat(service).isNotNull();
     }
 }

@@ -51,7 +51,7 @@ graph TB
         FRONT -->|SSE /api/events| API
         API -->|token introspection| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
-        OLLAMA[Ollama<br/>llava<br/>:11434]
+        OLLAMA[Ollama<br/>moondream<br/>:11434]
         API -->|analyze image| OLLAMA
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
@@ -83,7 +83,7 @@ itercraft/
 │   │   │   └── prometheus.yml       # Scrape config (itercraft-api)
 │   │   ├── grafana/
 │   │   │   └── datasource.yml       # Prometheus datasource provisioning
-│   │   ├── Dockerfile.ollama        # Ollama (llava vision model)
+│   │   ├── Dockerfile.ollama        # Ollama (moondream vision model)
 │   │   ├── Dockerfile.prometheus    # Prometheus
 │   │   ├── Dockerfile.grafana       # Grafana (port 3001)
 │   │   └── postgres/
@@ -163,7 +163,7 @@ The backend is configured via environment variables (with defaults for local dev
 | `CORS_ORIGINS`           | `http://localhost:3000` | Allowed CORS origins (comma-separated) |
 | `METEOFRANCE_API_TOKEN`  | `changeme`              | Météo France API key                   |
 | `OLLAMA_URL`             | `http://localhost:11434`| Ollama API base URL                    |
-| `OLLAMA_MODEL`           | `llava`             | Ollama vision model                    |
+| `OLLAMA_MODEL`           | `moondream`             | Ollama vision model                    |
 
 The frontend uses a `.env` file:
 

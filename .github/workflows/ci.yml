@@ -184,7 +184,7 @@ jobs:
         id: scores
         if: always()
         run: |
-          RESULT=$(find .lighthouseci -name "lhr-*.json" 2>/dev/null | head -1)
+          RESULT=$(find ${{ github.workspace }}/.lighthouseci -name "lhr-*.json" 2>/dev/null | head -1)
           if [ -n "$RESULT" ]; then
             A11Y=$(jq '.categories.accessibility.score * 100' "$RESULT")
             echo "accessibility=${A11Y}%" >> "$GITHUB_OUTPUT"

@@ -44,7 +44,7 @@ C4Container
     Container(kc, "Keycloak 26", "Serveur d'identité", "Realm itercraft, client iterfront, OIDC PKCE")
     Container(prom, "Prometheus", "Monitoring", "Collecte métriques /actuator/prometheus")
     Container(grafana, "Grafana", "Tableaux de bord", "Visualisation des métriques applicatives")
-    Container(ollama, "Ollama", "Vision IA (llava)", "Analyse d'images météo via API /api/generate")
+    Container(ollama, "Ollama", "Vision IA (moondream)", "Analyse d'images météo via API /api/generate")
   }
 
   System_Ext(meteofrance2, "Météo France", "API AROME PI (cartes WMS)")
