@@ -2,17 +2,24 @@ package com.itercraft.api.application.ollama;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class OllamaServiceImpl implements OllamaService {
+
+    private static final Logger log = LoggerFactory.getLogger(OllamaServiceImpl.class);
 
     private final RestClient restClient;
     private final String model;
@@ -21,8 +28,12 @@ public class OllamaServiceImpl implements OllamaService {
     public OllamaServiceImpl(
             @Value("${ollama.api.base-url}") String baseUrl,
             @Value("${ollama.model}") String model) {
+        var requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(10));
+        requestFactory.setReadTimeout(Duration.ofSeconds(120));
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
+                .requestFactory(requestFactory)
                 .build();
         this.model = model;
     }
@@ -42,6 +53,8 @@ public class OllamaServiceImpl implements OllamaService {
                 "stream", false
         );
 
+        log.info("Requesting Ollama analysis: model={}, layer={}, location={}", model, layerLabel, location);
+
         String responseJson = restClient.post()
                 .uri("/api/generate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -49,10 +62,15 @@ public class OllamaServiceImpl implements OllamaService {
                 .retrieve()
                 .body(String.class);
 
+        log.debug("Ollama raw response: {}", responseJson);
+
         try {
             JsonNode node = objectMapper.readTree(responseJson);
-            return node.path("response").stringValue("Analyse indisponible.");
+            String analysis = node.path("response").stringValue("Analyse indisponible.");
+            log.info("Ollama analysis completed ({} chars)", analysis.length());
+            return analysis;
         } catch (Exception e) {
+            log.error("Failed to parse Ollama response", e);
             return "Analyse indisponible.";
         }
     }

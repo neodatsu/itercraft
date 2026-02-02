@@ -4,7 +4,7 @@ import com.itercraft.api.application.meteo.MeteoService;
 import com.itercraft.api.application.ollama.OllamaService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +23,7 @@ public class MeteoController {
         this.ollamaService = ollamaService;
     }
 
-    @GetMapping(value = "/map", produces = MediaType.IMAGE_PNG_VALUE)
+    @PostMapping(value = "/map", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getMap(
             @RequestParam String layer,
             @RequestParam double lat,
@@ -36,7 +36,7 @@ public class MeteoController {
                 .body(image);
     }
 
-    @GetMapping("/analyze")
+    @PostMapping("/analyze")
     public ResponseEntity<Map<String, String>> analyzeWeatherMap(
             @RequestParam String layer,
             @RequestParam double lat,

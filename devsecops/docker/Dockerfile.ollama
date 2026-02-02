@@ -2,7 +2,7 @@ FROM ollama/ollama:latest
 
 ENV OLLAMA_HOST=0.0.0.0:11434
 
-# Pre-pull the moondream vision model during build (~1.7 GB)
-RUN nohup ollama serve & sleep 5 && ollama pull moondream && pkill ollama
+# Pre-pull the llava vision model during build (~4.7 GB)
+RUN nohup ollama serve & sleep 5 && ollama pull llava && pkill ollama
 
 EXPOSE 11434

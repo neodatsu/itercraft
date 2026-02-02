@@ -36,6 +36,17 @@ jobs:
         id: version
         run: echo "TAG=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
+      - name: Clean existing images from ECR
+        run: |
+          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_ollama)
+          for REPO in "${REPOS[@]}"; do
+            echo "Cleaning $REPO..."
+            IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json)
+            if [ "$IMAGE_IDS" != "[]" ]; then
+              aws ecr batch-delete-image --repository-name "$REPO" --region "$AWS_REGION" --image-ids "$IMAGE_IDS"
+            fi
+          done
+
       - name: Build and push images
         run: |
           ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com

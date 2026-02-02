@@ -1,5 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+function getCsrfToken(): string {
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : '';
+}
+
 export interface MeteoLayer {
   code: string;
   label: string;
@@ -28,7 +33,11 @@ export async function fetchMeteoMap(
     height: '512',
   });
   const res = await fetch(`${API_URL}/api/meteo/map?${params}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'X-XSRF-TOKEN': getCsrfToken(),
+    },
     credentials: 'include',
   });
   if (!res.ok) throw new Error('Échec du chargement de la carte météo');
@@ -50,7 +59,11 @@ export async function fetchMeteoAnalysis(
     location,
   });
   const res = await fetch(`${API_URL}/api/meteo/analyze?${params}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'X-XSRF-TOKEN': getCsrfToken(),
+    },
     credentials: 'include',
   });
   if (!res.ok) throw new Error('Analyse indisponible');
