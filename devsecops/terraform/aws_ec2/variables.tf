@@ -59,3 +59,15 @@ variable "anthropic_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "keycloak_admin_password" {
+  description = "Keycloak admin password"
+  type        = string
+  sensitive   = true
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password"
+  type        = string
+  sensitive   = true
+}

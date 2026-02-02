@@ -221,6 +221,7 @@ resource "aws_instance" "app" {
                     - "traefik.http.services.authent.loadbalancer.server.port=8180"
                     - "traefik.docker.network=app_public"
                   environment:
+                    - KC_BOOTSTRAP_ADMIN_PASSWORD=${var.keycloak_admin_password}
                     - KC_HOSTNAME=https://authent.${var.domain_name}
                     - KC_PROXY_HEADERS=xforwarded
                     - KC_HTTP_ENABLED=true
@@ -254,6 +255,8 @@ resource "aws_instance" "app" {
 
                 grafana:
                   image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_grafana:latest
+                  environment:
+                    - GF_SECURITY_ADMIN_PASSWORD=${var.grafana_admin_password}
                   labels:
                     - "traefik.enable=true"
                     - "traefik.http.routers.grafana.rule=Host(\`grafana.${var.domain_name}\`)"
