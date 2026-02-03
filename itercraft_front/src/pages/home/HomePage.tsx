@@ -40,6 +40,10 @@ export function HomePage() {
             <h3>Sécurité by Design</h3>
             <p>OAuth2/OIDC avec PKCE via Keycloak, scan de vulnérabilités, CSRF, Cloudflare SSL, Traefik reverse proxy.</p>
           </div>
+          <div className="home-card">
+            <h3>IoT & Objets Connectés</h3>
+            <p>Broker MQTT Mosquitto sécurisé (TLS 1.3, authentification, ACL). Collecte de données capteurs ESP32 en temps réel.</p>
+          </div>
         </div>
       </section>
 
@@ -107,6 +111,13 @@ export function HomePage() {
             <div>
               <strong>Temps réel</strong>
               <span>Server-Sent Events (SSE)</span>
+            </div>
+          </div>
+          <div className="home-stack-item">
+            <span className="home-stack-icon">📡</span>
+            <div>
+              <strong>IoT</strong>
+              <span>Mosquitto MQTT &middot; TLS 1.3 &middot; ESP32 &middot; Capteurs</span>
             </div>
           </div>
         </div>

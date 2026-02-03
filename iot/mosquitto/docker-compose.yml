@@ -1,0 +1,30 @@
+services:
+  mosquitto:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itercraft-mosquitto
+    restart: unless-stopped
+    ports:
+      - "8883:8883"
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+      - ./certs:/mosquitto/config/certs:ro
+      - ./passwd:/mosquitto/config/passwd:ro
+    networks:
+      - itercraft-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "8883", "--cafile", "/mosquitto/config/certs/ca.crt", "-t", "$$SYS/broker/uptime", "-C", "1", "-W", "5"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
+
+networks:
+  itercraft-network:
+    external: true

@@ -305,3 +305,51 @@ output "grafana_repository_url" {
   value       = aws_ecr_repository.itercraft_grafana.repository_url
 }
 
+resource "aws_ecr_repository" "itercraft_mosquitto" {
+  name                 = "itercraft_mosquitto"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_mosquitto" {
+  repository = aws_ecr_repository.itercraft_mosquitto.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "mosquitto_repository_url" {
+  description = "ECR repository URL for itercraft_mosquitto"
+  value       = aws_ecr_repository.itercraft_mosquitto.repository_url
+}

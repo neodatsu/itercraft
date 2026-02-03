@@ -38,7 +38,7 @@ jobs:
 
       - name: Clean existing images from ECR
         run: |
-          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana)
+          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
           for REPO in "${REPOS[@]}"; do
             echo "Cleaning $REPO..."
             IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json)
@@ -78,3 +78,9 @@ jobs:
             docker push "$ECR/$REPO:$TAG"
             docker push "$ECR/$REPO:latest"
           done
+
+          # Mosquitto (different build context)
+          echo "Building itercraft_mosquitto"
+          docker build -t "$ECR/itercraft_mosquitto:$TAG" -t "$ECR/itercraft_mosquitto:latest" iot/mosquitto
+          docker push "$ECR/itercraft_mosquitto:$TAG"
+          docker push "$ECR/itercraft_mosquitto:latest"

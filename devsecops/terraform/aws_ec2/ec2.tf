@@ -80,6 +80,16 @@ resource "aws_security_group" "app_sg" {
     ipv6_cidr_blocks = local.cloudflare_ipv6
   }
 
+  # MQTT over TLS (direct, no Cloudflare proxy)
+  # Security: TLS 1.3 + password authentication + ACL
+  ingress {
+    from_port   = 8883
+    to_port     = 8883
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "MQTT over TLS for IoT devices"
+  }
+
   # Sortie
   egress {
     from_port        = 0
@@ -278,8 +288,26 @@ resource "aws_instance" "app" {
                     - public
                     - internal
                   restart: always
+
+                mosquitto:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_mosquitto:latest
+                  ports:
+                    - "8883:8883"
+                  volumes:
+                    - mosquitto-data:/mosquitto/data
+                    - mosquitto-certs:/mosquitto/config/certs
+                  networks:
+                    - internal
+                  restart: always
+                  healthcheck:
+                    test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "8883", "--cafile", "/mosquitto/config/certs/ca.crt", "-t", "$$SYS/broker/uptime", "-C", "1", "-W", "5"]
+                    interval: 30s
+                    timeout: 10s
+                    retries: 3
               volumes:
                 pgdata:
+                mosquitto-data:
+                mosquitto-certs:
               EOL
 
               docker-compose up -d
@@ -339,6 +367,15 @@ resource "cloudflare_record" "grafana" {
   content = aws_eip.app.public_ip
   type    = "A"
   proxied = true
+}
+
+# MQTT broker - DNS only (no proxy, MQTT is TCP not HTTP)
+resource "cloudflare_record" "mqtt" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "mqtt"
+  content = aws_eip.app.public_ip
+  type    = "A"
+  proxied = false
 }
 
 resource "cloudflare_zone_settings_override" "ssl" {

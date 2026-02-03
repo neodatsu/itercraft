@@ -63,6 +63,13 @@ graph TB
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
         GRAF -->|query| PROM
+        MQTT[Mosquitto<br/>MQTT Broker<br/>:8883 TLS]
+        API -->|subscribe sensors/#| MQTT
+    end
+
+    subgraph IoT
+        ESP32[ESP32<br/>Capteurs]
+        ESP32 -->|MQTTS 8883| MQTT
     end
 
     subgraph Infrastructure
@@ -106,6 +113,16 @@ itercraft/
 │       ├── aws_lambda_slack/# Lambda + API Gateway for Slack /infra command
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
+├── iot/                     # IoT / MQTT
+│   └── mosquitto/           # MQTT broker configuration
+│       ├── Dockerfile           # Mosquitto 2.0 with TLS
+│       ├── mosquitto.conf       # Broker config (TLS 1.3, auth, ACL)
+│       ├── acl.conf             # Topic-based access control
+│       ├── docker-compose.yml   # Local development
+│       └── scripts/             # Certificate & user management
+│           ├── generate-certs.sh
+│           ├── add-user.sh
+│           └── generate-device-cert.sh
 ├── itercraft_api/           # Backend API (:8080)
 │   └── src/
 │       ├── main/            # Domain-Driven Design architecture
@@ -136,6 +153,7 @@ itercraft/
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)                                    |
 | IA / Vision    | Claude API, Anthropic (analyse d'images météo)                                          |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
+| IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
 | Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator                                   |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                                                       |
 | Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM, S3, DynamoDB, Lambda, API Gateway), Cloudflare |
@@ -454,6 +472,232 @@ docker run --network itercraft --name front -p 3000:3000 itercraft-front
 docker run --network itercraft --name prometheus -p 9090:9090 itercraft-prometheus
 
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
+```
+
+## IoT / MQTT Setup
+
+Itercraft includes a secure MQTT broker (Mosquitto) for IoT device connectivity.
+
+### Security Features
+
+- **TLS 1.3** : All connections encrypted with modern cipher suites
+- **Password Authentication** : No anonymous connections allowed
+- **ACL** : Topic-based access control (devices can only publish to their own topics)
+- **DNS-only** : `mqtt.itercraft.com` points directly to EC2 (no Cloudflare proxy for TCP)
+
+### Broker Initial Setup (one-time)
+
+```bash
+cd iot/mosquitto
+
+# 1. Generate CA and server certificates
+./scripts/generate-certs.sh
+
+# 2. Create admin user
+./scripts/add-user.sh admin
+# Enter a strong password when prompted
+
+# 3. Create backend service account
+./scripts/add-user.sh itercraft-backend
+# Enter a strong password when prompted
+```
+
+Output files:
+
+- `certs/ca.crt` : CA certificate (to distribute to IoT devices)
+- `certs/server.crt` / `server.key` : Server TLS certificate
+- `passwd` : Password file (hashed, safe to commit)
+
+### Device Enrollment Process
+
+#### Step 1: Generate device credentials
+
+```bash
+cd iot/mosquitto
+
+# Create MQTT user for the device
+# Convention: device-<type>-<serial>
+./scripts/add-user.sh device-esp32-ABC123 "$(openssl rand -base64 24)"
+```
+
+Save the generated password securely (e.g., password manager, secrets vault).
+
+#### Step 2: Prepare device provisioning files
+
+Create a provisioning folder for the device:
+
+```bash
+DEVICE_ID="esp32-ABC123"
+mkdir -p provisioning/$DEVICE_ID
+
+# Copy CA certificate
+cp certs/ca.crt provisioning/$DEVICE_ID/
+
+# Create credentials file
+cat > provisioning/$DEVICE_ID/mqtt_credentials.h << EOF
+#ifndef MQTT_CREDENTIALS_H
+#define MQTT_CREDENTIALS_H
+
+#define MQTT_BROKER     "mqtt.itercraft.com"
+#define MQTT_PORT       8883
+#define MQTT_USER       "device-$DEVICE_ID"
+#define MQTT_PASSWORD   "<password-from-step-1>"
+#define DEVICE_ID       "$DEVICE_ID"
+
+// CA Certificate (copy content of ca.crt)
+const char* ca_cert = R"EOF(
+-----BEGIN CERTIFICATE-----
+<PASTE CONTENT OF ca.crt HERE>
+-----END CERTIFICATE-----
+)EOF";
+
+#endif
+EOF
+```
+
+#### Step 3: Flash the device
+
+1. Open the ESP32 project in PlatformIO/Arduino IDE
+2. Copy `mqtt_credentials.h` to the `src/` folder
+3. Build and upload to the device
+4. Monitor Serial output to verify connection
+
+#### Step 4: Verify enrollment
+
+```bash
+# Subscribe to device topics (from server or local with mosquitto-clients)
+mosquitto_sub -h mqtt.itercraft.com -p 8883 \
+  --cafile certs/ca.crt \
+  -u admin -P <admin-password> \
+  -t "sensors/esp32-ABC123/#" -v
+
+# Expected output when device publishes:
+# sensors/esp32-ABC123/temperature 23.5
+# sensors/esp32-ABC123/humidity 65.2
+```
+
+### Topic Structure & ACL
+
+| Topic Pattern | Access | Description |
+|---------------|--------|-------------|
+| `sensors/<device_id>/#` | Device: write | Sensor readings (temperature, humidity, etc.) |
+| `devices/<device_id>/status` | Device: write | Heartbeat, battery level, WiFi RSSI |
+| `commands/<device_id>/#` | Device: read | Commands from backend (reboot, config update) |
+| `broadcast/#` | All: read | Global announcements (maintenance, updates) |
+
+**ACL enforcement**: A device `device-esp32-ABC123` can only:
+
+- Publish to `sensors/esp32-ABC123/*` and `devices/esp32-ABC123/*`
+- Subscribe to `commands/esp32-ABC123/*` and `broadcast/*`
+
+### ESP32 Reference Implementation
+
+```cpp
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
+#include "mqtt_credentials.h"  // Generated during enrollment
+
+WiFiClientSecure espClient;
+PubSubClient mqtt(espClient);
+
+void connectMQTT() {
+  espClient.setCACert(ca_cert);
+  mqtt.setServer(MQTT_BROKER, MQTT_PORT);
+  mqtt.setCallback(onMessage);
+
+  while (!mqtt.connected()) {
+    Serial.print("MQTT connecting...");
+    if (mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASSWORD)) {
+      Serial.println("connected");
+
+      // Subscribe to commands
+      char cmdTopic[64];
+      snprintf(cmdTopic, sizeof(cmdTopic), "commands/%s/#", DEVICE_ID);
+      mqtt.subscribe(cmdTopic);
+      mqtt.subscribe("broadcast/#");
+
+      // Publish online status
+      char statusTopic[64];
+      snprintf(statusTopic, sizeof(statusTopic), "devices/%s/status", DEVICE_ID);
+      mqtt.publish(statusTopic, "{\"status\":\"online\"}");
+    } else {
+      Serial.printf("failed, rc=%d\n", mqtt.state());
+      delay(5000);
+    }
+  }
+}
+
+void onMessage(char* topic, byte* payload, unsigned int length) {
+  Serial.printf("Message on %s: %.*s\n", topic, length, payload);
+  // Handle commands here
+}
+
+void publishSensor(const char* type, float value) {
+  char topic[64], msg[32];
+  snprintf(topic, sizeof(topic), "sensors/%s/%s", DEVICE_ID, type);
+  snprintf(msg, sizeof(msg), "%.2f", value);
+  mqtt.publish(topic, msg);
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+  connectMQTT();
+}
+
+void loop() {
+  if (!mqtt.connected()) connectMQTT();
+  mqtt.loop();
+
+  // Example: publish temperature every 30s
+  static unsigned long lastPublish = 0;
+  if (millis() - lastPublish > 30000) {
+    publishSensor("temperature", 23.5);
+    publishSensor("humidity", 65.0);
+    lastPublish = millis();
+  }
+}
+```
+
+### Device Decommissioning
+
+```bash
+cd iot/mosquitto
+
+# Remove device from password file
+# (mosquitto_passwd doesn't have delete, so recreate without the device)
+grep -v "^device-esp32-ABC123:" passwd > passwd.tmp && mv passwd.tmp passwd
+
+# Restart Mosquitto to apply changes
+docker restart itercraft-mosquitto
+```
+
+### Run Locally (Development)
+
+```bash
+cd iot/mosquitto
+docker-compose up -d
+
+# Test with mosquitto_pub
+mosquitto_pub -h localhost -p 8883 \
+  --cafile certs/ca.crt \
+  -u device-esp32-test -P testpassword \
+  -t "sensors/esp32-test/temperature" \
+  -m "25.3"
+```
+
+### Build & Push to ECR
+
+```bash
+cd iot/mosquitto
+docker build -t itercraft-mosquitto .
+
+# Tag and push
+aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin <account_id>.dkr.ecr.eu-west-1.amazonaws.com
+docker tag itercraft-mosquitto:latest <account_id>.dkr.ecr.eu-west-1.amazonaws.com/itercraft_mosquitto:latest
+docker push <account_id>.dkr.ecr.eu-west-1.amazonaws.com/itercraft_mosquitto:latest
 ```
 
 ## License

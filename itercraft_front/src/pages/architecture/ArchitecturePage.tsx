@@ -33,6 +33,35 @@ C4Context
   Rel(itercraft, claude, "Analyse météo", "HTTPS")
 `;
 
+const iotDiagram = `
+C4Container
+  title Itercraft — IoT Architecture (C4 Level 2)
+
+  Person(homeowner, "Propriétaire", "Utilisateur avec objets connectés")
+
+  System_Boundary(home, "Maison") {
+    Container(esp32, "ESP32", "Microcontrôleur", "Capteurs : température, humidité, luminosité")
+    Container(sensors, "Capteurs", "GPIO", "DHT22, photorésistance, barrière IR")
+  }
+
+  System_Boundary(itercraft_iot, "Itercraft IoT") {
+    Container(mosquitto, "Mosquitto", "MQTT Broker", "TLS 1.3, auth par mot de passe, ACL")
+    Container(api2, "Backend API", "Spring Boot", "Consomme les events MQTT, stocke en BDD")
+    ContainerDb(db2, "PostgreSQL", "Base de données", "Mesures IoT, historique")
+  }
+
+  System_Boundary(dns, "DNS & Sécurité") {
+    Container(cf_dns, "Cloudflare DNS", "DNS-only", "mqtt.itercraft.com → EC2 IP")
+  }
+
+  Rel(homeowner, esp32, "Configure", "WiFi")
+  Rel(esp32, sensors, "Lit", "GPIO")
+  Rel(esp32, cf_dns, "Résout", "DNS")
+  Rel(esp32, mosquitto, "Publie", "MQTTS 8883")
+  Rel(mosquitto, api2, "Forward", "Subscribe sensors/#")
+  Rel(api2, db2, "Stocke", "JDBC")
+`;
+
 const chatOpsDiagram = `
 C4Dynamic
   title Itercraft — ChatOps Infrastructure (C4 Dynamic)
@@ -129,6 +158,11 @@ export function ArchitecturePage() {
       <section className="architecture-section">
         <h2>ChatOps Infrastructure (C4 Dynamic)</h2>
         <pre className="mermaid-diagram">{chatOpsDiagram}</pre>
+      </section>
+
+      <section className="architecture-section">
+        <h2>IoT Architecture (MQTT)</h2>
+        <pre className="mermaid-diagram">{iotDiagram}</pre>
       </section>
     </div>
   );
