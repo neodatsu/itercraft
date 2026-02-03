@@ -131,6 +131,23 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# Allow Mosquitto to upload CA certificate to S3
+resource "aws_iam_role_policy" "ec2_mqtt_s3" {
+  name = "mqtt-cert-upload"
+  role = aws_iam_role.ec2_ecr_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:PutObjectAcl"]
+        Resource = "arn:aws:s3:::itercraft-mqtt-certs/mqtt/ca.crt"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "ec2_ecr_profile" {
   name = "ec2-ecr-profile"
   role = aws_iam_role.ec2_ecr_role.name
@@ -293,6 +310,9 @@ resource "aws_instance" "app" {
                   image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_mosquitto:latest
                   ports:
                     - "8883:8883"
+                  environment:
+                    - S3_CA_BUCKET=itercraft-mqtt-certs
+                    - AWS_DEFAULT_REGION=${var.aws_region}
                   volumes:
                     - mosquitto-data:/mosquitto/data
                     - mosquitto-certs:/mosquitto/config/certs

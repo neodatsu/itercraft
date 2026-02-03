@@ -47,6 +47,12 @@ EOF
     chown -R mosquitto:mosquitto "$CERT_DIR"
 
     echo "=== Certificates generated for $DOMAIN ==="
+
+    # Upload CA cert to S3 if bucket is configured
+    if [ -n "$S3_CA_BUCKET" ]; then
+        echo "=== Uploading CA certificate to S3 ==="
+        aws s3 cp ca.crt "s3://$S3_CA_BUCKET/mqtt/ca.crt" --acl public-read || echo "Warning: S3 upload failed"
+    fi
 fi
 
 # Create empty passwd file if it doesn't exist

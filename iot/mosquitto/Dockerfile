@@ -1,8 +1,8 @@
 FROM eclipse-mosquitto:2.0
 
-# Install openssl for certificate generation and su-exec for privilege drop
+# Install openssl for certificate generation, su-exec for privilege drop, aws-cli for S3 upload
 USER root
-RUN apk add --no-cache openssl su-exec
+RUN apk add --no-cache openssl su-exec aws-cli
 
 # Copy configuration files
 COPY mosquitto.conf /mosquitto/config/mosquitto.conf

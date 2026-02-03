@@ -661,6 +661,62 @@ void loop() {
 }
 ```
 
+### Dynamic CA Certificate Fetching
+
+The CA certificate is automatically uploaded to S3 when Mosquitto starts. Devices can fetch it dynamically:
+
+**URL**: `https://itercraft-mqtt-certs.s3.eu-west-1.amazonaws.com/mqtt/ca.crt`
+
+```cpp
+#include <HTTPClient.h>
+#include <Preferences.h>
+
+#define CA_CERT_URL "https://itercraft-mqtt-certs.s3.eu-west-1.amazonaws.com/mqtt/ca.crt"
+
+Preferences prefs;
+String caCert;
+
+bool fetchCACert() {
+  HTTPClient http;
+  http.begin(CA_CERT_URL);
+  int code = http.GET();
+
+  if (code == 200) {
+    caCert = http.getString();
+    // Cache in NVS for offline use
+    prefs.begin("mqtt", false);
+    prefs.putString("ca_cert", caCert);
+    prefs.end();
+    Serial.println("CA cert fetched and cached");
+    return true;
+  }
+  Serial.printf("Failed to fetch CA cert: %d\n", code);
+  return false;
+}
+
+void loadCACert() {
+  prefs.begin("mqtt", true);
+  caCert = prefs.getString("ca_cert", "");
+  prefs.end();
+
+  if (caCert.isEmpty()) {
+    fetchCACert();
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  loadCACert();
+  espClient.setCACert(caCert.c_str());
+  connectMQTT();
+}
+```
+
+**Certificate refresh**: Call `fetchCACert()` periodically (e.g., daily) or when MQTT connection fails with TLS errors.
+
 ### Device Decommissioning
 
 ```bash
