@@ -155,60 +155,30 @@ export async function handler(event) {
   // Get response_url for async response
   const responseUrl = params.get('response_url');
 
-  // Start GitHub workflow trigger (don't await yet)
-  const githubPromise = triggerGitHubWorkflow(action, targetModule);
-
-  // Race: wait max 2.5s for GitHub API, then return regardless
-  // This ensures we respond to Slack within 3s timeout
-  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve('timeout'), 2500));
-  const result = await Promise.race([githubPromise, timeoutPromise]);
-
-  if (result === 'timeout') {
-    // GitHub API is slow, but request was sent
-    // Send immediate ack, result will come via workflow Slack notification
-    console.log('GitHub API slow, returning early');
-
-    // Fire off the response_url update in background (Lambda will complete it)
-    githubPromise.then(async (success) => {
+  // Fire GitHub workflow trigger - don't await, respond immediately
+  // Result will come via terraform.yml Slack notification
+  triggerGitHubWorkflow(action, targetModule)
+    .then(async (success) => {
+      console.log('GitHub trigger completed:', success);
+      // Send follow-up via response_url
       if (responseUrl) {
         await sendSlackResponse(responseUrl, {
           response_type: 'in_channel',
           text: success
-            ? `🚀 <@${userId}> a lancé \`terraform ${action}\` sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`
-            : `❌ Erreur lors du déclenchement du workflow GitHub`,
+            ? `✅ Workflow \`terraform ${action}\` déclenché sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`
+            : `❌ Erreur lors du déclenchement du workflow`,
         });
       }
-    }).catch(err => console.error('Background GitHub error:', err));
+    })
+    .catch(err => console.error('GitHub trigger error:', err));
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        response_type: 'ephemeral',
-        text: `⏳ Déclenchement de \`terraform ${action}\` sur \`${targetModule}\` en cours...`,
-      }),
-    };
-  }
-
-  // GitHub responded in time
-  const success = result;
-  if (success) {
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        response_type: 'in_channel',
-        text: `🚀 <@${userId}> a lancé \`terraform ${action}\` sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`,
-      }),
-    };
-  } else {
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        response_type: 'ephemeral',
-        text: '❌ Erreur lors du déclenchement du workflow GitHub',
-      }),
-    };
-  }
+  // Return immediately to Slack (within 3s)
+  return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      response_type: 'in_channel',
+      text: `⏳ <@${userId}> lance \`terraform ${action}\` sur \`${targetModule}\`...`,
+    }),
+  };
 }
