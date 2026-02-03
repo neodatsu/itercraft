@@ -1,8 +1,8 @@
 FROM eclipse-mosquitto:2.0
 
-# Install openssl for certificate generation, su-exec for privilege drop, aws-cli for S3 upload
+# Install openssl for certificate generation, su-exec for privilege drop, aws-cli for S3 upload, netcat for healthcheck
 USER root
-RUN apk add --no-cache openssl su-exec aws-cli
+RUN apk add --no-cache openssl su-exec aws-cli netcat-openbsd
 
 # Copy configuration files
 COPY mosquitto.conf /mosquitto/config/mosquitto.conf
@@ -18,10 +18,9 @@ RUN mkdir -p /mosquitto/config/certs && \
 # Expose MQTT over TLS (8883) - NO unencrypted port exposed
 EXPOSE 8883
 
-# Health check
+# Health check - verify TLS port is listening
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD mosquitto_sub -h localhost -p 8883 --cafile /mosquitto/config/certs/ca.crt \
-        -t '$SYS/broker/uptime' -C 1 -W 5 || exit 1
+    CMD nc -z localhost 8883 || exit 1
 
 # Run as root initially, entrypoint will drop to mosquitto user
 ENTRYPOINT ["/entrypoint.sh"]

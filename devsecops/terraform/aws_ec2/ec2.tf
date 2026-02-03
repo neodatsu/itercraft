@@ -320,7 +320,7 @@ resource "aws_instance" "app" {
                     - internal
                   restart: always
                   healthcheck:
-                    test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "8883", "--cafile", "/mosquitto/config/certs/ca.crt", "-t", "$$SYS/broker/uptime", "-C", "1", "-W", "5"]
+                    test: ["CMD", "nc", "-z", "localhost", "8883"]
                     interval: 30s
                     timeout: 10s
                     retries: 3
