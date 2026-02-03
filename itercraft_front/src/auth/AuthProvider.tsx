@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 import type Keycloak from 'keycloak-js';
 import { keycloak } from './keycloak';
 
@@ -31,8 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return initPromise.current;
   }, []);
 
+  const value = useMemo(
+    () => ({ keycloak, authenticated, initialized, ensureInit }),
+    [authenticated, initialized, ensureInit]
+  );
+
   return (
-    <AuthContext.Provider value={{ keycloak, authenticated, initialized, ensureInit }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

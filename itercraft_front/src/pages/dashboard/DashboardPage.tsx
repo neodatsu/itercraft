@@ -28,7 +28,7 @@ function UsageTable({ serviceCode, token, refreshKey, onRefresh }: { serviceCode
 
   const years = useMemo(() => {
     const set = new Set(usages.map(u => new Date(u.usedAt).getFullYear().toString()));
-    return Array.from(set).sort().reverse();
+    return Array.from(set).sort((a, b) => b.localeCompare(a));
   }, [usages]);
 
   const filtered = useMemo(() => {
