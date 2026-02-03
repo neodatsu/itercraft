@@ -4,21 +4,44 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 
-function verifySlackRequest(event) {
+function getBody(event) {
+  // API Gateway HTTP API may base64 encode the body
+  if (event.isBase64Encoded) {
+    return Buffer.from(event.body, 'base64').toString('utf-8');
+  }
+  return event.body;
+}
+
+function verifySlackRequest(event, rawBody) {
   const timestamp = event.headers['x-slack-request-timestamp'];
   const signature = event.headers['x-slack-signature'];
-  const body = event.body;
+
+  console.log('Verifying signature:', {
+    hasTimestamp: !!timestamp,
+    hasSignature: !!signature,
+    signaturePrefix: signature?.substring(0, 10),
+    secretLength: SLACK_SIGNING_SECRET?.length,
+    isBase64Encoded: event.isBase64Encoded,
+    bodyPreview: rawBody?.substring(0, 50),
+  });
 
   // Check timestamp to prevent replay attacks (5 min window)
   const now = Math.floor(Date.now() / 1000);
   if (Math.abs(now - parseInt(timestamp)) > 300) {
+    console.log('Timestamp too old:', { now, timestamp, diff: Math.abs(now - parseInt(timestamp)) });
     return false;
   }
 
-  const sigBaseString = `v0:${timestamp}:${body}`;
+  const sigBaseString = `v0:${timestamp}:${rawBody}`;
   const hmac = crypto.createHmac('sha256', SLACK_SIGNING_SECRET);
   hmac.update(sigBaseString);
   const expectedSignature = `v0=${hmac.digest('hex')}`;
+
+  console.log('Signature comparison:', {
+    received: signature,
+    expected: expectedSignature,
+    match: signature === expectedSignature,
+  });
 
   return crypto.timingSafeEqual(
     Buffer.from(signature),
@@ -28,6 +51,8 @@ function verifySlackRequest(event) {
 
 async function triggerGitHubWorkflow(action, module) {
   const url = `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/terraform.yml/dispatches`;
+
+  console.log('Triggering GitHub workflow:', { action, module, repo: GITHUB_REPO });
 
   const response = await fetch(url, {
     method: 'POST',
@@ -45,22 +70,41 @@ async function triggerGitHubWorkflow(action, module) {
     }),
   });
 
+  console.log('GitHub API response:', response.status);
+  if (response.status !== 204) {
+    const body = await response.text();
+    console.log('GitHub API error body:', body);
+  }
+
   return response.status === 204;
 }
 
 export async function handler(event) {
+  console.log('Incoming request:', JSON.stringify({
+    path: event.rawPath,
+    headers: Object.keys(event.headers),
+    hasBody: !!event.body,
+    isBase64Encoded: event.isBase64Encoded,
+  }));
+
+  // Decode body if base64 encoded
+  const rawBody = getBody(event);
+
   // Verify Slack signature
-  if (!verifySlackRequest(event)) {
+  if (!verifySlackRequest(event, rawBody)) {
+    console.log('Signature verification FAILED');
     return {
       statusCode: 401,
       body: 'Invalid signature',
     };
   }
+  console.log('Signature verification OK');
 
   // Parse Slack command
-  const params = new URLSearchParams(event.body);
+  const params = new URLSearchParams(rawBody);
   const text = params.get('text') || '';
   const userId = params.get('user_id');
+  console.log('Command received:', { text, userId });
 
   // Parse command: /infra apply ec2 or /infra destroy ec2
   const parts = text.trim().split(/\s+/);
