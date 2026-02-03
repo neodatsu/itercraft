@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MeteoPage } from './MeteoPage';
 
@@ -24,11 +24,16 @@ const mockFetchMeteoAnalysis = vi.mocked(fetchMeteoAnalysis);
 
 // Mock global fetch for reverseGeocode
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 // Mock URL.createObjectURL and revokeObjectURL
-global.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/fake-image');
-global.URL.revokeObjectURL = vi.fn();
+const mockCreateObjectURL = vi.fn(() => 'blob:http://localhost/fake-image');
+const mockRevokeObjectURL = vi.fn();
+vi.stubGlobal('URL', {
+  ...URL,
+  createObjectURL: mockCreateObjectURL,
+  revokeObjectURL: mockRevokeObjectURL,
+});
 
 describe('MeteoPage', () => {
   beforeEach(() => {
@@ -315,6 +320,6 @@ describe('MeteoPage', () => {
     });
 
     // URL.revokeObjectURL should have been called
-    expect(global.URL.revokeObjectURL).toHaveBeenCalled();
+    expect(mockRevokeObjectURL).toHaveBeenCalled();
   });
 });

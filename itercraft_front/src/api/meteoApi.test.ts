@@ -2,10 +2,13 @@ import { fetchMeteoMap, fetchMeteoAnalysis, LAYERS } from './meteoApi';
 
 // Mock global fetch
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 // Mock URL.createObjectURL
-global.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/mock-url');
+vi.stubGlobal('URL', {
+  ...URL,
+  createObjectURL: vi.fn(() => 'blob:http://localhost/mock-url'),
+});
 
 // Mock document.cookie for CSRF token
 Object.defineProperty(document, 'cookie', {
