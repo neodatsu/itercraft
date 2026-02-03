@@ -13,7 +13,6 @@ jobs:
   backend:
     name: Backend (itercraft_api)
     runs-on: ubuntu-latest
-    environment: itercraft
     outputs:
       coverage: ${{ steps.coverage.outputs.coverage }}
 
