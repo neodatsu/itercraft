@@ -15,6 +15,12 @@ provider "aws" {
   region = var.aws_region
 }
 
+# CloudWatch Log Group with 1-day retention to minimize costs
+resource "aws_cloudwatch_log_group" "lambda_logs" {
+  name              = "/aws/lambda/itercraft-slack-github-bridge"
+  retention_in_days = 1
+}
+
 # Lambda function for Slack → GitHub Actions bridge
 resource "aws_lambda_function" "slack_github_bridge" {
   filename         = data.archive_file.lambda_zip.output_path
@@ -27,11 +33,13 @@ resource "aws_lambda_function" "slack_github_bridge" {
 
   environment {
     variables = {
-      GITHUB_TOKEN      = var.github_token
-      GITHUB_REPO       = var.github_repo
+      GITHUB_TOKEN         = var.github_token
+      GITHUB_REPO          = var.github_repo
       SLACK_SIGNING_SECRET = var.slack_signing_secret
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.lambda_logs]
 }
 
 # Lambda source code
