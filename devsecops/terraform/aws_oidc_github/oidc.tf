@@ -179,19 +179,32 @@ resource "aws_iam_role_policy" "terraform_ec2" {
       {
         Effect = "Allow"
         Action = [
-          "iam:PassRole"
-        ]
-        Resource = "arn:aws:iam::${var.account_id}:role/itercraft-ec2-role"
-      },
-      {
-        Effect = "Allow"
-        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
           "iam:GetRole",
-          "iam:GetInstanceProfile"
+          "iam:UpdateRole",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:GetRolePolicy",
+          "iam:PassRole",
+          "iam:CreateInstanceProfile",
+          "iam:DeleteInstanceProfile",
+          "iam:GetInstanceProfile",
+          "iam:AddRoleToInstanceProfile",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:ListInstanceProfilesForRole"
         ]
         Resource = [
-          "arn:aws:iam::${var.account_id}:role/itercraft-ec2-role",
-          "arn:aws:iam::${var.account_id}:instance-profile/itercraft-ec2-profile"
+          "arn:aws:iam::${var.account_id}:role/ec2-*",
+          "arn:aws:iam::${var.account_id}:role/itercraft-*",
+          "arn:aws:iam::${var.account_id}:instance-profile/ec2-*",
+          "arn:aws:iam::${var.account_id}:instance-profile/itercraft-*"
         ]
       }
     ]
