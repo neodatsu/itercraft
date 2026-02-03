@@ -4,20 +4,6 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 
-// Send delayed response to Slack via response_url
-async function sendSlackResponse(responseUrl, message) {
-  try {
-    const response = await fetch(responseUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message),
-    });
-    console.log('Slack response_url status:', response.status);
-  } catch (error) {
-    console.error('Failed to send Slack response:', error);
-  }
-}
-
 function getBody(event) {
   // API Gateway HTTP API may base64 encode the body
   if (event.isBase64Encoded) {
@@ -152,33 +138,24 @@ export async function handler(event) {
     };
   }
 
-  // Get response_url for async response
-  const responseUrl = params.get('response_url');
+  // Trigger GitHub workflow (fast API call, ~200-500ms)
+  // We await this because Lambda freezes execution on return
+  let success = false;
+  try {
+    success = await triggerGitHubWorkflow(action, targetModule);
+  } catch (err) {
+    console.error('GitHub trigger error:', err);
+  }
 
-  // Fire GitHub workflow trigger - don't await, respond immediately
-  // Result will come via terraform.yml Slack notification
-  triggerGitHubWorkflow(action, targetModule)
-    .then(async (success) => {
-      console.log('GitHub trigger completed:', success);
-      // Send follow-up via response_url
-      if (responseUrl) {
-        await sendSlackResponse(responseUrl, {
-          response_type: 'in_channel',
-          text: success
-            ? `✅ Workflow \`terraform ${action}\` déclenché sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`
-            : `❌ Erreur lors du déclenchement du workflow`,
-        });
-      }
-    })
-    .catch(err => console.error('GitHub trigger error:', err));
-
-  // Return immediately to Slack (within 3s)
+  // Return result to Slack
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       response_type: 'in_channel',
-      text: `⏳ <@${userId}> lance \`terraform ${action}\` sur \`${targetModule}\`...`,
+      text: success
+        ? `✅ <@${userId}> a déclenché \`terraform ${action}\` sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`
+        : `❌ Erreur lors du déclenchement du workflow`,
     }),
   };
 }
