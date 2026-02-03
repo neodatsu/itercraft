@@ -12,11 +12,11 @@ C4Context
 
   System_Ext(keycloak, "Keycloak 26", "Fournisseur d'identité OAuth2/OIDC")
   System_Ext(cloudflare, "Cloudflare", "DNS, proxy HTTPS, protection DDoS")
-  System_Ext(aws, "AWS", "Hébergement cloud (EC2, ECR, Route53)")
+  System_Ext(aws, "AWS", "Hébergement cloud (EC2, ECR, S3, DynamoDB, Lambda, API Gateway)")
   System_Ext(github, "GitHub Actions", "Pipeline CI/CD, tests, analyse de sécurité")
   System_Ext(sonar, "SonarCloud", "Analyse qualité et couverture de code")
   System_Ext(ga, "Google Analytics", "Mesure d'audience (consentement RGPD)")
-  System_Ext(slack, "Slack", "Notifications CI/CD")
+  System_Ext(slack, "Slack", "Notifications CI/CD + ChatOps /infra")
   System_Ext(meteofrance, "Météo France", "API AROME PI (cartes WMS)")
   System_Ext(claude, "Claude API", "API Anthropic (analyse d'images météo)")
 
@@ -26,6 +26,7 @@ C4Context
   Rel(github, itercraft, "Déploie", "Docker / ECR")
   Rel(github, sonar, "Analyse", "API")
   Rel(github, slack, "Notifications", "Webhook")
+  Rel(slack, github, "ChatOps /infra", "Lambda → workflow_dispatch")
   Rel(itercraft, ga, "Envoie métriques", "HTTPS")
   Rel(itercraft, aws, "Hébergé sur", "EC2")
   Rel(itercraft, meteofrance, "Cartes météo", "HTTPS")

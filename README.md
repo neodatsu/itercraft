@@ -18,6 +18,8 @@ graph TB
         GH -->|accessibility| LH[Lighthouse CI]
         GH -->|tag v*| ECR_PUSH[Push images to ECR]
         GH -->|notify| SLACK[Slack]
+        SLACK -->|/infra apply| GH
+        SLACK -->|/infra destroy| GH
     end
 
     subgraph AWS
@@ -27,10 +29,16 @@ graph TB
         EIP[Elastic IP]
         SG[Security Group<br/>Cloudflare IPs only]
         IAM[IAM Role<br/>ECR ReadOnly + SSM]
+        S3[S3<br/>Terraform state]
+        DDB[DynamoDB<br/>State locking]
+        LAMBDA[Lambda<br/>Slack bridge]
+        APIGW[API Gateway<br/>Slack webhook]
         EC2 --> EIP
         EC2 --> SG
         EC2 --> IAM
         IAM -->|pull images| ECR
+        APIGW --> LAMBDA
+        LAMBDA -->|workflow_dispatch| GH
     end
 
     subgraph Cloudflare
@@ -93,7 +101,9 @@ itercraft/
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ec2/         # EC2 + Elastic IP + SSM + Cloudflare DNS (Traefik + docker-compose)
 │       ├── aws_ecr/         # Container registries (6 repos)
-│       ├── aws_oidc_github/ # OIDC provider + IAM role (GitHub Actions → ECR)
+│       ├── aws_oidc_github/ # OIDC provider + IAM roles (GitHub Actions → ECR + Terraform)
+│       ├── aws_backend/     # S3 bucket + DynamoDB for Terraform state (remote backend)
+│       ├── aws_lambda_slack/# Lambda + API Gateway for Slack /infra command
 │       ├── env.sh           # Environment variables (not committed)
 │       └── tf.sh            # Terraform wrapper script
 ├── itercraft_api/           # Backend API (:8080)
@@ -114,23 +124,23 @@ itercraft/
 
 ## Tech Stack
 
-| Layer          | Technology                                                   |
-|----------------|--------------------------------------------------------------|
-| Backend        | Java 25, Spring Boot 4.0.2, Spring Security                  |
-| Frontend       | React, TypeScript, Vite                                      |
-| Database       | PostgreSQL 17, Liquibase (schema migrations)                 |
-| Build          | Maven, JaCoCo, npm, Vitest                                   |
-| Analytics      | Google Analytics (GA4, après consentement uniquement)        |
-| Accessibility  | Lighthouse CI (score ≥ 90 en CI)                             |
-| Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)            |
-| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)        |
-| IA / Vision    | Claude API, Anthropic (analyse d'images météo)               |
-| Real-time      | Server-Sent Events (SSE, SseEmitter)                         |
-| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator        |
-| Infrastructure | Terraform, Docker, Nginx, Traefik                            |
-| Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM), Cloudflare         |
-| CI/CD          | GitHub Actions                                               |
-| Region         | eu-west-1 (Ireland)                                          |
+| Layer          | Technology                                                                              |
+|----------------|-----------------------------------------------------------------------------------------|
+| Backend        | Java 25, Spring Boot 4.0.2, Spring Security                                             |
+| Frontend       | React, TypeScript, Vite                                                                 |
+| Database       | PostgreSQL 17, Liquibase (schema migrations)                                            |
+| Build          | Maven, JaCoCo, npm, Vitest                                                              |
+| Analytics      | Google Analytics (GA4, après consentement uniquement)                                   |
+| Accessibility  | Lighthouse CI (score ≥ 90 en CI)                                                        |
+| Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)                                       |
+| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)                                    |
+| IA / Vision    | Claude API, Anthropic (analyse d'images météo)                                          |
+| Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
+| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator                                   |
+| Infrastructure | Terraform, Docker, Nginx, Traefik                                                       |
+| Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM, S3, DynamoDB, Lambda, API Gateway), Cloudflare |
+| CI/CD          | GitHub Actions, Slack ChatOps (`/infra`)                                                |
+| Region         | eu-west-1 (Ireland)                                                                     |
 
 ## Getting Started
 
@@ -252,6 +262,90 @@ GitHub Actions build les 6 images Docker, les tag avec la version + `latest`, et
 L'authentification utilise **OIDC** (OpenID Connect) : GitHub assume un role IAM directement aupres d'AWS, sans access keys stockees dans les secrets. Le module Terraform `aws_oidc_github` cree l'identity provider et le role `github-actions-ecr-push` restreint aux tags `v*` du repo.
 
 Seul secret GitHub requis : `AWS_ACCOUNT_ID`.
+
+### Deploy infrastructure via Slack (ChatOps)
+
+La stack EC2 peut être deployee ou detruite directement depuis Slack avec la commande `/infra` :
+
+```text
+/infra apply ec2    # Terraform apply sur aws_ec2
+/infra destroy ec2  # Terraform destroy sur aws_ec2
+/infra plan ec2     # Terraform plan (dry-run)
+```
+
+Le workflow est declenche via GitHub Actions (`terraform.yml`) et notifie le resultat dans Slack.
+
+#### Architecture ChatOps
+
+```text
+Slack /infra command
+       ↓
+API Gateway (HTTPS)
+       ↓
+Lambda (Node.js) — verifie signature Slack, appelle GitHub API
+       ↓
+GitHub Actions workflow_dispatch
+       ↓
+Terraform apply/destroy (OIDC → AWS)
+       ↓
+Notification Slack (webhook)
+```
+
+#### Setup ChatOps
+
+1. **Backend S3 + DynamoDB** (remote state + locking) :
+
+   ```bash
+   ./tf.sh aws_backend init
+   ./tf.sh aws_backend apply
+   ```
+
+   Crée le bucket `itercraft-terraform-state` et la table `itercraft-terraform-locks`.
+
+2. **Role Terraform OIDC** :
+
+   ```bash
+   ./tf.sh aws_oidc_github init
+   ./tf.sh aws_oidc_github apply
+   ```
+
+   Ajoute le role `github-actions-terraform` avec permissions EC2/S3/DynamoDB.
+
+3. **Secrets GitHub** (Settings → Environments → `itercraft`) :
+   - `AWS_TERRAFORM_ROLE_ARN` : ARN du role terraform (output de aws_oidc_github)
+   - `SLACK_WEBHOOK_URL` : webhook Slack Incoming Webhook pour les notifications
+
+4. **Slack App** :
+   - Créer une app sur <https://api.slack.com/apps>
+   - Ajouter une Slash Command `/infra`
+   - Noter le **Signing Secret** (Basic Information → App Credentials)
+
+5. **Lambda Slack → GitHub** :
+
+   ```bash
+   ./tf.sh aws_lambda_slack init
+   ./tf.sh aws_lambda_slack apply
+   ```
+
+   Variables requises (via `terraform.tfvars` ou `-var`) :
+   - `github_token` : Personal Access Token (classic) avec scope `repo`
+   - `slack_signing_secret` : Signing Secret de la Slack App
+
+   Configurer l'output `slack_webhook_url` comme Request URL de la slash command `/infra`.
+
+6. **Initialiser EC2 avec backend S3** (première fois uniquement) :
+   ```bash
+   cd devsecops/terraform/aws_ec2
+   source ../env.sh
+   terraform init \
+     -backend-config="bucket=itercraft-terraform-state" \
+     -backend-config="key=aws_ec2/terraform.tfstate" \
+     -backend-config="region=eu-west-1" \
+     -backend-config="dynamodb_table=itercraft-terraform-locks" \
+     -backend-config="encrypt=true"
+   ```
+
+Ensuite, utiliser `/infra apply ec2` ou `/infra destroy ec2` depuis Slack.
 
 ### API Endpoints
 

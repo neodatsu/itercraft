@@ -10,6 +10,15 @@ terraform {
     }
   }
   required_version = ">= 1.5.0"
+
+  backend "s3" {
+    # Configuration via -backend-config dans terraform init
+    # bucket         = "itercraft-terraform-state"
+    # key            = "aws_ec2/terraform.tfstate"
+    # region         = "eu-west-1"
+    # dynamodb_table = "itercraft-terraform-locks"
+    # encrypt        = true
+  }
 }
 
 provider "aws" {

@@ -33,8 +33,8 @@ export function HomePage() {
             <p>Stacks Terraform pour AWS (EC2, ECR, Budgets) et Cloudflare (DNS, SSL). Tout versionné, rien de manuel.</p>
           </div>
           <div className="home-card">
-            <h3>Pipeline CI/CD</h3>
-            <p>GitHub Actions pour le build, les tests, OWASP, SonarCloud et Lighthouse CI sur chaque commit.</p>
+            <h3>Pipeline CI/CD + ChatOps</h3>
+            <p>GitHub Actions pour le build, les tests, OWASP, SonarCloud et Lighthouse CI. Déploiement Terraform via commande Slack <code>/infra</code>.</p>
           </div>
           <div className="home-card">
             <h3>Sécurité by Design</h3>
@@ -77,8 +77,8 @@ export function HomePage() {
           <div className="home-stack-item">
             <span className="home-stack-icon">🔄</span>
             <div>
-              <strong>CI/CD</strong>
-              <span>GitHub Actions &middot; JaCoCo &middot; SonarCloud &middot; Lighthouse</span>
+              <strong>CI/CD + ChatOps</strong>
+              <span>GitHub Actions &middot; Slack /infra &middot; Terraform remote state (S3)</span>
             </div>
           </div>
           <div className="home-stack-item">
