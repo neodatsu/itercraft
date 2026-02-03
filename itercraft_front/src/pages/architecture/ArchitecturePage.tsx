@@ -33,6 +33,40 @@ C4Context
   Rel(itercraft, claude, "Analyse météo", "HTTPS")
 `;
 
+const chatOpsDiagram = `
+C4Dynamic
+  title Itercraft — ChatOps Infrastructure (C4 Dynamic)
+
+  Person(devops, "DevOps", "Opérateur infrastructure")
+
+  System_Boundary(slack_boundary, "Slack") {
+    Container(slack_app, "Slack App", "Slash Command", "/infra apply ec2")
+  }
+
+  System_Boundary(aws_boundary, "AWS") {
+    Container(apigw, "API Gateway", "HTTP API", "Endpoint webhook Slack")
+    Container(lambda, "Lambda", "Node.js 20", "Vérifie signature, déclenche workflow")
+    ContainerDb(dynamodb, "DynamoDB", "NoSQL", "Terraform state locking")
+    ContainerDb(s3, "S3", "Object Storage", "Terraform remote state")
+    Container(ec2, "EC2", "t3a.medium", "Instance cible du déploiement")
+  }
+
+  System_Boundary(github_boundary, "GitHub") {
+    Container(actions, "GitHub Actions", "CI/CD", "Workflow terraform.yml")
+    Container(oidc, "OIDC Provider", "Auth", "AssumeRoleWithWebIdentity")
+  }
+
+  Rel(devops, slack_app, "1. /infra apply ec2", "Slack")
+  Rel(slack_app, apigw, "2. POST webhook", "HTTPS + signature")
+  Rel(apigw, lambda, "3. Invoke", "AWS_PROXY")
+  Rel(lambda, actions, "4. workflow_dispatch", "GitHub API")
+  Rel(actions, oidc, "5. Get credentials", "OIDC token")
+  Rel(oidc, s3, "6. Read/Write state", "IAM Role")
+  Rel(oidc, dynamodb, "7. Lock state", "IAM Role")
+  Rel(actions, ec2, "8. Terraform apply", "AWS API")
+  Rel(actions, slack_app, "9. Notification", "Webhook")
+`;
+
 const containerDiagram = `
 C4Container
   title Itercraft — Diagramme de conteneurs (C4 Level 2)
@@ -90,6 +124,11 @@ export function ArchitecturePage() {
       <section className="architecture-section">
         <h2>Conteneurs (C4 Level 2)</h2>
         <pre className="mermaid-diagram">{containerDiagram}</pre>
+      </section>
+
+      <section className="architecture-section">
+        <h2>ChatOps Infrastructure (C4 Dynamic)</h2>
+        <pre className="mermaid-diagram">{chatOpsDiagram}</pre>
       </section>
     </div>
   );
