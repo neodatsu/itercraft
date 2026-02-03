@@ -4,6 +4,20 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 
+// Send delayed response to Slack via response_url
+async function sendSlackResponse(responseUrl, message) {
+  try {
+    const response = await fetch(responseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    });
+    console.log('Slack response_url status:', response.status);
+  } catch (error) {
+    console.error('Failed to send Slack response:', error);
+  }
+}
+
 function getBody(event) {
   // API Gateway HTTP API may base64 encode the body
   if (event.isBase64Encoded) {
@@ -138,9 +152,46 @@ export async function handler(event) {
     };
   }
 
-  // Trigger GitHub Actions
-  const success = await triggerGitHubWorkflow(action, targetModule);
+  // Get response_url for async response
+  const responseUrl = params.get('response_url');
 
+  // Start GitHub workflow trigger (don't await yet)
+  const githubPromise = triggerGitHubWorkflow(action, targetModule);
+
+  // Race: wait max 2.5s for GitHub API, then return regardless
+  // This ensures we respond to Slack within 3s timeout
+  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve('timeout'), 2500));
+  const result = await Promise.race([githubPromise, timeoutPromise]);
+
+  if (result === 'timeout') {
+    // GitHub API is slow, but request was sent
+    // Send immediate ack, result will come via workflow Slack notification
+    console.log('GitHub API slow, returning early');
+
+    // Fire off the response_url update in background (Lambda will complete it)
+    githubPromise.then(async (success) => {
+      if (responseUrl) {
+        await sendSlackResponse(responseUrl, {
+          response_type: 'in_channel',
+          text: success
+            ? `🚀 <@${userId}> a lancé \`terraform ${action}\` sur \`${targetModule}\`\n<https://github.com/${GITHUB_REPO}/actions|Voir les logs>`
+            : `❌ Erreur lors du déclenchement du workflow GitHub`,
+        });
+      }
+    }).catch(err => console.error('Background GitHub error:', err));
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: 'ephemeral',
+        text: `⏳ Déclenchement de \`terraform ${action}\` sur \`${targetModule}\` en cours...`,
+      }),
+    };
+  }
+
+  // GitHub responded in time
+  const success = result;
   if (success) {
     return {
       statusCode: 200,
