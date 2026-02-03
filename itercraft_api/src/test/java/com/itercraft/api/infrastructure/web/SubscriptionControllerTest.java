@@ -110,4 +110,18 @@ class SubscriptionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code").value("tondeuse"));
     }
+
+    @Test
+    void getUsageHistory_shouldReturnList() throws Exception {
+        UUID usageId = UUID.randomUUID();
+        when(subscriptionService.getUsageHistory(SUB, "tondeuse"))
+                .thenReturn(List.of(new com.itercraft.api.infrastructure.web.dto.UsageDto(
+                        usageId, java.time.OffsetDateTime.now())));
+
+        mockMvc.perform(get("/api/subscriptions/tondeuse/usages")
+                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(usageId.toString()));
+    }
+
 }
