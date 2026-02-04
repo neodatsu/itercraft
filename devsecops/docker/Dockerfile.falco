@@ -1,4 +1,4 @@
-FROM falcosecurity/falco-no-driver:0.40.0
+FROM falcosecurity/falco-no-driver:0.42.1
 
 COPY devsecops/docker/falco/falco.yaml /etc/falco/falco.yaml
 COPY devsecops/docker/falco/rules.yaml /etc/falco/rules.d/itercraft_rules.yaml
