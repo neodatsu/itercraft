@@ -17,17 +17,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initPromise = useRef<Promise<boolean> | null>(null);
 
   const ensureInit = useCallback(() => {
-    if (!initPromise.current) {
-      initPromise.current = keycloak.init({
-        onLoad: 'check-sso',
-        pkceMethod: 'S256',
-        checkLoginIframe: false,
-      }).then((auth) => {
-        setAuthenticated(auth);
-        setInitialized(true);
-        return auth;
-      });
-    }
+    initPromise.current ??= keycloak.init({
+      onLoad: 'check-sso',
+      pkceMethod: 'S256',
+      checkLoginIframe: false,
+    }).then((auth) => {
+      setAuthenticated(auth);
+      setInitialized(true);
+      return auth;
+    });
     return initPromise.current;
   }, []);
 

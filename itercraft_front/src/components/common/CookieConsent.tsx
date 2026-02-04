@@ -13,16 +13,15 @@ function loadGoogleAnalytics() {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
   document.head.appendChild(script);
 
-  window.dataLayer = window.dataLayer || [];
-  function gtag(...args: unknown[]) { window.dataLayer!.push(args); }
+  globalThis.dataLayer = globalThis.dataLayer || [];
+  function gtag(...args: unknown[]) { globalThis.dataLayer!.push(args); }
   gtag('js', new Date());
   gtag('config', GA_ID);
 }
 
 declare global {
-  interface Window {
-    dataLayer?: unknown[];
-  }
+  // eslint-disable-next-line no-var
+  var dataLayer: unknown[] | undefined;
 }
 
 export function CookieConsent() {
@@ -45,7 +44,7 @@ export function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="cookie-consent" role="banner" aria-label="Cookie consent">
+    <div className="cookie-consent" role="region" aria-label="Cookie consent">
       <p>
         Ce site utilise des cookies techniques et de mesure d'audience.{' '}
         <Link to="/cookies">Consultez notre politique de cookies</Link>.

@@ -14,7 +14,7 @@ import {
 } from '../../api/subscriptionApi';
 import './DashboardPage.css';
 
-function UsageTable({ serviceCode, token, refreshKey, onRefresh }: { serviceCode: string; token: string; refreshKey: number; onRefresh: () => Promise<void> }) {
+function UsageTable({ serviceCode, token, refreshKey, onRefresh }: Readonly<{ serviceCode: string; token: string; refreshKey: number; onRefresh: () => Promise<void> }>) {
   const [usages, setUsages] = useState<UsageRecord[]>([]);
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ function UsageTable({ serviceCode, token, refreshKey, onRefresh }: { serviceCode
           <option value="all">Toutes</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
-        <span className="usage-count-label">{filtered.length} usage{filtered.length !== 1 ? 's' : ''}</span>
+        <span className="usage-count-label">{filtered.length} usage{filtered.length === 1 ? '' : 's'}</span>
       </div>
       <table className="dashboard-table usage-table">
         <thead>

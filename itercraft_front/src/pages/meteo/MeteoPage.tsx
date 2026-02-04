@@ -93,7 +93,7 @@ export function MeteoPage() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     loadMap(lat, lon, layer);
   }

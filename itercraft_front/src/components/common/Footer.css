@@ -10,12 +10,12 @@
   backdrop-filter: blur(12px);
   border-top: 1px solid #2a2b45;
   font-size: 0.85rem;
-  color: #6b6b8a;
+  color: #9898b8;
   gap: 1.5rem;
 }
 
 .app-footer-link {
-  color: #6b6b8a;
+  color: #9898b8;
   font-size: 0.85rem;
   transition: color 0.2s;
 }
