@@ -150,10 +150,10 @@ export function ResiliencePage() {
 
   const getStateEmoji = (state: string) => {
     switch (state) {
-      case 'CLOSED': return '';
-      case 'OPEN': return '';
-      case 'HALF_OPEN': return '';
-      default: return '';
+      case 'CLOSED': return '✅';
+      case 'OPEN': return '🔴';
+      case 'HALF_OPEN': return '🟡';
+      default: return '⚪';
     }
   };
 
@@ -165,7 +165,7 @@ export function ResiliencePage() {
         <h2>Introduction</h2>
         <p>
           Les systèmes distribués modernes dépendent de nombreux services externes (APIs, bases de données, etc.).
-          Lorsqu'un service devient lent ou indisponible, cela peut provoquer des <strong>cascading failures</strong>
+          Lorsqu'un service devient lent ou indisponible, cela peut provoquer des <strong>cascading failures</strong>{' '}
           qui impactent l'ensemble de l'application.
         </p>
         <p>
