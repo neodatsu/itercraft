@@ -58,7 +58,7 @@ graph TB
         FRONT -->|auth| KC
         FRONT -->|API + CSRF| API
         FRONT -->|SSE /api/events| API
-        API -->|JWT validation (JWK)| KC
+        API -->|JWT validation| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
         API -->|analyze image| CLAUDE[Claude API<br/>Anthropic]
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
