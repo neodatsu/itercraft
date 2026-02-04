@@ -78,7 +78,7 @@ mvn dependency-check:check # OWASP dependency check
 - **Semantic HTML**: Use `<section>` with `aria-label` instead of `<div role="region">`
 - **Positive conditions**: Prefer `=== 1 ? '' : 's'` over `!== 1 ? 's' : ''`
 - **Nullish coalescing assignment**: Use `??=` instead of `if (!x) { x = value }`
-- **FormEvent generic**: Use `React.FormEvent<HTMLFormElement>` (not bare `React.FormEvent`)
+- **Form submit handler**: Use `React.SyntheticEvent<HTMLFormElement, SubmitEvent>` (FormEvent is deprecated)
 
 ### Commands
 
