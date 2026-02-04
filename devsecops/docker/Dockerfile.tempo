@@ -1,4 +1,4 @@
-FROM grafana/tempo:2.4.0
+FROM grafana/tempo:2.7.0
 
 COPY devsecops/docker/tempo/tempo-config.yml /etc/tempo/config.yaml
 
