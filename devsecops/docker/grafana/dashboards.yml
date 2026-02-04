@@ -1,0 +1,12 @@
+apiVersion: 1
+providers:
+  - name: 'Itercraft'
+    orgId: 1
+    folder: 'Itercraft'
+    folderUid: 'itercraft'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
