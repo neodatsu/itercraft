@@ -324,10 +324,50 @@ resource "aws_instance" "app" {
                     interval: 30s
                     timeout: 10s
                     retries: 3
+
+                loki:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_loki:latest
+                  volumes:
+                    - loki-data:/loki
+                  networks:
+                    - internal
+                  restart: always
+                  healthcheck:
+                    test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1"]
+                    interval: 30s
+                    timeout: 10s
+                    retries: 3
+
+                promtail:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_promtail:latest
+                  volumes:
+                    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+                    - /var/log:/var/log:ro
+                  depends_on:
+                    loki:
+                      condition: service_healthy
+                  networks:
+                    - internal
+                  restart: always
+
+                tempo:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_tempo:latest
+                  volumes:
+                    - tempo-data:/tmp/tempo
+                  networks:
+                    - internal
+                  restart: always
+                  healthcheck:
+                    test: ["CMD-SHELL", "wget -q --spider http://localhost:3200/ready || exit 1"]
+                    interval: 30s
+                    timeout: 10s
+                    retries: 3
               volumes:
                 pgdata:
                 mosquitto-data:
                 mosquitto-certs:
+                loki-data:
+                tempo-data:
               EOL
 
               docker-compose up -d

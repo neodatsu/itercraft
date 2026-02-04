@@ -54,12 +54,12 @@ jobs:
 
       - name: Clean existing images from ECR
         run: |
-          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
+          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
           for REPO in "${REPOS[@]}"; do
             echo "Cleaning $REPO..."
-            IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json)
+            IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json 2>/dev/null || echo "[]")
             if [ "$IMAGE_IDS" != "[]" ]; then
-              aws ecr batch-delete-image --repository-name "$REPO" --region "$AWS_REGION" --image-ids "$IMAGE_IDS"
+              aws ecr batch-delete-image --repository-name "$REPO" --region "$AWS_REGION" --image-ids "$IMAGE_IDS" || true
             fi
           done
 
@@ -90,6 +90,9 @@ jobs:
             "itercraft_bdd:devsecops/docker/Dockerfile.postgres"
             "itercraft_prometheus:devsecops/docker/Dockerfile.prometheus"
             "itercraft_grafana:devsecops/docker/Dockerfile.grafana"
+            "itercraft_loki:devsecops/docker/Dockerfile.loki"
+            "itercraft_promtail:devsecops/docker/Dockerfile.promtail"
+            "itercraft_tempo:devsecops/docker/Dockerfile.tempo"
           )
 
           for entry in "${images[@]}"; do
@@ -109,7 +112,7 @@ jobs:
           TAG=${{ steps.version.outputs.TAG }}
           mkdir -p trivy-reports
 
-          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
 
           for IMG in "${IMAGES[@]}"; do
             echo "🔍 Scanning $IMG..."
@@ -134,7 +137,7 @@ jobs:
           ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           TAG=${{ steps.version.outputs.TAG }}
 
-          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
 
           for IMG in "${IMAGES[@]}"; do
             echo "📤 Pushing $IMG..."

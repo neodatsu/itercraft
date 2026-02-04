@@ -353,3 +353,152 @@ output "mosquitto_repository_url" {
   description = "ECR repository URL for itercraft_mosquitto"
   value       = aws_ecr_repository.itercraft_mosquitto.repository_url
 }
+
+# --- Observability Stack: Loki, Promtail, Tempo ---
+
+resource "aws_ecr_repository" "itercraft_loki" {
+  name                 = "itercraft_loki"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_loki" {
+  repository = aws_ecr_repository.itercraft_loki.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "loki_repository_url" {
+  description = "ECR repository URL for itercraft_loki"
+  value       = aws_ecr_repository.itercraft_loki.repository_url
+}
+
+resource "aws_ecr_repository" "itercraft_promtail" {
+  name                 = "itercraft_promtail"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_promtail" {
+  repository = aws_ecr_repository.itercraft_promtail.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "promtail_repository_url" {
+  description = "ECR repository URL for itercraft_promtail"
+  value       = aws_ecr_repository.itercraft_promtail.repository_url
+}
+
+resource "aws_ecr_repository" "itercraft_tempo" {
+  name                 = "itercraft_tempo"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_tempo" {
+  repository = aws_ecr_repository.itercraft_tempo.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "tempo_repository_url" {
+  description = "ECR repository URL for itercraft_tempo"
+  value       = aws_ecr_repository.itercraft_tempo.repository_url
+}

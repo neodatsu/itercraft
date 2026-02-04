@@ -77,7 +77,7 @@ C4Dynamic
     Container(lambda, "Lambda", "Node.js 20", "Vérifie signature, déclenche workflow")
     ContainerDb(dynamodb, "DynamoDB", "NoSQL", "Terraform state locking")
     ContainerDb(s3, "S3", "Object Storage", "Terraform remote state")
-    Container(ec2, "EC2", "t3a.medium", "Instance cible du déploiement")
+    Container(ec2, "EC2", "t3.large", "Instance cible du déploiement")
   }
 
   System_Boundary(github_boundary, "GitHub") {
@@ -109,7 +109,10 @@ C4Container
     ContainerDb(db, "PostgreSQL 17", "Base de données", "Utilisateurs, services, abonnements, usages. Migrations Liquibase")
     Container(kc, "Keycloak 26", "Serveur d'identité", "Realm itercraft, client iterfront, OIDC PKCE")
     Container(prom, "Prometheus", "Monitoring", "Collecte métriques /actuator/prometheus")
-    Container(grafana, "Grafana", "Tableaux de bord", "Visualisation des métriques applicatives")
+    Container(loki, "Loki", "Log Aggregation", "Stockage et requêtes des logs (LogQL)")
+    Container(promtail, "Promtail", "Log Collector", "Collecte des logs Docker containers")
+    Container(tempo, "Tempo", "Distributed Tracing", "Stockage et requêtes des traces (OTLP)")
+    Container(grafana, "Grafana", "Tableaux de bord", "Métriques, logs et traces unifiés")
   }
 
   System_Ext(claude2, "Claude API", "API Anthropic (analyse vision)")
@@ -125,9 +128,43 @@ C4Container
   Rel(api, db, "JDBC", "5432")
   Rel(api, kc, "JWT validation (JWK)", "HTTP")
   Rel(prom, api, "Scrape métriques", "/actuator/prometheus")
+  Rel(promtail, api, "Collecte logs", "Docker socket")
+  Rel(promtail, loki, "Push logs", "HTTP 3100")
+  Rel(api, tempo, "Send traces", "OTLP 4317")
   Rel(grafana, prom, "Requêtes", "PromQL")
+  Rel(grafana, loki, "Requêtes", "LogQL")
+  Rel(grafana, tempo, "Requêtes", "TraceQL")
   Rel(api, claude2, "Analyse image", "HTTPS")
   Rel(api, meteofrance2, "Cartes WMS", "HTTPS")
+`;
+
+const observabilityDiagram = `
+C4Container
+  title Itercraft — Observability Stack (C4 Level 2)
+
+  System_Boundary(app, "Application") {
+    Container(api, "Backend API", "Spring Boot", "Génère métriques, logs et traces")
+    Container(front, "Frontend", "React", "Génère logs browser")
+    Container(kc, "Keycloak", "Auth Server", "Génère logs auth")
+  }
+
+  System_Boundary(observability, "Observability Stack") {
+    Container(prom, "Prometheus", ":9090", "Stockage métriques time-series")
+    Container(loki, "Loki", ":3100", "Stockage logs compressés")
+    Container(tempo, "Tempo", ":3200", "Stockage traces distribuées")
+    Container(promtail, "Promtail", "Agent", "Collecteur de logs Docker")
+    Container(grafana, "Grafana", ":3001", "Dashboard unifié (3 piliers)")
+  }
+
+  Rel(api, prom, "Métriques", "/actuator/prometheus")
+  Rel(api, tempo, "Traces", "OTLP gRPC :4317")
+  Rel(promtail, api, "Scrape logs", "Docker socket")
+  Rel(promtail, kc, "Scrape logs", "Docker socket")
+  Rel(promtail, loki, "Push", "HTTP POST")
+  Rel(grafana, prom, "Query", "PromQL")
+  Rel(grafana, loki, "Query", "LogQL")
+  Rel(grafana, tempo, "Query", "TraceQL")
+  Rel(loki, tempo, "Trace ID link", "Derived fields")
 `;
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
@@ -163,6 +200,11 @@ export function ArchitecturePage() {
       <section className="architecture-section">
         <h2>IoT Architecture (MQTT)</h2>
         <pre className="mermaid-diagram">{iotDiagram}</pre>
+      </section>
+
+      <section className="architecture-section">
+        <h2>Observability Stack (Logs, Traces, Metrics)</h2>
+        <pre className="mermaid-diagram">{observabilityDiagram}</pre>
       </section>
     </div>
   );

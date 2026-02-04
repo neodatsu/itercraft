@@ -88,8 +88,8 @@ export function HomePage() {
           <div className="home-stack-item">
             <span className="home-stack-icon">📊</span>
             <div>
-              <strong>Monitoring</strong>
-              <span>Prometheus &middot; Grafana &middot; Google Analytics</span>
+              <strong>Observabilité</strong>
+              <span>Prometheus &middot; Loki &middot; Tempo &middot; Grafana</span>
             </div>
           </div>
           <div className="home-stack-item">

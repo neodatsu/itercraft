@@ -24,9 +24,9 @@ graph TB
     end
 
     subgraph AWS
-        ECR[ECR<br/>6 repos]
+        ECR[ECR<br/>10 repos]
         BUD[Budgets<br/>10$ alert]
-        EC2[EC2 t3a.medium<br/>Ubuntu 22.04]
+        EC2[EC2 t3.large<br/>Ubuntu 22.04]
         EIP[Elastic IP]
         SG[Security Group<br/>Cloudflare IPs only]
         IAM[IAM Role<br/>ECR ReadOnly + SSM]
@@ -64,6 +64,14 @@ graph TB
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
         GRAF -->|query| PROM
+        LOKI[Loki<br/>:3100] -->|store| LOGS[(Logs)]
+        PROMTAIL[Promtail] -->|push logs| LOKI
+        PROMTAIL -->|scrape| API
+        PROMTAIL -->|scrape| KC
+        TEMPO[Tempo<br/>:3200] -->|store| TRACES[(Traces)]
+        API -->|send traces| TEMPO
+        GRAF -->|query logs| LOKI
+        GRAF -->|query traces| TEMPO
         MQTT[Mosquitto<br/>MQTT Broker<br/>:8883 TLS]
         API -->|subscribe sensors/#| MQTT
     end
@@ -97,9 +105,19 @@ itercraft/
 │   │   ├── prometheus/
 │   │   │   └── prometheus.yml       # Scrape config (itercraft-api)
 │   │   ├── grafana/
-│   │   │   └── datasource.yml       # Prometheus datasource provisioning
+│   │   │   ├── datasource.yml       # Prometheus, Loki, Tempo datasources
+│   │   │   └── dashboards/          # Pre-configured dashboards
+│   │   ├── loki/
+│   │   │   └── loki-config.yml      # Loki configuration (log storage)
+│   │   ├── promtail/
+│   │   │   └── promtail-config.yml  # Promtail configuration (log collection)
+│   │   ├── tempo/
+│   │   │   └── tempo-config.yml     # Tempo configuration (trace storage)
 │   │   ├── Dockerfile.prometheus    # Prometheus
 │   │   ├── Dockerfile.grafana       # Grafana (port 3001)
+│   │   ├── Dockerfile.loki          # Loki (log aggregation)
+│   │   ├── Dockerfile.promtail      # Promtail (log collector)
+│   │   ├── Dockerfile.tempo         # Tempo (distributed tracing)
 │   │   └── postgres/
 │   │       └── entrypoint-wrapper.sh # Postgres + Liquibase bootstrap
 │   ├── liquibase/             # Database migrations
@@ -108,7 +126,7 @@ itercraft/
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ec2/         # EC2 + Elastic IP + SSM + Cloudflare DNS (Traefik + docker-compose)
-│       ├── aws_ecr/         # Container registries (6 repos)
+│       ├── aws_ecr/         # Container registries (10 repos)
 │       ├── aws_oidc_github/ # OIDC provider + IAM roles (GitHub Actions → ECR + Terraform)
 │       ├── aws_backend/     # S3 bucket + DynamoDB for Terraform state (remote backend)
 │       ├── aws_lambda_slack/# Lambda + API Gateway for Slack /infra command
@@ -155,7 +173,7 @@ itercraft/
 | AI / Vision    | Claude API, Anthropic (weather image analysis)                                          |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
 | IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
-| Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator                                   |
+| Monitoring     | Prometheus, Grafana, Loki (logs), Tempo (traces), Micrometer, Spring Boot Actuator      |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                                                       |
 | Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM, S3, DynamoDB, Lambda, API Gateway), Cloudflare |
 | CI/CD          | GitHub Actions, Slack ChatOps (`/infra`)                                                |
@@ -275,7 +293,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-GitHub Actions builds the 6 Docker images, tags them with the version + `latest`, and pushes them to ECR.
+GitHub Actions builds the 10 Docker images, tags them with the version + `latest`, and pushes them to ECR.
 
 Authentication uses **OIDC** (OpenID Connect): GitHub assumes an IAM role directly with AWS, without access keys stored in secrets. The `aws_oidc_github` Terraform module creates the identity provider and the `github-actions-ecr-push` role restricted to `v*` tags of the repo.
 
@@ -393,6 +411,9 @@ docker build -f devsecops/docker/Dockerfile.front      -t itercraft-front .
 docker build -f devsecops/docker/Dockerfile.keycloak    -t itercraft-keycloak .
 docker build -f devsecops/docker/Dockerfile.prometheus  -t itercraft-prometheus .
 docker build -f devsecops/docker/Dockerfile.grafana     -t itercraft-grafana .
+docker build -f devsecops/docker/Dockerfile.loki        -t itercraft-loki .
+docker build -f devsecops/docker/Dockerfile.promtail    -t itercraft-promtail .
+docker build -f devsecops/docker/Dockerfile.tempo       -t itercraft-tempo .
 ```
 
 ### Run - Dev (containers on localhost)

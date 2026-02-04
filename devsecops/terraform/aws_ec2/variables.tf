@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "instance_type" {
   description = "Type EC2"
   type        = string
-  default     = "t3a.medium"
+  default     = "t3.large"
 }
 
 variable "vpc_id" {

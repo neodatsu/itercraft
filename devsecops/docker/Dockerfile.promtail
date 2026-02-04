@@ -1,0 +1,7 @@
+FROM grafana/promtail:3.0.0
+
+COPY devsecops/docker/promtail/promtail-config.yml /etc/promtail/config.yml
+
+EXPOSE 9080
+
+CMD ["-config.file=/etc/promtail/config.yml"]
