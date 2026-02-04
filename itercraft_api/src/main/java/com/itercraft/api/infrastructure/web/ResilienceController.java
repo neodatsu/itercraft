@@ -17,6 +17,8 @@ import java.util.Map;
 @RequestMapping("/api/resilience")
 public class ResilienceController {
 
+    private static final String STATUS_KEY = "status";
+
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
     public ResilienceController(CircuitBreakerRegistry circuitBreakerRegistry) {
@@ -45,7 +47,7 @@ public class ResilienceController {
     @GetMapping("/health")
     public Map<String, Object> getHealth() {
         Map<String, Object> health = new HashMap<>();
-        health.put("status", "UP");
+        health.put(STATUS_KEY, "UP");
 
         Map<String, String> services = new HashMap<>();
         circuitBreakerRegistry.getAllCircuitBreakers().forEach(cb -> {
@@ -66,9 +68,9 @@ public class ResilienceController {
         boolean anyUnhealthy = services.values().stream().anyMatch("UNHEALTHY"::equals);
 
         if (anyUnhealthy) {
-            health.put("status", "DEGRADED");
+            health.put(STATUS_KEY, "DEGRADED");
         } else if (!allHealthy) {
-            health.put("status", "RECOVERING");
+            health.put(STATUS_KEY, "RECOVERING");
         }
 
         return health;
