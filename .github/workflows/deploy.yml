@@ -31,6 +31,9 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.ref }}
 
+      - name: Mask AWS Account ID
+        run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
