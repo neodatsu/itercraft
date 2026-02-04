@@ -1,0 +1,7 @@
+FROM falcosecurity/falcosidekick:2.30.0
+
+COPY devsecops/docker/falco/falcosidekick.yaml /etc/falcosidekick/config.yaml
+
+EXPOSE 2801
+
+CMD ["-c", "/etc/falcosidekick/config.yaml"]

@@ -1,0 +1,59 @@
+# Falco configuration for Itercraft
+# Runtime security monitoring
+
+json_output: true
+json_include_output_property: true
+json_include_tags_property: true
+
+log_stderr: true
+log_syslog: false
+log_level: info
+
+priority: notice
+
+buffered_outputs: false
+
+outputs_queue:
+  capacity: 0
+
+# File output for Promtail to scrape
+file_output:
+  enabled: true
+  keep_alive: false
+  filename: /var/log/falco/events.json
+
+# Stdout for docker logs
+stdout_output:
+  enabled: true
+
+# HTTP webhook for Grafana/Slack alerting via Falcosidekick
+http_output:
+  enabled: true
+  url: http://falcosidekick:2801
+  user_agent: "falco/itercraft"
+
+# gRPC server for Falcosidekick
+grpc:
+  enabled: true
+  bind_address: "0.0.0.0:5060"
+  threadiness: 8
+
+grpc_output:
+  enabled: true
+
+# Syscall event source
+syscall_event_drops:
+  threshold: 0.1
+  actions:
+    - log
+    - alert
+  rate: 0.03333
+  max_burst: 1
+
+# Watch for new containers
+watch_config_files: true
+
+# Rules files
+rules_file:
+  - /etc/falco/falco_rules.yaml
+  - /etc/falco/rules.d

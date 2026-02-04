@@ -1,0 +1,10 @@
+FROM falcosecurity/falco-no-driver:0.40.0
+
+COPY devsecops/docker/falco/falco.yaml /etc/falco/falco.yaml
+COPY devsecops/docker/falco/rules.yaml /etc/falco/rules.d/itercraft_rules.yaml
+
+# Falco needs to run as root for eBPF/kernel access
+USER root
+
+ENTRYPOINT ["/usr/bin/falco"]
+CMD ["-o", "json_output=true", "-o", "json_include_output_property=true"]

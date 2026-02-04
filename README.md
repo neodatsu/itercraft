@@ -414,6 +414,8 @@ docker build -f devsecops/docker/Dockerfile.grafana     -t itercraft-grafana .
 docker build -f devsecops/docker/Dockerfile.loki        -t itercraft-loki .
 docker build -f devsecops/docker/Dockerfile.promtail    -t itercraft-promtail .
 docker build -f devsecops/docker/Dockerfile.tempo       -t itercraft-tempo .
+docker build -f devsecops/docker/Dockerfile.falco       -t itercraft-falco .
+docker build -f devsecops/docker/Dockerfile.falcosidekick -t itercraft-falcosidekick .
 ```
 
 ### Run - Dev (containers on localhost)
@@ -476,6 +478,19 @@ docker run --network itercraft --name promtail \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   itercraft-promtail
 
+# Falcosidekick (alert forwarder - start before Falco)
+docker run --network itercraft --name falcosidekick -p 2801:2801 \
+  -e SLACK_WEBHOOK_URL=<your-slack-webhook> \
+  itercraft-falcosidekick
+
+# Falco (runtime security - needs privileged mode for eBPF)
+docker run --network itercraft --name falco --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /dev:/host/dev:ro \
+  -v /proc:/host/proc:ro \
+  -v /etc:/host/etc:ro \
+  itercraft-falco
+
 # Grafana (admin/admin)
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```
@@ -512,6 +527,17 @@ docker run --network itercraft --name promtail \
   -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   itercraft-promtail
+
+docker run --network itercraft --name falcosidekick \
+  -e SLACK_WEBHOOK_URL=<your-slack-webhook> \
+  itercraft-falcosidekick
+
+docker run --network itercraft --name falco --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /dev:/host/dev:ro \
+  -v /proc:/host/proc:ro \
+  -v /etc:/host/etc:ro \
+  itercraft-falco
 
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```

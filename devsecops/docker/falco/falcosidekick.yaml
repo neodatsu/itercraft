@@ -1,0 +1,53 @@
+# Falcosidekick configuration
+# Forwards Falco alerts to Slack and Grafana/Loki
+
+debug: false
+customfields:
+  environment: production
+  cluster: itercraft
+
+# Slack integration
+slack:
+  webhookurl: "${SLACK_WEBHOOK_URL}"
+  channel: "#itercraft-security"
+  username: "Falco"
+  icon: "https://falco.org/favicons/favicon-32x32.png"
+  footer: "https://github.com/neodatsu/itercraft"
+  minimumpriority: "warning"
+  messageformat: |
+    *[{{ .Priority }}] {{ .Rule }}*
+    {{ .Output }}
+
+    Container: `{{ index .OutputFields "container.name" }}`
+    Image: `{{ index .OutputFields "container.image.repository" }}`
+    User: `{{ index .OutputFields "user.name" }}`
+
+# Grafana Loki integration (push alerts as logs)
+loki:
+  hostport: "http://loki:3100"
+  minimumpriority: "notice"
+  tenant: "itercraft"
+  customheaders: ""
+  extralabels: "source:falco,type:security"
+
+# Prometheus metrics for Grafana dashboards
+prometheus:
+  extralabels: "source:falco"
+
+# Grafana OnCall integration (optional)
+grafanaoncall:
+  webhookurl: "${GRAFANA_ONCALL_URL}"
+  minimumpriority: "error"
+  # Only enable if you have Grafana OnCall configured
+  # customheaders: ""
+
+# Output configuration
+outputs:
+  # Enable stdout for debugging
+  stdout:
+    enabled: true
+
+# Web UI
+webui:
+  enabled: true
+  url: "/ui"

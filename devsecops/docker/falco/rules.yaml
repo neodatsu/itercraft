@@ -1,0 +1,144 @@
+# Itercraft-specific Falco rules
+# Runtime security monitoring
+
+# List of allowed processes in containers
+- list: itercraft_allowed_processes
+  items: [java, node, nginx, postgres, keycloak, grafana, prometheus, loki, tempo, promtail, mosquitto]
+
+# Macro for itercraft containers
+- macro: itercraft_container
+  condition: (container.image.repository contains "itercraft" or container.name startswith "itercraft")
+
+# ============================================================================
+# HIGH PRIORITY - Critical security events
+# ============================================================================
+
+- rule: Shell Spawned in Container
+  desc: A shell was spawned inside a container (potential intrusion)
+  condition: >
+    spawned_process and
+    container and
+    proc.name in (bash, sh, zsh, ash, dash, ksh, csh, tcsh) and
+    not proc.pname in (java, node, nginx)
+  output: >
+    Shell spawned in container
+    (user=%user.name user_uid=%user.uid container=%container.name
+    image=%container.image.repository shell=%proc.name parent=%proc.pname
+    cmdline=%proc.cmdline terminal=%proc.tty)
+  priority: WARNING
+  tags: [container, shell, intrusion]
+
+- rule: Reverse Shell Detected
+  desc: Potential reverse shell connection detected
+  condition: >
+    spawned_process and
+    container and
+    ((proc.name in (nc, ncat, netcat) and proc.args contains "-e") or
+     (proc.name = bash and proc.args contains "/dev/tcp") or
+     (proc.name = python and proc.args contains "socket"))
+  output: >
+    Reverse shell detected
+    (user=%user.name container=%container.name image=%container.image.repository
+    process=%proc.name cmdline=%proc.cmdline)
+  priority: CRITICAL
+  tags: [container, network, intrusion, mitre_execution]
+
+- rule: Crypto Miner Detected
+  desc: Known crypto mining process detected
+  condition: >
+    spawned_process and
+    container and
+    (proc.name in (xmrig, minerd, minergate, cpuminer, stratum) or
+     proc.args contains "stratum+tcp" or
+     proc.args contains "pool.minexmr")
+  output: >
+    Crypto miner detected
+    (user=%user.name container=%container.name image=%container.image.repository
+    process=%proc.name cmdline=%proc.cmdline)
+  priority: CRITICAL
+  tags: [container, cryptomining, mitre_resource_hijacking]
+
+# ============================================================================
+# MEDIUM PRIORITY - Suspicious activity
+# ============================================================================
+
+- rule: Sensitive File Read
+  desc: Sensitive file opened for reading
+  condition: >
+    open_read and
+    container and
+    fd.name in (/etc/shadow, /etc/passwd, /etc/sudoers, /root/.ssh/id_rsa, /root/.bash_history)
+  output: >
+    Sensitive file read
+    (user=%user.name container=%container.name file=%fd.name
+    process=%proc.name cmdline=%proc.cmdline)
+  priority: WARNING
+  tags: [container, filesystem, sensitive_data]
+
+- rule: Write to Binary Directory
+  desc: Write operation to system binary directory
+  condition: >
+    open_write and
+    container and
+    (fd.name startswith /bin or
+     fd.name startswith /sbin or
+     fd.name startswith /usr/bin or
+     fd.name startswith /usr/sbin)
+  output: >
+    Write to binary directory
+    (user=%user.name container=%container.name file=%fd.name
+    process=%proc.name cmdline=%proc.cmdline)
+  priority: ERROR
+  tags: [container, filesystem, integrity]
+
+- rule: Package Manager Executed in Container
+  desc: Package manager run inside container (potential tampering)
+  condition: >
+    spawned_process and
+    container and
+    proc.name in (apt, apt-get, yum, dnf, apk, pip, npm) and
+    not itercraft_container
+  output: >
+    Package manager executed in container
+    (user=%user.name container=%container.name image=%container.image.repository
+    process=%proc.name cmdline=%proc.cmdline)
+  priority: NOTICE
+  tags: [container, package, compliance]
+
+- rule: Unauthorized Network Connection
+  desc: Unexpected outbound connection from container
+  condition: >
+    outbound and
+    container and
+    not (fd.sport in (80, 443, 5432, 8080, 8180, 9090, 3100, 3200, 4317, 4318, 1883, 8883))
+  output: >
+    Unexpected network connection
+    (user=%user.name container=%container.name image=%container.image.repository
+    connection=%fd.name sport=%fd.sport dport=%fd.dport)
+  priority: NOTICE
+  tags: [container, network, exfiltration]
+
+# ============================================================================
+# LOW PRIORITY - Informational
+# ============================================================================
+
+- rule: Container Started
+  desc: New container started
+  condition: container_started
+  output: >
+    Container started
+    (container=%container.name image=%container.image.repository
+    user=%container.image.user)
+  priority: INFORMATIONAL
+  tags: [container, lifecycle]
+
+- rule: Privileged Container Started
+  desc: A privileged container was started
+  condition: >
+    container_started and
+    container.privileged=true
+  output: >
+    Privileged container started
+    (container=%container.name image=%container.image.repository)
+  priority: WARNING
+  tags: [container, privileged, compliance]
