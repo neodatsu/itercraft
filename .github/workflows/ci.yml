@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sbom
-          path: itercraft_api/target/bom.json
+          path: itercraft_api/target/classes/META-INF/sbom/application.cdx.json
 
       - name: Install Trivy
         run: |
@@ -156,8 +156,9 @@ jobs:
       - name: Scan SBOM with Trivy
         id: trivy
         run: |
-          trivy sbom target/bom.json --severity HIGH,CRITICAL --format table --output trivy-report.txt || true
-          HIGH=$(trivy sbom target/bom.json --severity HIGH,CRITICAL --format json 2>/dev/null | jq '[.Results[]?.Vulnerabilities // [] | length] | add // 0')
+          SBOM_PATH="target/classes/META-INF/sbom/application.cdx.json"
+          trivy sbom "$SBOM_PATH" --severity HIGH,CRITICAL --format table --output trivy-report.txt || true
+          HIGH=$(trivy sbom "$SBOM_PATH" --severity HIGH,CRITICAL --format json 2>/dev/null | jq '[.Results[]?.Vulnerabilities // [] | length] | add // 0')
           echo "vulnerabilities=${HIGH} HIGH/CRITICAL" >> "$GITHUB_OUTPUT"
 
       - name: Upload Trivy report

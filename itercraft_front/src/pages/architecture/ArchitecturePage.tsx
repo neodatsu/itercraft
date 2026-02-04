@@ -123,7 +123,7 @@ C4Container
   Rel(front, api, "API REST + SSE", "HTTPS /api")
   Rel(front, kc, "Auth OIDC", "HTTPS /auth")
   Rel(api, db, "JDBC", "5432")
-  Rel(api, kc, "Validation token", "HTTP")
+  Rel(api, kc, "JWT validation (JWK)", "HTTP")
   Rel(prom, api, "Scrape métriques", "/actuator/prometheus")
   Rel(grafana, prom, "Requêtes", "PromQL")
   Rel(api, claude2, "Analyse image", "HTTPS")

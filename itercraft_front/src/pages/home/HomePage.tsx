@@ -96,7 +96,7 @@ export function HomePage() {
             <span className="home-stack-icon">🛡️</span>
             <div>
               <strong>Sécurité</strong>
-              <span>OWASP Dependency-Check &middot; SonarCloud &middot; CSRF</span>
+              <span>OWASP &middot; Trivy &middot; SBOM &middot; SonarCloud &middot; CSRF</span>
             </div>
           </div>
           <div className="home-stack-item">
