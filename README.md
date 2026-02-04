@@ -464,6 +464,18 @@ docker run --network itercraft --name front -p 3000:3000 itercraft-front
 # Prometheus
 docker run --network itercraft --name prometheus -p 9090:9090 itercraft-prometheus
 
+# Loki (log aggregation)
+docker run --network itercraft --name loki -p 3100:3100 itercraft-loki
+
+# Tempo (distributed tracing)
+docker run --network itercraft --name tempo -p 3200:3200 -p 4317:4317 -p 4318:4318 itercraft-tempo
+
+# Promtail (log collector - needs Docker socket access)
+docker run --network itercraft --name promtail \
+  -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  itercraft-promtail
+
 # Grafana (admin/admin)
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```
@@ -491,6 +503,15 @@ docker run --network itercraft --name api \
 docker run --network itercraft --name front -p 3000:3000 itercraft-front
 
 docker run --network itercraft --name prometheus -p 9090:9090 itercraft-prometheus
+
+docker run --network itercraft --name loki itercraft-loki
+
+docker run --network itercraft --name tempo itercraft-tempo
+
+docker run --network itercraft --name promtail \
+  -v /var/lib/docker/containers:/var/lib/docker/containers:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  itercraft-promtail
 
 docker run --network itercraft --name grafana -p 3001:3001 itercraft-grafana
 ```
