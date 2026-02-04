@@ -1,5 +1,9 @@
 FROM grafana/tempo:2.7.0
 
+USER root
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3
+USER tempo
+
 COPY devsecops/docker/tempo/tempo-config.yml /etc/tempo/config.yaml
 
 EXPOSE 3200 4317 4318
