@@ -64,7 +64,7 @@ class MeteoControllerTest {
                 .thenReturn(fakeImage);
 
         mockMvc.perform(post("/api/meteo/map")
-                        .param("layer", "WIND_SPEED__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND")
+                        .param("layer", "WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND")
                         .param("lat", "45.0")
                         .param("lon", "5.0")
                         .param("width", "1024")
@@ -74,7 +74,7 @@ class MeteoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG));
 
-        verify(meteoService).getMapImage("WIND_SPEED__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND",
+        verify(meteoService).getMapImage("WIND_SPEED_GUST__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND",
                 45.0, 5.0, 1024, 768);
     }
 
