@@ -63,7 +63,15 @@ jobs:
             fi
           done
 
-      - name: Build and push images
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Build images
         run: |
           ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           TAG=${{ steps.version.outputs.TAG }}
@@ -74,8 +82,6 @@ jobs:
             --build-arg VITE_KEYCLOAK_REALM=itercraft \
             --build-arg VITE_API_URL=https://api.$DOMAIN_NAME \
             -t "$ECR/itercraft_front:$TAG" -t "$ECR/itercraft_front:latest" .
-          docker push "$ECR/itercraft_front:$TAG"
-          docker push "$ECR/itercraft_front:latest"
 
           # Other images (no build args needed)
           images=(
@@ -91,12 +97,47 @@ jobs:
             DOCKERFILE="${entry#*:}"
             echo "Building $REPO from $DOCKERFILE"
             docker build -f "$DOCKERFILE" -t "$ECR/$REPO:$TAG" -t "$ECR/$REPO:latest" .
-            docker push "$ECR/$REPO:$TAG"
-            docker push "$ECR/$REPO:latest"
           done
 
           # Mosquitto (different build context)
           echo "Building itercraft_mosquitto"
           docker build -t "$ECR/itercraft_mosquitto:$TAG" -t "$ECR/itercraft_mosquitto:latest" iot/mosquitto
-          docker push "$ECR/itercraft_mosquitto:$TAG"
-          docker push "$ECR/itercraft_mosquitto:latest"
+
+      - name: Scan images with Trivy
+        run: |
+          ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          TAG=${{ steps.version.outputs.TAG }}
+          mkdir -p trivy-reports
+
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
+
+          for IMG in "${IMAGES[@]}"; do
+            echo "🔍 Scanning $IMG..."
+            trivy image --severity HIGH,CRITICAL --format table "$ECR/$IMG:$TAG" | tee "trivy-reports/$IMG.txt"
+            # Fail on CRITICAL only (HIGH are warnings)
+            trivy image --severity CRITICAL --exit-code 1 "$ECR/$IMG:$TAG" || {
+              echo "❌ CRITICAL vulnerabilities found in $IMG"
+              exit 1
+            }
+          done
+          echo "✅ All images passed Trivy scan"
+
+      - name: Upload Trivy reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-reports
+          path: trivy-reports/
+
+      - name: Push images to ECR
+        run: |
+          ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          TAG=${{ steps.version.outputs.TAG }}
+
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto)
+
+          for IMG in "${IMAGES[@]}"; do
+            echo "📤 Pushing $IMG..."
+            docker push "$ECR/$IMG:$TAG"
+            docker push "$ECR/$IMG:latest"
+          done
