@@ -1,5 +1,9 @@
 FROM grafana/grafana:11.5.2
 
+USER root
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3
+USER grafana
+
 COPY devsecops/docker/grafana/datasource.yml /etc/grafana/provisioning/datasources/datasource.yml
 COPY devsecops/docker/grafana/dashboards.yml /etc/grafana/provisioning/dashboards/dashboards.yml
 COPY devsecops/docker/grafana/dashboards/ /var/lib/grafana/dashboards/
