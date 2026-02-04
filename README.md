@@ -168,7 +168,7 @@ itercraft/
 | Build          | Maven, JaCoCo, npm, Vitest                                                              |
 | Analytics      | Google Analytics (GA4, after consent only)                                              |
 | Accessibility  | Lighthouse CI (score ≥ 90 in CI)                                                        |
-| Security       | OWASP Dependency-Check, Trivy, SBOM (CycloneDX), SonarCloud, CSRF (cookie)              |
+| Security       | OWASP Dependency-Check, Trivy, SBOM (CycloneDX), SonarCloud, CSRF (cookie), Falco (runtime) |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, JWT)                                                    |
 | AI / Vision    | Claude API, Anthropic (weather image analysis)                                          |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
