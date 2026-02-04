@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,7 +18,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.opaqueToken;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,14 +36,14 @@ class SubscriptionControllerTest {
     private SubscriptionService subscriptionService;
 
     @MockitoBean
-    private OpaqueTokenIntrospector opaqueTokenIntrospector;
+    private JwtDecoder jwtDecoder;
 
     private static final String SUB = "user-sub-123";
 
     @Test
     void subscribe_shouldReturn201() throws Exception {
         mockMvc.perform(post("/api/subscriptions/tondeuse")
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB)))
+                        .with(jwt().jwt(j -> j.subject(SUB)))
                         .with(csrf()))
                 .andExpect(status().isCreated());
 
@@ -53,7 +53,7 @@ class SubscriptionControllerTest {
     @Test
     void unsubscribe_shouldReturn204() throws Exception {
         mockMvc.perform(delete("/api/subscriptions/tondeuse")
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB)))
+                        .with(jwt().jwt(j -> j.subject(SUB)))
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
@@ -63,7 +63,7 @@ class SubscriptionControllerTest {
     @Test
     void addUsage_shouldReturn201() throws Exception {
         mockMvc.perform(post("/api/subscriptions/tondeuse/usages")
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB)))
+                        .with(jwt().jwt(j -> j.subject(SUB)))
                         .with(csrf()))
                 .andExpect(status().isCreated());
 
@@ -74,7 +74,7 @@ class SubscriptionControllerTest {
     void removeUsage_shouldReturn204() throws Exception {
         UUID usageId = UUID.randomUUID();
         mockMvc.perform(delete("/api/subscriptions/tondeuse/usages/" + usageId)
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB)))
+                        .with(jwt().jwt(j -> j.subject(SUB)))
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
@@ -94,7 +94,7 @@ class SubscriptionControllerTest {
                 .thenReturn(List.of(new UserSubscriptionDto("tondeuse", "Tondeuse", 3)));
 
         mockMvc.perform(get("/api/subscriptions")
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB))))
+                        .with(jwt().jwt(j -> j.subject(SUB))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].serviceCode").value("tondeuse"))
                 .andExpect(jsonPath("$[0].usageCount").value(3));
@@ -106,7 +106,7 @@ class SubscriptionControllerTest {
                 .thenReturn(List.of(new ServiceDto("tondeuse", "Tondeuse", "desc")));
 
         mockMvc.perform(get("/api/services")
-                        .with(opaqueToken()))
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code").value("tondeuse"));
     }
@@ -119,7 +119,7 @@ class SubscriptionControllerTest {
                         usageId, java.time.OffsetDateTime.now())));
 
         mockMvc.perform(get("/api/subscriptions/tondeuse/usages")
-                        .with(opaqueToken().attributes(attrs -> attrs.put("sub", SUB))))
+                        .with(jwt().jwt(j -> j.subject(SUB))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(usageId.toString()));
     }

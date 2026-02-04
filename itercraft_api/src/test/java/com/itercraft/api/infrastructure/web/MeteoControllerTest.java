@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.opaqueToken;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -34,7 +34,7 @@ class MeteoControllerTest {
     private ClaudeService claudeService;
 
     @MockitoBean
-    private OpaqueTokenIntrospector opaqueTokenIntrospector;
+    private JwtDecoder jwtDecoder;
 
     @Test
     void getMap_shouldReturnPngImage() throws Exception {
@@ -47,7 +47,7 @@ class MeteoControllerTest {
                         .param("layer", "TEMPERATURE__SPECIFIC_HEIGHT_LEVEL_ABOVE_GROUND")
                         .param("lat", "48.8566")
                         .param("lon", "2.3522")
-                        .with(opaqueToken())
+                        .with(jwt())
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
@@ -69,7 +69,7 @@ class MeteoControllerTest {
                         .param("lon", "5.0")
                         .param("width", "1024")
                         .param("height", "768")
-                        .with(opaqueToken())
+                        .with(jwt())
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG));
@@ -94,7 +94,7 @@ class MeteoControllerTest {
                         .param("lat", "48.8566")
                         .param("lon", "2.3522")
                         .param("location", "Paris")
-                        .with(opaqueToken())
+                        .with(jwt())
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.analysis").value(analysis));

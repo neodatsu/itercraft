@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/subscriptions")
-    public ResponseEntity<List<UserSubscriptionDto>> getUserSubscriptions(BearerTokenAuthentication token) {
+    public ResponseEntity<List<UserSubscriptionDto>> getUserSubscriptions(JwtAuthenticationToken token) {
         return ResponseEntity.ok(subscriptionService.getUserSubscriptions(extractSub(token)));
     }
 
@@ -38,27 +38,27 @@ public class SubscriptionController {
 
     @PostMapping("/subscriptions/{serviceCode}")
     public ResponseEntity<Void> subscribe(@PathVariable String serviceCode,
-                                          BearerTokenAuthentication token) {
+                                          JwtAuthenticationToken token) {
         subscriptionService.subscribe(extractSub(token), serviceCode);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/subscriptions/{serviceCode}")
     public ResponseEntity<Void> unsubscribe(@PathVariable String serviceCode,
-                                            BearerTokenAuthentication token) {
+                                            JwtAuthenticationToken token) {
         subscriptionService.unsubscribe(extractSub(token), serviceCode);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/subscriptions/{serviceCode}/usages")
     public ResponseEntity<List<UsageDto>> getUsageHistory(@PathVariable String serviceCode,
-                                                          BearerTokenAuthentication token) {
+                                                          JwtAuthenticationToken token) {
         return ResponseEntity.ok(subscriptionService.getUsageHistory(extractSub(token), serviceCode));
     }
 
     @PostMapping("/subscriptions/{serviceCode}/usages")
     public ResponseEntity<Void> addUsage(@PathVariable String serviceCode,
-                                         BearerTokenAuthentication token) {
+                                         JwtAuthenticationToken token) {
         subscriptionService.addUsage(extractSub(token), serviceCode);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -66,17 +66,16 @@ public class SubscriptionController {
     @DeleteMapping("/subscriptions/{serviceCode}/usages/{usageId}")
     public ResponseEntity<Void> removeUsage(@PathVariable String serviceCode,
                                             @PathVariable UUID usageId,
-                                            BearerTokenAuthentication token) {
+                                            JwtAuthenticationToken token) {
         subscriptionService.removeUsage(extractSub(token), serviceCode, usageId);
         return ResponseEntity.noContent().build();
     }
 
-    private String extractSub(BearerTokenAuthentication token) {
-        // For opaque tokens, 'sub' is in token attributes, not in getName()
-        Object sub = token.getTokenAttributes().get("sub");
+    private String extractSub(JwtAuthenticationToken token) {
+        String sub = token.getToken().getSubject();
         if (sub == null) {
-            throw new IllegalStateException("Token does not contain 'sub' claim");
+            throw new IllegalStateException("JWT does not contain 'sub' claim");
         }
-        return sub.toString();
+        return sub;
     }
 }
