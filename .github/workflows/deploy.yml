@@ -57,7 +57,7 @@ jobs:
 
       - name: Clean existing images from ECR
         run: |
-          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
+          REPOS=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo itercraft_falco itercraft_falcosidekick)
           for REPO in "${REPOS[@]}"; do
             echo "Cleaning $REPO..."
             IMAGE_IDS=$(aws ecr list-images --repository-name "$REPO" --region "$AWS_REGION" --query 'imageIds[*]' --output json 2>/dev/null || echo "[]")
@@ -96,6 +96,8 @@ jobs:
             "itercraft_loki:devsecops/docker/Dockerfile.loki"
             "itercraft_promtail:devsecops/docker/Dockerfile.promtail"
             "itercraft_tempo:devsecops/docker/Dockerfile.tempo"
+            "itercraft_falco:devsecops/docker/Dockerfile.falco"
+            "itercraft_falcosidekick:devsecops/docker/Dockerfile.falcosidekick"
           )
 
           for entry in "${images[@]}"; do
@@ -115,7 +117,7 @@ jobs:
           TAG=${{ steps.version.outputs.TAG }}
           mkdir -p trivy-reports
 
-          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo itercraft_falco itercraft_falcosidekick)
 
           for IMG in "${IMAGES[@]}"; do
             echo "🔍 Scanning $IMG..."
@@ -140,7 +142,7 @@ jobs:
           ECR=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
           TAG=${{ steps.version.outputs.TAG }}
 
-          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo)
+          IMAGES=(itercraft_front itercraft_api itercraft_authent itercraft_bdd itercraft_prometheus itercraft_grafana itercraft_mosquitto itercraft_loki itercraft_promtail itercraft_tempo itercraft_falco itercraft_falcosidekick)
 
           for IMG in "${IMAGES[@]}"; do
             echo "📤 Pushing $IMG..."

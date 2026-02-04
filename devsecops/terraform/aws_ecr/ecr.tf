@@ -502,3 +502,103 @@ output "tempo_repository_url" {
   description = "ECR repository URL for itercraft_tempo"
   value       = aws_ecr_repository.itercraft_tempo.repository_url
 }
+
+# --- Runtime Security: Falco ---
+
+resource "aws_ecr_repository" "itercraft_falco" {
+  name                 = "itercraft_falco"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_falco" {
+  repository = aws_ecr_repository.itercraft_falco.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "falco_repository_url" {
+  description = "ECR repository URL for itercraft_falco"
+  value       = aws_ecr_repository.itercraft_falco.repository_url
+}
+
+resource "aws_ecr_repository" "itercraft_falcosidekick" {
+  name                 = "itercraft_falcosidekick"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "itercraft_falcosidekick" {
+  repository = aws_ecr_repository.itercraft_falcosidekick.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Expire untagged images after 1 day"
+        selection = {
+          tagStatus   = "untagged"
+          countType   = "sinceImagePushed"
+          countUnit   = "days"
+          countNumber = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 2
+        description  = "Keep only 2 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 2
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+output "falcosidekick_repository_url" {
+  description = "ECR repository URL for itercraft_falcosidekick"
+  value       = aws_ecr_repository.itercraft_falcosidekick.repository_url
+}

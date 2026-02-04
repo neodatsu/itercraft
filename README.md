@@ -24,7 +24,7 @@ graph TB
     end
 
     subgraph AWS
-        ECR[ECR<br/>10 repos]
+        ECR[ECR<br/>12 repos]
         BUD[Budgets<br/>10$ alert]
         EC2[EC2 t3.large<br/>Ubuntu 22.04]
         EIP[Elastic IP]
@@ -126,7 +126,7 @@ itercraft/
 │   └── terraform/           # Infrastructure as Code
 │       ├── aws_budget/      # Cost alert (10$/month)
 │       ├── aws_ec2/         # EC2 + Elastic IP + SSM + Cloudflare DNS (Traefik + docker-compose)
-│       ├── aws_ecr/         # Container registries (10 repos)
+│       ├── aws_ecr/         # Container registries (12 repos)
 │       ├── aws_oidc_github/ # OIDC provider + IAM roles (GitHub Actions → ECR + Terraform)
 │       ├── aws_backend/     # S3 bucket + DynamoDB for Terraform state (remote backend)
 │       ├── aws_lambda_slack/# Lambda + API Gateway for Slack /infra command
@@ -293,7 +293,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-GitHub Actions builds the 10 Docker images, tags them with the version + `latest`, and pushes them to ECR.
+GitHub Actions builds the 12 Docker images, tags them with the version + `latest`, and pushes them to ECR.
 
 Authentication uses **OIDC** (OpenID Connect): GitHub assumes an IAM role directly with AWS, without access keys stored in secrets. The `aws_oidc_github` Terraform module creates the identity provider and the `github-actions-ecr-push` role restricted to `v*` tags of the repo.
 
