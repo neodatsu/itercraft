@@ -22,6 +22,13 @@ public class ClaudeServiceImpl implements ClaudeService {
     private static final Logger log = LoggerFactory.getLogger(ClaudeServiceImpl.class);
 
     private final RestClient restClient;
+
+    private static String sanitizeForLog(String input) {
+        if (input == null) {
+            return "null";
+        }
+        return input.replaceAll("[\\r\\n\\t]", "_");
+    }
     private final String model;
     private final String apiKey;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -70,7 +77,7 @@ public class ClaudeServiceImpl implements ClaudeService {
                 ))
         );
 
-        log.info("Requesting Claude analysis: model={}, layer={}, location={}", model, layerLabel, location);
+        log.info("Requesting Claude analysis: model={}, layer={}, location={}", model, sanitizeForLog(layerLabel), sanitizeForLog(location));
 
         byte[] responseBytes = restClient.post()
                 .uri("/v1/messages")

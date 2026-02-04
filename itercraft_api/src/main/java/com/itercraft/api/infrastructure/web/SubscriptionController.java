@@ -72,17 +72,6 @@ public class SubscriptionController {
     }
 
     private String extractSub(BearerTokenAuthentication token) {
-        String name = token.getName();
-        if (name != null && !name.isBlank()) {
-            return name;
-        }
-        var attrs = token.getTokenAttributes();
-        for (String key : List.of("sub", "subject", "username", "preferred_username")) {
-            Object val = attrs.get(key);
-            if (val instanceof String s && !s.isBlank()) {
-                return s;
-            }
-        }
-        throw new IllegalStateException("No subject found in token. Available attributes: " + attrs.keySet());
+        return token.getName();
     }
 }
