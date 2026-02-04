@@ -1,8 +1,8 @@
 # Itercraft API
 
-Backend REST API — Java 25, Spring Boot 4, architecture DDD (Domain-Driven Design).
+Backend REST API — Java 25, Spring Boot 4, DDD (Domain-Driven Design) architecture.
 
-## Diagramme de classes
+## Class Diagram
 
 ```mermaid
 classDiagram

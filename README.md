@@ -147,11 +147,11 @@ itercraft/
 | Frontend       | React, TypeScript, Vite                                                                 |
 | Database       | PostgreSQL 17, Liquibase (schema migrations)                                            |
 | Build          | Maven, JaCoCo, npm, Vitest                                                              |
-| Analytics      | Google Analytics (GA4, après consentement uniquement)                                   |
-| Accessibility  | Lighthouse CI (score ≥ 90 en CI)                                                        |
+| Analytics      | Google Analytics (GA4, after consent only)                                              |
+| Accessibility  | Lighthouse CI (score ≥ 90 in CI)                                                        |
 | Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)                                       |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)                                    |
-| IA / Vision    | Claude API, Anthropic (analyse d'images météo)                                          |
+| AI / Vision    | Claude API, Anthropic (weather image analysis)                                          |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
 | IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
 | Monitoring     | Prometheus, Grafana, Micrometer, Spring Boot Actuator                                   |
@@ -238,14 +238,14 @@ Backend coverage report is generated in `itercraft_api/target/site/jacoco/index.
 
 #### Required credentials
 
-1. **AWS** : configurer `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` et `AWS_MFA_SERIAL` dans `devsecops/terraform/env.sh`
-2. **Cloudflare API Token** :
+1. **AWS**: Configure `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_MFA_SERIAL` in `devsecops/terraform/env.sh`
+2. **Cloudflare API Token**:
    - Cloudflare Dashboard → My Profile → API Tokens → Create Token
-   - Template : **Edit zone DNS**
-   - Ajouter la permission : Zone → Zone Settings → Edit
-   - Zone Resources : Include → itercraft.com
-   - Copier le token dans `TF_VAR_cloudflare_api_token` dans `env.sh`
-3. **GitHub Secrets** (pour le CI/CD) : `AWS_ACCOUNT_ID` dans les secrets de l'environment `itercraft`
+   - Template: **Edit zone DNS**
+   - Add permission: Zone → Zone Settings → Edit
+   - Zone Resources: Include → itercraft.com
+   - Copy the token to `TF_VAR_cloudflare_api_token` in `env.sh`
+3. **GitHub Secrets** (for CI/CD): `AWS_ACCOUNT_ID` in the `itercraft` environment secrets
 
 #### Terraform apply
 
@@ -268,30 +268,30 @@ cd devsecops/terraform
 
 ### Deploy images (CI/CD)
 
-Le workflow `deploy.yml` est declenche automatiquement lors d'un tag `v*` :
+The `deploy.yml` workflow is automatically triggered on `v*` tags:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-GitHub Actions build les 6 images Docker, les tag avec la version + `latest`, et les push sur ECR.
+GitHub Actions builds the 6 Docker images, tags them with the version + `latest`, and pushes them to ECR.
 
-L'authentification utilise **OIDC** (OpenID Connect) : GitHub assume un role IAM directement aupres d'AWS, sans access keys stockees dans les secrets. Le module Terraform `aws_oidc_github` cree l'identity provider et le role `github-actions-ecr-push` restreint aux tags `v*` du repo.
+Authentication uses **OIDC** (OpenID Connect): GitHub assumes an IAM role directly with AWS, without access keys stored in secrets. The `aws_oidc_github` Terraform module creates the identity provider and the `github-actions-ecr-push` role restricted to `v*` tags of the repo.
 
-Seul secret GitHub requis : `AWS_ACCOUNT_ID`.
+Only required GitHub secret: `AWS_ACCOUNT_ID`.
 
 ### Deploy infrastructure via Slack (ChatOps)
 
-La stack EC2 peut être deployee ou detruite directement depuis Slack avec la commande `/infra` :
+The EC2 stack can be deployed or destroyed directly from Slack using the `/infra` command:
 
 ```text
-/infra apply ec2    # Terraform apply sur aws_ec2
-/infra destroy ec2  # Terraform destroy sur aws_ec2
+/infra apply ec2    # Terraform apply on aws_ec2
+/infra destroy ec2  # Terraform destroy on aws_ec2
 /infra plan ec2     # Terraform plan (dry-run)
 ```
 
-Le workflow est declenche via GitHub Actions (`terraform.yml`) et notifie le resultat dans Slack.
+The workflow is triggered via GitHub Actions (`terraform.yml`) and notifies the result in Slack.
 
 #### Architecture ChatOps
 
@@ -300,58 +300,58 @@ Slack /infra command
        ↓
 API Gateway (HTTPS)
        ↓
-Lambda (Node.js) — verifie signature Slack, appelle GitHub API
+Lambda (Node.js) — verifies Slack signature, calls GitHub API
        ↓
 GitHub Actions workflow_dispatch
        ↓
 Terraform apply/destroy (OIDC → AWS)
        ↓
-Notification Slack (webhook)
+Slack notification (webhook)
 ```
 
 #### Setup ChatOps
 
-1. **Backend S3 + DynamoDB** (remote state + locking) :
+1. **Backend S3 + DynamoDB** (remote state + locking):
 
    ```bash
    ./tf.sh aws_backend init
    ./tf.sh aws_backend apply
    ```
 
-   Crée le bucket `itercraft-terraform-state` et la table `itercraft-terraform-locks`.
+   Creates the `itercraft-terraform-state` bucket and the `itercraft-terraform-locks` table.
 
-2. **Role Terraform OIDC** :
+2. **Terraform OIDC Role**:
 
    ```bash
    ./tf.sh aws_oidc_github init
    ./tf.sh aws_oidc_github apply
    ```
 
-   Ajoute le role `github-actions-terraform` avec permissions EC2/S3/DynamoDB.
+   Adds the `github-actions-terraform` role with EC2/S3/DynamoDB permissions.
 
-3. **Secrets GitHub** (Settings → Environments → `itercraft`) :
-   - `AWS_TERRAFORM_ROLE_ARN` : ARN du role terraform (output de aws_oidc_github)
-   - `SLACK_WEBHOOK_URL` : webhook Slack Incoming Webhook pour les notifications
+3. **GitHub Secrets** (Settings → Environments → `itercraft`):
+   - `AWS_TERRAFORM_ROLE_ARN`: ARN of the terraform role (output from aws_oidc_github)
+   - `SLACK_WEBHOOK_URL`: Slack Incoming Webhook for notifications
 
-4. **Slack App** :
-   - Créer une app sur <https://api.slack.com/apps>
-   - Ajouter une Slash Command `/infra`
-   - Noter le **Signing Secret** (Basic Information → App Credentials)
+4. **Slack App**:
+   - Create an app at <https://api.slack.com/apps>
+   - Add a Slash Command `/infra`
+   - Note the **Signing Secret** (Basic Information → App Credentials)
 
-5. **Lambda Slack → GitHub** :
+5. **Lambda Slack → GitHub**:
 
    ```bash
    ./tf.sh aws_lambda_slack init
    ./tf.sh aws_lambda_slack apply
    ```
 
-   Variables requises (via `terraform.tfvars` ou `-var`) :
-   - `github_token` : Personal Access Token (classic) avec scope `repo`
-   - `slack_signing_secret` : Signing Secret de la Slack App
+   Required variables (via `terraform.tfvars` or `-var`):
+   - `github_token`: Personal Access Token (classic) with `repo` scope
+   - `slack_signing_secret`: Signing Secret from the Slack App
 
-   Configurer l'output `slack_webhook_url` comme Request URL de la slash command `/infra`.
+   Configure the `slack_webhook_url` output as the Request URL for the `/infra` slash command.
 
-6. **Initialiser EC2 avec backend S3** (première fois uniquement) :
+6. **Initialize EC2 with S3 backend** (first time only):
    ```bash
    cd devsecops/terraform/aws_ec2
    source ../env.sh
@@ -363,7 +363,7 @@ Notification Slack (webhook)
      -backend-config="encrypt=true"
    ```
 
-Ensuite, utiliser `/infra apply ec2` ou `/infra destroy ec2` depuis Slack.
+Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 
 ### API Endpoints
 
@@ -397,8 +397,8 @@ docker build -f devsecops/docker/Dockerfile.grafana     -t itercraft-grafana .
 
 ### Run - Dev (containers on localhost)
 
-Le backend accede aux autres services via `localhost` + port mapping Docker.
-`KC_HOSTNAME=localhost` (defini dans le Dockerfile) fixe l'issuer Keycloak a `http://localhost:8180`.
+The backend accesses other services via `localhost` + Docker port mapping.
+`KC_HOSTNAME=localhost` (defined in the Dockerfile) sets the Keycloak issuer to `http://localhost:8180`.
 
 ```bash
 # PostgreSQL
@@ -407,29 +407,29 @@ docker run -p 5432:5432 itercraft-postgres
 # Keycloak
 docker run -p 8180:8180 itercraft-keycloak
 
-# Backend (sur le host, pas besoin de -e)
+# Backend (on host, no -e needed)
 cd itercraft_api && mvn spring-boot:run
 
 # Frontend
 cd itercraft_front && npm run dev
 ```
 
-### Run - Dev (tout en containers)
+### Run - Dev (all in containers)
 
-Les containers communiquent via le reseau Docker.
-Le backend doit connaitre les IP ou hostnames Docker des autres services.
+Containers communicate via the Docker network.
+The backend must know the Docker IP addresses or hostnames of other services.
 
 ```bash
-# Creer un reseau
+# Create a network
 docker network create itercraft
 
 # PostgreSQL
 docker run --network itercraft --name postgres -p 5432:5432 itercraft-postgres
 
-# Keycloak (KC_HOSTNAME=localhost pour que l'issuer matche le navigateur)
+# Keycloak (KC_HOSTNAME=localhost so the issuer matches the browser)
 docker run --network itercraft --name keycloak -p 8180:8180 itercraft-keycloak
 
-# Backend (DB_HOST et KEYCLOAK_URL pointent vers les hostnames Docker)
+# Backend (DB_HOST and KEYCLOAK_URL point to Docker hostnames)
 docker run --network itercraft --name api -p 8080:8080 \
   -e DB_HOST=postgres \
   -e KEYCLOAK_URL=http://keycloak:8180 \
