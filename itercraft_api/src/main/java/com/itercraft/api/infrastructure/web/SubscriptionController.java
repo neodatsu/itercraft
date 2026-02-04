@@ -72,6 +72,11 @@ public class SubscriptionController {
     }
 
     private String extractSub(BearerTokenAuthentication token) {
-        return token.getName();
+        // For opaque tokens, 'sub' is in token attributes, not in getName()
+        Object sub = token.getTokenAttributes().get("sub");
+        if (sub == null) {
+            throw new IllegalStateException("Token does not contain 'sub' claim");
+        }
+        return sub.toString();
     }
 }
