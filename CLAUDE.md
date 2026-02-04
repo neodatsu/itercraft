@@ -196,3 +196,33 @@ Required information:
 - UI/UX: French
 - Comments: French or English (be consistent within a file)
 - Commit messages: English
+
+## Documentation
+
+### Keep Documentation in Sync
+
+When making changes, update the following if affected:
+
+- **README.md** - Project overview and quick start
+- **Wiki** (`itercraft.wiki/`) - Detailed documentation
+  - `Architecture-Overview.md` - System design changes
+  - `API-Reference.md` - Endpoint changes
+  - `Tutorial:-Your-First-Setup.md` - Setup process changes
+- **Frontend pages** - If user-facing features change
+  - Architecture page
+  - Homepage
+
+### Wiki Location
+
+The wiki is a separate Git repository:
+
+```bash
+git clone https://github.com/neodatsu/itercraft.wiki.git
+```
+
+Changes to the wiki should follow the Diátaxis framework:
+
+- **Tutorials** - Learning-oriented, step-by-step
+- **How-to guides** - Task-oriented, practical
+- **Reference** - Information-oriented, complete
+- **Explanation** - Understanding-oriented, conceptual
