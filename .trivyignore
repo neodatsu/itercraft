@@ -1,5 +1,13 @@
-# Falco upstream vulnerability - golang.org/x/crypto
-# This CVE is in the Falco base image and cannot be fixed by us.
+# Falco upstream vulnerabilities
+# These CVEs are in the Falco base image and cannot be fixed by us.
 # Waiting for Falco team to release a patched version.
 # Tracked: https://github.com/falcosecurity/falco/issues
+
+# golang.org/x/crypto - SSH authorization bypass
 CVE-2024-45337
+
+# OpenSSL - RCE/DoS via oversized initialization (Debian base)
+CVE-2025-15467
+
+# zlib - heap-based buffer overflow (Debian will_not_fix)
+CVE-2023-45853
