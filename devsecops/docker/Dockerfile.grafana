@@ -1,6 +1,8 @@
 FROM grafana/grafana:latest
 
 COPY devsecops/docker/grafana/datasource.yml /etc/grafana/provisioning/datasources/datasource.yml
+COPY devsecops/docker/grafana/dashboards.yml /etc/grafana/provisioning/dashboards/dashboards.yml
+COPY devsecops/docker/grafana/dashboards/ /var/lib/grafana/dashboards/
 
 ENV GF_SERVER_HTTP_PORT=3001
 ENV GF_SECURITY_ADMIN_USER=admin
