@@ -14,6 +14,7 @@ graph TB
         GH -->|build & type check| VITE[Vite + TypeScript]
         GH -->|coverage report| PR[Pull Request]
         GH -->|dependency check| OWASP[OWASP]
+        GH -->|SBOM + vuln scan| TRIVY[Trivy + CycloneDX]
         GH -->|code quality| SONAR[SonarCloud]
         GH -->|accessibility| LH[Lighthouse CI]
         GH -->|tag v*| ECR_PUSH[Push images to ECR]
@@ -57,7 +58,7 @@ graph TB
         FRONT -->|auth| KC
         FRONT -->|API + CSRF| API
         FRONT -->|SSE /api/events| API
-        API -->|token introspection| KC
+        API -->|JWT validation (JWK)| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
         API -->|analyze image| CLAUDE[Claude API<br/>Anthropic]
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
@@ -149,8 +150,8 @@ itercraft/
 | Build          | Maven, JaCoCo, npm, Vitest                                                              |
 | Analytics      | Google Analytics (GA4, after consent only)                                              |
 | Accessibility  | Lighthouse CI (score ≥ 90 in CI)                                                        |
-| Security       | OWASP Dependency-Check, SonarCloud, CSRF (cookie)                                       |
-| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, token introspection)                                    |
+| Security       | OWASP Dependency-Check, Trivy, SBOM (CycloneDX), SonarCloud, CSRF (cookie)              |
+| Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, JWT)                                                    |
 | AI / Vision    | Claude API, Anthropic (weather image analysis)                                          |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
 | IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
@@ -175,21 +176,20 @@ itercraft/
 
 The backend is configured via environment variables (with defaults for local development):
 
-| Variable                 | Default                 | Description                            |
-|--------------------------|-------------------------|----------------------------------------|
-| `DB_HOST`                | `localhost`             | PostgreSQL host                        |
-| `DB_PORT`                | `5432`                  | PostgreSQL port                        |
-| `DB_NAME`                | `itercraft`             | Database name                          |
-| `DB_USER`                | `itercraft`             | Database user                          |
-| `DB_PASSWORD`            | `itercraft`             | Database password                      |
-| `KEYCLOAK_URL`           | `http://localhost:8180` | Keycloak base URL                      |
-| `KEYCLOAK_REALM`         | `itercraft`             | Keycloak realm                         |
-| `KEYCLOAK_CLIENT_ID`     | `iterapi`               | Confidential client for introspection  |
-| `KEYCLOAK_CLIENT_SECRET` | `changeme`              | Client secret                          |
-| `CORS_ORIGINS`           | `http://localhost:3000` | Allowed CORS origins (comma-separated) |
-| `METEOFRANCE_API_TOKEN`  | `changeme`              | Météo France API key                   |
-| `ANTHROPIC_API_KEY`      | `changeme`              | Anthropic API key (Claude)             |
-| `ANTHROPIC_MODEL`        | `claude-sonnet-4-20250514`  | Claude model for image analysis        |
+| Variable                 | Default                                    | Description                            |
+|--------------------------|--------------------------------------------|----------------------------------------|
+| `DB_HOST`                | `localhost`                                | PostgreSQL host                        |
+| `DB_PORT`                | `5432`                                     | PostgreSQL port                        |
+| `DB_NAME`                | `itercraft`                                | Database name                          |
+| `DB_USER`                | `itercraft`                                | Database user                          |
+| `DB_PASSWORD`            | `itercraft`                                | Database password                      |
+| `KEYCLOAK_INTERNAL_URL`  | `http://keycloak:8180`                     | Keycloak internal URL (for JWK fetch)  |
+| `KEYCLOAK_ISSUER_URI`    | `http://localhost:8180/realms/itercraft`   | Expected JWT issuer (external URL)     |
+| `KEYCLOAK_REALM`         | `itercraft`                                | Keycloak realm                         |
+| `CORS_ORIGINS`           | `http://localhost:3000`                    | Allowed CORS origins (comma-separated) |
+| `METEOFRANCE_API_TOKEN`  | `changeme`                                 | Météo France API key                   |
+| `ANTHROPIC_API_KEY`      | `changeme`                                 | Anthropic API key (Claude)             |
+| `ANTHROPIC_MODEL`        | `claude-sonnet-4-20250514`                 | Claude model for image analysis        |
 
 The frontend uses a `.env` file:
 
@@ -429,10 +429,10 @@ docker run --network itercraft --name postgres -p 5432:5432 itercraft-postgres
 # Keycloak (KC_HOSTNAME=localhost so the issuer matches the browser)
 docker run --network itercraft --name keycloak -p 8180:8180 itercraft-keycloak
 
-# Backend (DB_HOST and KEYCLOAK_URL point to Docker hostnames)
+# Backend (DB_HOST and KEYCLOAK_INTERNAL_URL point to Docker hostnames)
 docker run --network itercraft --name api -p 8080:8080 \
   -e DB_HOST=postgres \
-  -e KEYCLOAK_URL=http://keycloak:8180 \
+  -e KEYCLOAK_INTERNAL_URL=http://keycloak:8180 \
   -e CORS_ORIGINS=http://localhost:3000 \
   -e ANTHROPIC_API_KEY=<your-key> \
   itercraft-api
@@ -462,8 +462,8 @@ docker run --network itercraft --name keycloak \
 docker run --network itercraft --name api \
   -e DB_HOST=postgres \
   -e DB_PASSWORD=<secret> \
-  -e KEYCLOAK_URL=http://keycloak:8180 \
-  -e KEYCLOAK_CLIENT_SECRET=<secret> \
+  -e KEYCLOAK_INTERNAL_URL=http://keycloak:8180 \
+  -e KEYCLOAK_ISSUER_URI=https://authent.itercraft.com/realms/itercraft \
   -e CORS_ORIGINS=https://www.itercraft.com \
   itercraft-api
 
