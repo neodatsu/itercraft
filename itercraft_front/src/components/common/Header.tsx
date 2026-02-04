@@ -17,7 +17,7 @@ export function Header() {
             <Link to="/meteo" className="app-header-link">Météo</Link>
             <button
               className="app-header-button"
-              onClick={() => keycloak.logout({ redirectUri: window.location.origin })}
+              onClick={() => keycloak.logout({ redirectUri: globalThis.location.origin })}
             >
               Déconnexion
             </button>

@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 function getCsrfToken(): string {
-  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  const match = /XSRF-TOKEN=([^;]+)/.exec(document.cookie);
   return match ? decodeURIComponent(match[1]) : '';
 }
 

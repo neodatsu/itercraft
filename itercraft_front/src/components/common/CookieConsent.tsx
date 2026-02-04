@@ -44,7 +44,7 @@ export function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="cookie-consent" role="region" aria-label="Cookie consent">
+    <section className="cookie-consent" aria-label="Cookie consent">
       <p>
         Ce site utilise des cookies techniques et de mesure d'audience.{' '}
         <Link to="/cookies">Consultez notre politique de cookies</Link>.
@@ -57,6 +57,6 @@ export function CookieConsent() {
           Refuser
         </button>
       </div>
-    </div>
+    </section>
   );
 }

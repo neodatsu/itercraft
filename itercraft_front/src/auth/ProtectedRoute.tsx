@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useAuth } from './AuthProvider';
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+export function ProtectedRoute({ children }: Readonly<{ children: ReactNode }>) {
   const { keycloak, authenticated, initialized, ensureInit } = useAuth();
 
   useEffect(() => {
@@ -11,7 +11,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!initialized) return null;
 
   if (!authenticated) {
-    keycloak.login({ redirectUri: `${window.location.origin}/dashboard` });
+    keycloak.login({ redirectUri: `${globalThis.location.origin}/dashboard` });
     return null;
   }
 

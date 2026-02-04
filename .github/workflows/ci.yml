@@ -223,6 +223,10 @@ jobs:
         working-directory: itercraft_api
         run: mvn clean verify --batch-mode
 
+      - name: Copy dependencies for SonarCloud
+        working-directory: itercraft_api
+        run: mvn dependency:copy-dependencies -DincludeScope=runtime --batch-mode
+
       - name: Build frontend
         working-directory: itercraft_front
         run: npm ci
@@ -238,6 +242,7 @@ jobs:
             -Dsonar.projectKey=neodatsu_itercraft
             -Dsonar.organization=neodatsu
             -Dsonar.java.binaries=itercraft_api/target/classes
+            -Dsonar.java.libraries=itercraft_api/target/dependency/*
             -Dsonar.coverage.jacoco.xmlReportPaths=itercraft_api/target/site/jacoco/jacoco.xml
             -Dsonar.sources=itercraft_api/src/main,itercraft_front/src
             -Dsonar.tests=itercraft_api/src/test,itercraft_front/src

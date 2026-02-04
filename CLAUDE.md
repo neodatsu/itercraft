@@ -70,6 +70,16 @@ mvn dependency-check:check # OWASP dependency check
 - Prefer `useMemo` for Context provider values
 - Use `localeCompare` for string sorting
 
+### Lint Rules (Prerequisites)
+
+- **Readonly props**: Component props must be wrapped in `Readonly<>` (e.g., `{ children }: Readonly<{ children: ReactNode }>`)
+- **globalThis over window**: Use `globalThis` instead of `window` (e.g., `globalThis.location.origin`)
+- **RegExp.exec()**: Use `regex.exec(string)` instead of `string.match(regex)`
+- **Semantic HTML**: Use `<section>` with `aria-label` instead of `<div role="region">`
+- **Positive conditions**: Prefer `=== 1 ? '' : 's'` over `!== 1 ? 's' : ''`
+- **Nullish coalescing assignment**: Use `??=` instead of `if (!x) { x = value }`
+- **FormEvent generic**: Use `React.FormEvent<HTMLFormElement>` (not bare `React.FormEvent`)
+
 ### Commands
 
 ```bash
