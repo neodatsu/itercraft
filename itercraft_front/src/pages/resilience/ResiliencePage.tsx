@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import mermaid from 'mermaid';
-import { useAuth } from '../../auth/AuthProvider';
 import './ResiliencePage.css';
 
 interface CircuitBreakerStatus {
@@ -107,7 +106,6 @@ mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
 export function ResiliencePage() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { keycloak } = useAuth();
   const [status, setStatus] = useState<ResilienceStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
