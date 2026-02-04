@@ -236,8 +236,8 @@ resource "aws_instance" "app" {
                   environment:
                     - DB_HOST=bdd
                     - DB_PASSWORD=${var.db_password}
-                    - KEYCLOAK_URL=http://authent:8180
-                    - KEYCLOAK_CLIENT_SECRET=${var.keycloak_client_secret}
+                    - KEYCLOAK_INTERNAL_URL=http://authent:8180
+                    - KEYCLOAK_ISSUER_URI=https://authent.${var.domain_name}/realms/itercraft
                     - CORS_ORIGINS=https://www.${var.domain_name}
                     - METEOFRANCE_API_TOKEN=${var.meteo_api_key}
                     - ANTHROPIC_API_KEY=${var.anthropic_api_key}
