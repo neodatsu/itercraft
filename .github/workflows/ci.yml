@@ -74,6 +74,7 @@ jobs:
   dependency-check:
     name: Dependency Check (itercraft_api)
     runs-on: ubuntu-latest
+    needs: [backend]
     environment: itercraft
     outputs:
       summary: ${{ steps.cves.outputs.summary }}

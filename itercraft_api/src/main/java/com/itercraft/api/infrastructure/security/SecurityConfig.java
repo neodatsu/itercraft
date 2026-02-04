@@ -31,8 +31,15 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     @Bean
-    @SuppressWarnings("java:S112") // Spring Security API requires throws Exception
+    @SuppressWarnings({
+        "java:S112",  // Spring Security API requires throws Exception
+        "java:S1130", // Spring Security HttpSecurity.build() declares throws Exception
+        "java:S3330"  // CSRF cookie must be readable by JS (Double Submit Cookie pattern)
+    })
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // CSRF token cookie uses HttpOnly=false intentionally: the SPA frontend must read
+        // the token from the cookie and send it back in the X-XSRF-TOKEN header.
+        // This is the recommended "Double Submit Cookie" pattern for SPAs.
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf

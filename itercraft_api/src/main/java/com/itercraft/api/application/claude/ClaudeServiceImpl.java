@@ -48,6 +48,7 @@ public class ClaudeServiceImpl implements ClaudeService {
     }
 
     @Override
+    @SuppressWarnings("java:S2629") // SLF4J parameterized logging is already efficient
     public String analyzeWeatherImage(byte[] imageData, String layerLabel, String location) {
         String base64Image = Base64.getEncoder().encodeToString(imageData);
 
