@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- CVE-2025-7962 is an SMTP injection vulnerability affecting angus-mail/smtp components.
+         angus-activation is a separate library (Jakarta Activation API) unrelated to SMTP. -->
+    <suppress>
+        <notes>False positive: angus-activation provides Jakarta Activation API, not SMTP functionality</notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus-activation@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:angus_mail</cpe>
+    </suppress>
+</suppressions>
