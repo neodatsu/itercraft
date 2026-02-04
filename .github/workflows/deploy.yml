@@ -121,9 +121,9 @@ jobs:
 
           for IMG in "${IMAGES[@]}"; do
             echo "🔍 Scanning $IMG..."
-            trivy image --severity HIGH,CRITICAL --format table "$ECR/$IMG:$TAG" | tee "trivy-reports/$IMG.txt"
+            trivy image --severity HIGH,CRITICAL --ignorefile .trivyignore --format table "$ECR/$IMG:$TAG" | tee "trivy-reports/$IMG.txt"
             # Fail on CRITICAL only (HIGH are warnings)
-            trivy image --severity CRITICAL --exit-code 1 "$ECR/$IMG:$TAG" || {
+            trivy image --severity CRITICAL --ignorefile .trivyignore --exit-code 1 "$ECR/$IMG:$TAG" || {
               echo "❌ CRITICAL vulnerabilities found in $IMG"
               exit 1
             }

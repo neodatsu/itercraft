@@ -1,0 +1,5 @@
+# Falco upstream vulnerability - golang.org/x/crypto
+# This CVE is in the Falco base image and cannot be fixed by us.
+# Waiting for Falco team to release a patched version.
+# Tracked: https://github.com/falcosecurity/falco/issues
+CVE-2024-45337
