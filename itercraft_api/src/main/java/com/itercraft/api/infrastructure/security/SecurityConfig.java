@@ -49,7 +49,7 @@ public class SecurityConfig {
             .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/healthcheck", "/actuator/health", "/actuator/prometheus", "/api/events").permitAll()
+                .requestMatchers("/healthcheck", "/actuator/health", "/actuator/prometheus", "/api/events", "/api/resilience/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));

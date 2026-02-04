@@ -13,6 +13,7 @@ import { CookieConsent } from './components/common/CookieConsent';
 import { ArchitecturePage } from './pages/architecture/ArchitecturePage';
 import { SseDiagramsPage } from './pages/sse/SseDiagramsPage';
 import { MeteoPage } from './pages/meteo/MeteoPage';
+import { ResiliencePage } from './pages/resilience/ResiliencePage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
                 <Route path="/architecture" element={<ArchitecturePage />} />
                 <Route path="/sse" element={<SseDiagramsPage />} />
+                <Route path="/resilience" element={<ResiliencePage />} />
                 <Route path="/meteo" element={
                   <ProtectedRoute>
                     <MeteoPage />

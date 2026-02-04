@@ -1,0 +1,271 @@
+.resilience-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.resilience-container h1 {
+  color: #1a1a2e;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.resilience-section {
+  margin-bottom: 3rem;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resilience-section h2 {
+  color: #16213e;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 0.5rem;
+}
+
+.resilience-section p {
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.resilience-section ul {
+  color: #444;
+  line-height: 1.8;
+  margin-left: 1.5rem;
+}
+
+.resilience-section.intro {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.mermaid-diagram {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* State Legend */
+.state-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.state-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 100px;
+  text-align: center;
+}
+
+.state-closed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.state-open {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.state-half-open {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Configuration Table */
+.config-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.config-table th,
+.config-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.config-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #16213e;
+}
+
+.config-table tr:hover {
+  background: #f8f9fa;
+}
+
+/* Status Section */
+.status-section {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error-message {
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.circuit-breaker-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #6c757d;
+}
+
+.circuit-breaker-card.state-closed {
+  border-left-color: #28a745;
+}
+
+.circuit-breaker-card.state-open {
+  border-left-color: #dc3545;
+}
+
+.circuit-breaker-card.state-half-open {
+  border-left-color: #ffc107;
+}
+
+.cb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.cb-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #16213e;
+}
+
+.cb-state {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cb-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #16213e;
+}
+
+.status-timestamp {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* Code Block */
+.code-block {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* API Table */
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.api-table th,
+.api-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.api-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.api-table code {
+  background: #e9ecef;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .resilience-container {
+    padding: 1rem;
+  }
+
+  .cb-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .config-table {
+    font-size: 0.85rem;
+  }
+
+  .config-table th,
+  .config-table td {
+    padding: 0.5rem;
+  }
+}

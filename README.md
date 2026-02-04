@@ -174,6 +174,7 @@ itercraft/
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
 | IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
 | Monitoring     | Prometheus, Grafana, Loki (logs), Tempo (traces), Micrometer, Spring Boot Actuator      |
+| Resilience     | Resilience4j (Circuit Breaker, Retry, Time Limiter)                                     |
 | Infrastructure | Terraform, Docker, Nginx, Traefik                                                       |
 | Cloud          | AWS (ECR, EC2, Elastic IP, Budgets, SSM, S3, DynamoDB, Lambda, API Gateway), Cloudflare |
 | CI/CD          | GitHub Actions, Slack ChatOps (`/infra`)                                                |
@@ -391,6 +392,8 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `GET`    | `/actuator/health`                        | Public        | Actuator health            |
 | `GET`    | `/actuator/prometheus`                    | Public        | Prometheus metrics         |
 | `GET`    | `/api/events`                             | Public        | SSE stream (real-time)     |
+| `GET`    | `/api/resilience/status`                  | Public        | Circuit breaker metrics    |
+| `GET`    | `/api/resilience/health`                  | Public        | Resilience health status   |
 | `GET`    | `/api/subscriptions`                      | Bearer        | User subscriptions + usage |
 | `GET`    | `/api/services`                           | Bearer        | All available services     |
 | `POST`   | `/api/subscriptions/{serviceCode}`        | Bearer + CSRF | Subscribe to a service     |
@@ -401,6 +404,45 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `POST`   | `/api/meteo/analyze`                      | Bearer + CSRF | AI weather analysis (JSON) |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
+
+### Resilience Patterns (Circuit Breaker)
+
+The application uses **Resilience4j** to protect against cascading failures when external services (Météo France, Claude) become slow or unavailable.
+
+#### Circuit Breaker States
+
+```text
+CLOSED → (failures > threshold) → OPEN → (wait duration) → HALF_OPEN → (success) → CLOSED
+                                    ↑                           │
+                                    └───── (failure) ───────────┘
+```
+
+- **CLOSED**: Normal operation, requests pass through
+- **OPEN**: Circuit tripped, requests fail fast with fallback
+- **HALF_OPEN**: Testing recovery, limited requests allowed
+
+#### Configuration
+
+| Service       | Window | Failure Threshold | Wait Duration | Timeout |
+|---------------|--------|-------------------|---------------|---------|
+| Météo France  | 10     | 50%               | 30s           | 10s     |
+| Claude        | 5      | 50%               | 60s           | 60s     |
+
+Météo France also has automatic retry (3 attempts with exponential backoff).
+
+#### Endpoints
+
+- `GET /api/resilience/status` - Detailed circuit breaker metrics
+- `GET /api/resilience/health` - Overall health (UP, DEGRADED, RECOVERING)
+- `GET /actuator/circuitbreakers` - Native Actuator endpoint
+
+#### Frontend Page
+
+A public page explaining the resilience patterns is available at `/resilience`, showing:
+
+- Circuit breaker concept diagrams
+- Real-time status of all circuit breakers
+- Configuration details
 
 ### Build Docker images
 

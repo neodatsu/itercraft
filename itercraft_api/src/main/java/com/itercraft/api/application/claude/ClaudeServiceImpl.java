@@ -1,5 +1,6 @@
 package com.itercraft.api.application.claude;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,7 @@ public class ClaudeServiceImpl implements ClaudeService {
     }
 
     @Override
+    @CircuitBreaker(name = "claude", fallbackMethod = "analyzeWeatherImageFallback")
     @SuppressWarnings("java:S2629") // SLF4J parameterized logging is already efficient
     public String analyzeWeatherImage(byte[] imageData, String layerLabel, String location) {
         String base64Image = Base64.getEncoder().encodeToString(imageData);
@@ -105,5 +107,15 @@ public class ClaudeServiceImpl implements ClaudeService {
             log.error("Failed to parse Claude response", e);
             return "Analyse indisponible.";
         }
+    }
+
+    /**
+     * Fallback method when Claude API is unavailable.
+     * Returns a user-friendly message instead of failing.
+     */
+    @SuppressWarnings("unused")
+    private String analyzeWeatherImageFallback(byte[] imageData, String layerLabel, String location, Exception e) {
+        log.warn("Claude API unavailable, circuit breaker activated: {}", e.getMessage());
+        return "Service d'analyse IA temporairement indisponible. Veuillez réessayer dans quelques instants.";
     }
 }
