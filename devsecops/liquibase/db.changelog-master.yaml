@@ -8,3 +8,15 @@ databaseChangeLog:
   - include:
       file: changelogs/003-activity-analysis-cache.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changelogs/004-ludotheque-schema.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changelogs/005-ludotheque-seed.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changelogs/006-ludotheque-images.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changelogs/007-ludotheque-data-fix.yaml
+      relativeToChangelogFile: true

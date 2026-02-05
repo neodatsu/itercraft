@@ -33,6 +33,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HOSTNAME: localhost
       KEYCLOAK_HEALTHCHECK_PASSWORD: healthcheck
+      KEYCLOAK_LAURENT_PASSWORD: ${KEYCLOAK_LAURENT_PASSWORD:-changeme}
     healthcheck:
       test: ["CMD-SHELL", "cat < /dev/null > /dev/tcp/localhost/8180"]
       interval: 10s
@@ -62,6 +63,7 @@ services:
       METEOFRANCE_API_TOKEN: ${METEOFRANCE_API_TOKEN:-changeme}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-changeme}
       OTLP_ENDPOINT: http://localhost:4318/v1/traces
+      INIT_USER_EMAIL: ${INIT_USER_EMAIL:-laurent@itercraft.com}
     depends_on:
       postgres:
         condition: service_healthy

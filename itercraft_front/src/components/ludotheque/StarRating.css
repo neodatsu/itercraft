@@ -1,0 +1,37 @@
+.star-rating {
+  display: inline-flex;
+  gap: 0.125rem;
+}
+
+.star-rating .star {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #4a4a6a;
+  cursor: pointer;
+  padding: 0.125rem;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.star-rating .star:hover:not(:disabled) {
+  color: #fbbf24;
+  transform: scale(1.1);
+}
+
+.star-rating .star.filled {
+  color: #fbbf24;
+}
+
+.star-rating.readonly .star {
+  cursor: default;
+}
+
+.star-rating .star:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.star-rating .star:disabled {
+  opacity: 0.8;
+}

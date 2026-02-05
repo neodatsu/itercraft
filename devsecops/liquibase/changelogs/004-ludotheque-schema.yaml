@@ -1,0 +1,217 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-1-create-type-jeu
+      author: claude
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: libelle
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 004-2-create-complexite-jeu
+      author: claude
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: niveau
+                  type: smallint
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: libelle
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: ALTER TABLE itercraft.complexite_jeu ADD CONSTRAINT chk_complexite_niveau CHECK (niveau >= 1 AND niveau <= 5)
+
+  - changeSet:
+      id: 004-3-create-age-jeu
+      author: claude
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: age_jeu
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: libelle
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: age_minimum
+                  type: smallint
+
+  - changeSet:
+      id: 004-4-create-jeu
+      author: claude
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nom
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: type_jeu_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: joueurs_min
+                  type: smallint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: joueurs_max
+                  type: smallint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: age_jeu_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duree_moyenne_minutes
+                  type: smallint
+              - column:
+                  name: complexite_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image_url
+                  type: varchar(500)
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: jeu
+            baseColumnNames: type_jeu_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: type_jeu
+            referencedColumnNames: id
+            constraintName: fk_jeu_type_jeu
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: jeu
+            baseColumnNames: age_jeu_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: age_jeu
+            referencedColumnNames: id
+            constraintName: fk_jeu_age_jeu
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: jeu
+            baseColumnNames: complexite_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: complexite_jeu
+            referencedColumnNames: id
+            constraintName: fk_jeu_complexite
+        - sql:
+            sql: ALTER TABLE itercraft.jeu ADD CONSTRAINT chk_jeu_joueurs CHECK (joueurs_min > 0 AND joueurs_max >= joueurs_min)
+
+  - changeSet:
+      id: 004-5-create-jeu-user
+      author: claude
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: jeu_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_sub
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: jeu_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: note
+                  type: smallint
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: jeu_user
+            baseColumnNames: jeu_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: jeu
+            referencedColumnNames: id
+            constraintName: fk_jeu_user_jeu
+        - addUniqueConstraint:
+            schemaName: itercraft
+            tableName: jeu_user
+            columnNames: user_sub, jeu_id
+            constraintName: uk_jeu_user_user_jeu
+        - sql:
+            sql: ALTER TABLE itercraft.jeu_user ADD CONSTRAINT chk_jeu_user_note CHECK (note IS NULL OR (note >= 1 AND note <= 5))
+        - createIndex:
+            schemaName: itercraft
+            tableName: jeu_user
+            indexName: idx_jeu_user_user_sub
+            columns:
+              - column:
+                  name: user_sub

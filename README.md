@@ -4,6 +4,15 @@
 
 Itercraft is a cloud-native web application deployed on AWS (eu-west-1), built with a Java/Spring Boot backend, a React/TypeScript frontend, and supported by a full DevSecOps pipeline.
 
+## Features
+
+- **Subscriptions** — Manage service subscriptions with usage tracking
+- **Weather Activities** — AI-powered activity suggestions based on weather analysis (Claude + Météo France)
+- **Ma Ludothèque** — Personal board game collection with AI-powered game info and suggestions
+- **IoT Sensors** — MQTT-based sensor data collection (ESP32, TLS 1.3)
+- **Observability** — Full monitoring stack (Prometheus, Loki, Tempo, Grafana)
+- **Runtime Security** — Threat detection with Falco (eBPF syscall monitoring)
+
 ## Architecture
 
 ```mermaid
@@ -60,7 +69,7 @@ graph TB
         FRONT -->|SSE /api/events| API
         API -->|JWT validation| KC
         API -->|JPA| PG[PostgreSQL 17<br/>+ Liquibase<br/>:5432]
-        API -->|analyze image| CLAUDE[Claude API<br/>Anthropic]
+        API -->|suggest activities| CLAUDE[Claude API<br/>Anthropic]
         API -->|WMS GetMap| MF[Météo France<br/>AROME PI]
         PROM[Prometheus<br/>:9090] -->|scrape /actuator/prometheus| API
         GRAF -->|query| PROM
@@ -88,6 +97,60 @@ graph TB
         DOCKER --> TRAEFIK
     end
 ```
+
+## Domain Model — Ludothèque
+
+```mermaid
+classDiagram
+    direction LR
+
+    class Jeu {
+        UUID id
+        String nom
+        String description
+        Short joueursMin
+        Short joueursMax
+        Short dureeMoyenneMinutes
+        String imageUrl
+    }
+
+    class JeuUser {
+        UUID id
+        String userSub
+        Short note
+        LocalDateTime createdAt
+    }
+
+    class TypeJeu {
+        UUID id
+        String code
+        String libelle
+    }
+
+    class AgeJeu {
+        UUID id
+        String code
+        String libelle
+        Short ageMinimum
+    }
+
+    class ComplexiteJeu {
+        UUID id
+        Short niveau
+        String libelle
+    }
+
+    Jeu "*" -- "1" TypeJeu : type
+    Jeu "*" -- "1" AgeJeu : âge
+    Jeu "*" -- "1" ComplexiteJeu : complexité
+    JeuUser "*" -- "1" Jeu : jeu
+```
+
+**Reference data:**
+
+- **TypeJeu**: lettres_mots, strategie, enquete_escape, culture_quiz, ambiance, classique, reflexion, adresse
+- **AgeJeu**: enfant, tout_public, adulte
+- **ComplexiteJeu**: 1 (Très simple), 2 (Simple), 3 (Moyen), 4 (Complexe), 5 (Expert)
 
 ## Project Structure
 
@@ -170,7 +233,7 @@ itercraft/
 | Accessibility  | Lighthouse CI (score ≥ 90 in CI)                                                        |
 | Security       | OWASP Dependency-Check, Trivy, SBOM (CycloneDX), SonarCloud, CSRF (cookie), Falco (runtime) |
 | Auth           | Keycloak 26 (OAuth2/OIDC, PKCE, JWT)                                                    |
-| AI / Vision    | Claude API, Anthropic (weather image analysis)                                          |
+| AI / Vision    | Claude API, Anthropic (activity suggestions based on weather)                           |
 | Real-time      | Server-Sent Events (SSE, SseEmitter)                                                    |
 | IoT            | Mosquitto MQTT (TLS 1.3, password auth, ACL), ESP32                                     |
 | Monitoring     | Prometheus, Grafana, Loki (logs), Tempo (traces), Micrometer, Spring Boot Actuator      |
@@ -400,8 +463,15 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `DELETE` | `/api/subscriptions/{serviceCode}`        | Bearer + CSRF | Unsubscribe                |
 | `POST`   | `/api/subscriptions/{serviceCode}/usages` | Bearer + CSRF | Add usage                  |
 | `DELETE` | `/api/subscriptions/{serviceCode}/usages` | Bearer + CSRF | Remove usage               |
-| `POST`   | `/api/meteo/map`                          | Bearer + CSRF | Weather map image (PNG)    |
-| `POST`   | `/api/meteo/analyze`                      | Bearer + CSRF | AI weather analysis (JSON) |
+| `POST`   | `/api/activities/suggest`                 | Bearer + CSRF | AI activity suggestions (JSON) |
+| `GET`    | `/api/ludotheque/jeux`                    | Bearer        | Game catalog               |
+| `GET`    | `/api/ludotheque/mes-jeux`                | Bearer        | User's game collection     |
+| `GET`    | `/api/ludotheque/references`              | Bearer        | Reference tables           |
+| `POST`   | `/api/ludotheque/mes-jeux`                | Bearer + CSRF | Add game by title (AI)     |
+| `POST`   | `/api/ludotheque/mes-jeux/{jeuId}`        | Bearer + CSRF | Add game to collection     |
+| `DELETE` | `/api/ludotheque/mes-jeux/{jeuId}`        | Bearer + CSRF | Remove game                |
+| `PUT`    | `/api/ludotheque/mes-jeux/{jeuId}/note`   | Bearer + CSRF | Update rating (1-5 stars)  |
+| `POST`   | `/api/ludotheque/suggestion`              | Bearer + CSRF | AI game suggestion         |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 

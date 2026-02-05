@@ -1,0 +1,611 @@
+databaseChangeLog:
+  # ============================================
+  # SEED TYPE_JEU (8 types)
+  # ============================================
+  - changeSet:
+      id: 005-1-seed-type-jeu
+      author: claude
+      changes:
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: code, value: "lettres_mots" }
+              - column: { name: libelle, value: "Lettres et mots" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: code, value: "strategie" }
+              - column: { name: libelle, value: "Stratégie" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: code, value: "enquete_escape" }
+              - column: { name: libelle, value: "Enquête et escape" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000004" }
+              - column: { name: code, value: "culture_quiz" }
+              - column: { name: libelle, value: "Culture et quiz" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: code, value: "ambiance" }
+              - column: { name: libelle, value: "Ambiance et party" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000006" }
+              - column: { name: code, value: "classique" }
+              - column: { name: libelle, value: "Classique" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000007" }
+              - column: { name: code, value: "reflexion" }
+              - column: { name: libelle, value: "Réflexion et logique" }
+        - insert:
+            schemaName: itercraft
+            tableName: type_jeu
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000008" }
+              - column: { name: code, value: "adresse" }
+              - column: { name: libelle, value: "Adresse et dextérité" }
+
+  # ============================================
+  # SEED COMPLEXITE_JEU (5 niveaux)
+  # ============================================
+  - changeSet:
+      id: 005-2-seed-complexite-jeu
+      author: claude
+      changes:
+        - insert:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column: { name: id, value: "b1000000-0000-0000-0000-000000000001" }
+              - column: { name: niveau, valueNumeric: 1 }
+              - column: { name: libelle, value: "Très facile - Règles en 2 minutes" }
+        - insert:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column: { name: id, value: "b1000000-0000-0000-0000-000000000002" }
+              - column: { name: niveau, valueNumeric: 2 }
+              - column: { name: libelle, value: "Facile - Règles en 5 minutes" }
+        - insert:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column: { name: id, value: "b1000000-0000-0000-0000-000000000003" }
+              - column: { name: niveau, valueNumeric: 3 }
+              - column: { name: libelle, value: "Moyen - Règles en 10-15 minutes" }
+        - insert:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column: { name: id, value: "b1000000-0000-0000-0000-000000000004" }
+              - column: { name: niveau, valueNumeric: 4 }
+              - column: { name: libelle, value: "Difficile - Règles en 20-30 minutes" }
+        - insert:
+            schemaName: itercraft
+            tableName: complexite_jeu
+            columns:
+              - column: { name: id, value: "b1000000-0000-0000-0000-000000000005" }
+              - column: { name: niveau, valueNumeric: 5 }
+              - column: { name: libelle, value: "Expert - Règles complexes" }
+
+  # ============================================
+  # SEED AGE_JEU (3 tranches)
+  # ============================================
+  - changeSet:
+      id: 005-3-seed-age-jeu
+      author: claude
+      changes:
+        - insert:
+            schemaName: itercraft
+            tableName: age_jeu
+            columns:
+              - column: { name: id, value: "c1000000-0000-0000-0000-000000000001" }
+              - column: { name: code, value: "enfant" }
+              - column: { name: libelle, value: "Enfant (6+ ans)" }
+              - column: { name: age_minimum, valueNumeric: 6 }
+        - insert:
+            schemaName: itercraft
+            tableName: age_jeu
+            columns:
+              - column: { name: id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: code, value: "tout_public" }
+              - column: { name: libelle, value: "Tout public (8+ ans)" }
+              - column: { name: age_minimum, valueNumeric: 8 }
+        - insert:
+            schemaName: itercraft
+            tableName: age_jeu
+            columns:
+              - column: { name: id, value: "c1000000-0000-0000-0000-000000000003" }
+              - column: { name: code, value: "adulte" }
+              - column: { name: libelle, value: "Adulte (14+ ans)" }
+              - column: { name: age_minimum, valueNumeric: 14 }
+
+  # ============================================
+  # SEED JEU (31 jeux)
+  # ============================================
+  - changeSet:
+      id: 005-4-seed-jeu
+      author: claude
+      changes:
+        # 1. Scrabble
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000001" }
+              - column: { name: nom, value: "Scrabble" }
+              - column: { name: description, value: "Le célèbre jeu de lettres où vous formez des mots sur un plateau pour marquer des points. Chaque lettre a une valeur différente et les cases bonus multiplient vos scores." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 2. Monopoly Game of Thrones
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000002" }
+              - column: { name: nom, value: "Monopoly Game of Thrones" }
+              - column: { name: description, value: "Version thématique du Monopoly dans l'univers de Game of Thrones. Achetez les territoires des Sept Royaumes, construisez des villages et des forteresses." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000003" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 120 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000003" }
+
+        # 3. Monopoly Star Wars Edition Saga
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000003" }
+              - column: { name: nom, value: "Monopoly Star Wars Edition Saga" }
+              - column: { name: description, value: "Revivez la saga Star Wars dans cette édition spéciale du Monopoly. Parcourez les planètes emblématiques de la galaxie lointaine." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 90 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 4. Monopoly Edition Tricheurs
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000004" }
+              - column: { name: nom, value: "Monopoly Edition Tricheurs" }
+              - column: { name: description, value: "La version où tricher est non seulement permis mais encouragé ! Suivez les cartes triche pour voler de l'argent, déplacer des hôtels ou éviter de payer un loyer." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 5. Exploding Kitten Le jeu de plateau
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000005" }
+              - column: { name: nom, value: "Exploding Kittens Le jeu de plateau" }
+              - column: { name: description, value: "Adaptation plateau du célèbre jeu de cartes. Déplacez-vous sur le plateau tout en évitant les chatons explosifs grâce à vos cartes d'action." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 6. Azul
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000006" }
+              - column: { name: nom, value: "Azul" }
+              - column: { name: description, value: "Jeu de placement de tuiles inspiré des azulejos portugais. Collectez les tuiles colorées et décorez votre palais en optimisant vos placements pour marquer un maximum de points." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 45 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 7. Viva Catrina
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000007" }
+              - column: { name: nom, value: "Viva Catrina" }
+              - column: { name: description, value: "Jeu de collection et de stratégie sur le thème du Jour des Morts mexicain. Assemblez les familles de squelettes tout en évitant les malédictions." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 8. Trou Noir
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000008" }
+              - column: { name: nom, value: "Trou Noir" }
+              - column: { name: description, value: "Jeu abstrait de réflexion pour deux joueurs. Placez vos pions sur le plateau en évitant de créer des alignements qui seront aspirés par le trou noir central." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000007" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 2 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 15 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 9. Trivial Pursuit edition famille
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000009" }
+              - column: { name: nom, value: "Trivial Pursuit Edition Famille" }
+              - column: { name: description, value: "L'édition familiale du célèbre jeu de culture générale avec des questions adaptées à tous les âges. Deux niveaux de difficulté pour jouer en famille." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000004" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 10. Gravity Maze
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000010" }
+              - column: { name: nom, value: "Gravity Maze" }
+              - column: { name: description, value: "Casse-tête logique en 3D où vous devez construire un chemin pour faire tomber une bille jusqu'à la cible. 60 défis de difficulté croissante." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000007" }
+              - column: { name: joueurs_min, valueNumeric: 1 }
+              - column: { name: joueurs_max, valueNumeric: 1 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000001" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 11. Quoridor
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000011" }
+              - column: { name: nom, value: "Quoridor" }
+              - column: { name: description, value: "Jeu de stratégie abstrait primé. Avancez votre pion vers le camp adverse tout en posant des barrières pour bloquer vos adversaires." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 20 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 12. Le Tour du Monde en 1000 questions
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000012" }
+              - column: { name: nom, value: "Le Tour du Monde en 1000 questions" }
+              - column: { name: description, value: "Parcourez le monde en répondant à des questions de géographie et culture générale. Découvrez les pays, leurs capitales et leurs traditions." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000004" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 45 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 13. La boite de la Mythologie de Luc Ferry
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000013" }
+              - column: { name: nom, value: "La Boîte de la Mythologie de Luc Ferry" }
+              - column: { name: description, value: "Jeu de questions sur la mythologie grecque et romaine conçu par le philosophe Luc Ferry. Découvrez les dieux, héros et légendes antiques." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000004" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 14. Taboo
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000014" }
+              - column: { name: nom, value: "Taboo" }
+              - column: { name: description, value: "Faites deviner des mots à votre équipe sans utiliser les mots interdits listés sur chaque carte. Un classique des jeux de société en équipe." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: joueurs_min, valueNumeric: 4 }
+              - column: { name: joueurs_max, valueNumeric: 10 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 15. Ni oui ni non édition premium
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000015" }
+              - column: { name: nom, value: "Ni Oui Ni Non Edition Premium" }
+              - column: { name: description, value: "Le jeu où il est interdit de dire oui ou non ! Posez des questions pièges à vos adversaires pour les faire craquer." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 8 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 20 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 16. Puissance 4
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000016" }
+              - column: { name: nom, value: "Puissance 4" }
+              - column: { name: description, value: "Alignez quatre jetons de votre couleur horizontalement, verticalement ou en diagonale avant votre adversaire. Simple mais stratégique." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000006" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 2 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000001" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 10 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 17. 1000 bornes sur un plateau
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000017" }
+              - column: { name: nom, value: "1000 Bornes Sur Un Plateau" }
+              - column: { name: description, value: "La version plateau du classique jeu de cartes automobile français. Parcourez 1000 kilomètres en évitant les pannes et les obstacles." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000006" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 18. Micro Macro Crime City
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000018" }
+              - column: { name: nom, value: "Micro Macro Crime City" }
+              - column: { name: description, value: "Enquêtez sur des crimes dans une immense carte fourmillant de détails. Suivez les indices chronologiques pour résoudre chaque affaire." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 1 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 19. Unlock Mystery Adventures
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000019" }
+              - column: { name: nom, value: "Unlock Mystery Adventures" }
+              - column: { name: description, value: "Escape game de cartes avec application mobile. Résolvez trois aventures mystérieuses en combinant cartes et énigmes dans un temps limité." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 1 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000003" }
+
+        # 20. Unlock Extraordinary Adventures
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000020" }
+              - column: { name: nom, value: "Unlock Extraordinary Adventures" }
+              - column: { name: description, value: "Trois nouvelles aventures d'escape game avec des mécaniques innovantes. Des scénarios extraordinaires qui repoussent les limites du genre." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 1 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000003" }
+
+        # 21. Unlock Game Adventures
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000021" }
+              - column: { name: nom, value: "Unlock Game Adventures" }
+              - column: { name: description, value: "Boîte Unlock inspirée des jeux vidéo rétro. Trois aventures nostalgiques mêlant escape game et univers pixelisés." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 1 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000003" }
+
+        # 22. Mimetix
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000022" }
+              - column: { name: nom, value: "Mimetix" }
+              - column: { name: description, value: "Jeu de mimes délirant où vous devez faire deviner des situations absurdes. Fous rires garantis avec ces défis impossibles à mimer." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: joueurs_min, valueNumeric: 3 }
+              - column: { name: joueurs_max, valueNumeric: 12 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 23. Agent Avenue
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000023" }
+              - column: { name: nom, value: "Agent Avenue" }
+              - column: { name: description, value: "Jeu de déduction et d'enquête coopératif. Infiltrez un réseau d'espions et démasquez les agents doubles grâce aux indices collectés." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 6 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 45 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 24. Bridgerton Enquête à la cour
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000024" }
+              - column: { name: nom, value: "Bridgerton Enquête à la Cour" }
+              - column: { name: description, value: "Plongez dans l'univers de la série Netflix Bridgerton. Menez l'enquête parmi la haute société londonienne pour découvrir les secrets scandaleux." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: joueurs_min, valueNumeric: 3 }
+              - column: { name: joueurs_max, valueNumeric: 8 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000003" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 60 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 25. Les gens qui
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000025" }
+              - column: { name: nom, value: "Les Gens Qui" }
+              - column: { name: description, value: "Devinez qui parmi les joueurs correspond le mieux aux affirmations loufoques. Un jeu d'ambiance pour mieux connaître ses amis." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: joueurs_min, valueNumeric: 3 }
+              - column: { name: joueurs_max, valueNumeric: 10 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000003" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 26. Shit Happens
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000026" }
+              - column: { name: nom, value: "Shit Happens" }
+              - column: { name: description, value: "Classez des situations malheureuses de la moins pire à la plus horrible sur une échelle de misère. Un jeu d'humour noir hilarant." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 8 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000003" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 27. Kluster Duo
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000027" }
+              - column: { name: nom, value: "Kluster Duo" }
+              - column: { name: description, value: "Posez vos aimants dans la zone de jeu sans qu'ils ne s'attirent. Un jeu de dextérité nerveux où la moindre erreur peut tout faire basculer." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000008" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 2 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 15 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 28. Behind
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000028" }
+              - column: { name: nom, value: "Behind" }
+              - column: { name: description, value: "Jeu d'adresse où vous devez lancer des cartes derrière vous pour les faire atterrir sur la cible. Un défi fun et original." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000008" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 4 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 20 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 29. Tokaido Duo
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000029" }
+              - column: { name: nom, value: "Tokaido Duo" }
+              - column: { name: description, value: "Version deux joueurs du célèbre Tokaido. Voyagez sur la route côtière japonaise et collectez les plus belles expériences." }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 2 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000002" }
+
+        # 30. Pigeon Pigeon
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000030" }
+              - column: { name: nom, value: "Pigeon Pigeon" }
+              - column: { name: description, value: "Bluffez vos adversaires en inventant de fausses réponses à des questions insolites. Saurez-vous repérer la vraie réponse parmi les pigeons ?" }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000005" }
+              - column: { name: joueurs_min, valueNumeric: 3 }
+              - column: { name: joueurs_max, valueNumeric: 10 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }
+
+        # 31. Yahtzee
+        - insert:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: id, value: "d1000000-0000-0000-0000-000000000031" }
+              - column: { name: nom, value: "Yahtzee" }
+              - column: { name: description, value: "Le classique jeu de dés où vous tentez de réaliser des combinaisons pour marquer un maximum de points. Lancez, gardez, relancez !" }
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000006" }
+              - column: { name: joueurs_min, valueNumeric: 2 }
+              - column: { name: joueurs_max, valueNumeric: 10 }
+              - column: { name: age_jeu_id, value: "c1000000-0000-0000-0000-000000000002" }
+              - column: { name: duree_moyenne_minutes, valueNumeric: 30 }
+              - column: { name: complexite_id, value: "b1000000-0000-0000-0000-000000000001" }

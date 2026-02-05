@@ -29,6 +29,15 @@ public class ClaudeServiceImpl implements ClaudeService {
     private static final String MORNING = "morning";
     private static final String AFTERNOON = "afternoon";
     private static final String EVENING = "evening";
+    private static final String MODEL_KEY = "model";
+    private static final String MAX_TOKENS_KEY = "max_tokens";
+    private static final String MESSAGES_KEY = "messages";
+    private static final String MESSAGES_URI = "/v1/messages";
+    private static final String API_KEY_HEADER = "x-api-key";
+    private static final String ANTHROPIC_VERSION_HEADER = "anthropic-version";
+    private static final String ANTHROPIC_VERSION = "2023-06-01";
+    private static final String DESCRIPTION_KEY = "description";
+    private static final String IMAGE_URL_KEY = "imageUrl";
 
     private final RestClient restClient;
 
@@ -67,9 +76,9 @@ public class ClaudeServiceImpl implements ClaudeService {
                 + ". Décris les conditions météorologiques en 2-3 phrases en français.";
 
         Map<String, Object> requestBody = Map.of(
-                "model", model,
-                "max_tokens", 512,
-                "messages", List.of(Map.of(
+                MODEL_KEY, model,
+                MAX_TOKENS_KEY, 512,
+                MESSAGES_KEY, List.of(Map.of(
                         "role", "user",
                         CONTENT, List.of(
                                 Map.of(
@@ -91,10 +100,10 @@ public class ClaudeServiceImpl implements ClaudeService {
         log.info("Requesting Claude analysis: model={}, layer={}, location={}", model, sanitizeForLog(layerLabel), sanitizeForLog(location));
 
         byte[] responseBytes = restClient.post()
-                .uri("/v1/messages")
+                .uri(MESSAGES_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("x-api-key", apiKey)
-                .header("anthropic-version", "2023-06-01")
+                .header(API_KEY_HEADER, apiKey)
+                .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
                 .body(requestBody)
                 .retrieve()
                 .body(byte[].class);
@@ -179,9 +188,9 @@ public class ClaudeServiceImpl implements ClaudeService {
         contentList.add(Map.of("type", "text", "text", prompt));
 
         Map<String, Object> requestBody = Map.of(
-                "model", model,
-                "max_tokens", 1024,
-                "messages", List.of(Map.of(
+                MODEL_KEY, model,
+                MAX_TOKENS_KEY, 1024,
+                MESSAGES_KEY, List.of(Map.of(
                         "role", "user",
                         CONTENT, contentList
                 ))
@@ -190,10 +199,10 @@ public class ClaudeServiceImpl implements ClaudeService {
         log.info("Requesting Claude activity suggestions: model={}, location={}, layers={}", model, sanitizeForLog(location), weatherImages.size());
 
         byte[] responseBytes = restClient.post()
-                .uri("/v1/messages")
+                .uri(MESSAGES_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("x-api-key", apiKey)
-                .header("anthropic-version", "2023-06-01")
+                .header(API_KEY_HEADER, apiKey)
+                .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
                 .body(requestBody)
                 .retrieve()
                 .body(byte[].class);
@@ -268,5 +277,212 @@ public class ClaudeServiceImpl implements ClaudeService {
     private ActivitySuggestion suggestActivitiesFallback(Map<String, byte[]> weatherImages, String location, Exception e) {
         log.warn("Claude API unavailable for activities, circuit breaker activated: {}", e.getMessage());
         return createFallbackSuggestion(location);
+    }
+
+    @Override
+    @CircuitBreaker(name = "claude", fallbackMethod = "fillGameInfoFallback")
+    @SuppressWarnings("java:S2629")
+    public GameInfoResponse fillGameInfo(String gameTitle) {
+        String prompt = """
+                Tu es un expert en jeux de société. Pour le jeu "%s", fournis les informations suivantes.
+
+                Réponds UNIQUEMENT en JSON valide avec cette structure exacte:
+                {
+                  "nom": "nom exact et complet du jeu",
+                  "description": "description en français (2-3 phrases)",
+                  "typeCode": "un parmi: lettres_mots, strategie, enquete_escape, culture_quiz, ambiance, classique, reflexion, adresse",
+                  "joueursMin": nombre minimum de joueurs (entier),
+                  "joueursMax": nombre maximum de joueurs (entier),
+                  "ageCode": "un parmi: enfant, tout_public, adulte",
+                  "dureeMoyenneMinutes": durée moyenne en minutes (entier),
+                  "complexiteNiveau": niveau de 1 à 5 (1=très facile, 5=expert),
+                  "imageUrl": null
+                }
+                """.formatted(gameTitle);
+
+        Map<String, Object> requestBody = Map.of(
+                MODEL_KEY, model,
+                MAX_TOKENS_KEY, 512,
+                MESSAGES_KEY, List.of(Map.of(
+                        "role", "user",
+                        CONTENT, List.of(Map.of("type", "text", "text", prompt))
+                ))
+        );
+
+        log.info("Requesting Claude game info: model={}, title={}", model, sanitizeForLog(gameTitle));
+
+        byte[] responseBytes = restClient.post()
+                .uri(MESSAGES_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(API_KEY_HEADER, apiKey)
+                .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
+                .body(requestBody)
+                .retrieve()
+                .body(byte[].class);
+
+        String responseJson = new String(responseBytes, StandardCharsets.UTF_8);
+        log.debug("Claude raw response for game info: {}", responseJson);
+
+        try {
+            JsonNode node = objectMapper.readTree(responseJson);
+            String content = node.path(CONTENT).get(0).path("text").stringValue();
+            if (content == null || content.isBlank()) {
+                return createFallbackGameInfo(gameTitle);
+            }
+            return parseGameInfoResponse(content, gameTitle);
+        } catch (Exception e) {
+            log.error("Failed to parse Claude game info response", e);
+            return createFallbackGameInfo(gameTitle);
+        }
+    }
+
+    private GameInfoResponse parseGameInfoResponse(String jsonContent, String gameTitle) {
+        try {
+            int startIndex = jsonContent.indexOf('{');
+            int endIndex = jsonContent.lastIndexOf('}');
+            if (startIndex == -1 || endIndex == -1) {
+                return createFallbackGameInfo(gameTitle);
+            }
+            String jsonOnly = jsonContent.substring(startIndex, endIndex + 1);
+            JsonNode root = objectMapper.readTree(jsonOnly);
+
+            return new GameInfoResponse(
+                    root.path("nom").stringValue(),
+                    root.path("description").stringValue(),
+                    root.path("typeCode").stringValue(),
+                    root.path("joueursMin").shortValue(),
+                    root.path("joueursMax").shortValue(),
+                    root.path("ageCode").stringValue(),
+                    root.path("dureeMoyenneMinutes").isNull() ? null : root.path("dureeMoyenneMinutes").shortValue(),
+                    root.path("complexiteNiveau").shortValue(),
+                    root.path("imageUrl").isNull() ? null : root.path("imageUrl").stringValue()
+            );
+        } catch (Exception e) {
+            log.error("Failed to parse game info JSON", e);
+            return createFallbackGameInfo(gameTitle);
+        }
+    }
+
+    private GameInfoResponse createFallbackGameInfo(String gameTitle) {
+        return new GameInfoResponse(
+                gameTitle,
+                "Jeu de société",
+                "ambiance",
+                (short) 2,
+                (short) 6,
+                "tout_public",
+                (short) 30,
+                (short) 2,
+                null
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private GameInfoResponse fillGameInfoFallback(String gameTitle, Exception e) {
+        log.warn("Claude API unavailable for game info, circuit breaker activated: {}", e.getMessage());
+        return createFallbackGameInfo(gameTitle);
+    }
+
+    @Override
+    @CircuitBreaker(name = "claude", fallbackMethod = "suggestGameFallback")
+    @SuppressWarnings("java:S2629")
+    public GameSuggestionResponse suggestGame(List<RatedGameInfo> ratedGames) {
+        StringBuilder gamesContext = new StringBuilder();
+        for (RatedGameInfo game : ratedGames) {
+            gamesContext.append("- ").append(game.nom())
+                    .append(" (").append(game.typeCode()).append("): ")
+                    .append(game.note()).append("/5 étoiles\n");
+        }
+
+        String prompt = """
+                Tu es un conseiller en jeux de société. Voici les jeux notés par l'utilisateur:
+                %s
+
+                En analysant ses préférences (types de jeux aimés, notes attribuées), suggère UN nouveau jeu qui correspondrait à ses goûts.
+                Le jeu suggéré doit être différent de ceux listés ci-dessus.
+
+                Réponds UNIQUEMENT en JSON valide avec cette structure exacte:
+                {
+                  "nom": "nom du jeu suggéré",
+                  "description": "description en français (2-3 phrases)",
+                  "typeCode": "un parmi: lettres_mots, strategie, enquete_escape, culture_quiz, ambiance, classique, reflexion, adresse",
+                  "raison": "explication courte de pourquoi ce jeu conviendrait (basé sur ses notes)",
+                  "imageUrl": null
+                }
+                """.formatted(gamesContext.toString());
+
+        Map<String, Object> requestBody = Map.of(
+                MODEL_KEY, model,
+                MAX_TOKENS_KEY, 512,
+                MESSAGES_KEY, List.of(Map.of(
+                        "role", "user",
+                        CONTENT, List.of(Map.of("type", "text", "text", prompt))
+                ))
+        );
+
+        log.info("Requesting Claude game suggestion: model={}, ratedGames={}", model, ratedGames.size());
+
+        byte[] responseBytes = restClient.post()
+                .uri(MESSAGES_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(API_KEY_HEADER, apiKey)
+                .header(ANTHROPIC_VERSION_HEADER, ANTHROPIC_VERSION)
+                .body(requestBody)
+                .retrieve()
+                .body(byte[].class);
+
+        String responseJson = new String(responseBytes, StandardCharsets.UTF_8);
+        log.debug("Claude raw response for game suggestion: {}", responseJson);
+
+        try {
+            JsonNode node = objectMapper.readTree(responseJson);
+            String content = node.path(CONTENT).get(0).path("text").stringValue();
+            if (content == null || content.isBlank()) {
+                return createFallbackGameSuggestion();
+            }
+            return parseGameSuggestionResponse(content);
+        } catch (Exception e) {
+            log.error("Failed to parse Claude game suggestion response", e);
+            return createFallbackGameSuggestion();
+        }
+    }
+
+    private GameSuggestionResponse parseGameSuggestionResponse(String jsonContent) {
+        try {
+            int startIndex = jsonContent.indexOf('{');
+            int endIndex = jsonContent.lastIndexOf('}');
+            if (startIndex == -1 || endIndex == -1) {
+                return createFallbackGameSuggestion();
+            }
+            String jsonOnly = jsonContent.substring(startIndex, endIndex + 1);
+            JsonNode root = objectMapper.readTree(jsonOnly);
+
+            return new GameSuggestionResponse(
+                    root.path("nom").stringValue(),
+                    root.path("description").stringValue(),
+                    root.path("typeCode").stringValue(),
+                    root.path("raison").stringValue(),
+                    root.path("imageUrl").isNull() ? null : root.path("imageUrl").stringValue()
+            );
+        } catch (Exception e) {
+            log.error("Failed to parse game suggestion JSON", e);
+            return createFallbackGameSuggestion();
+        }
+    }
+
+    private GameSuggestionResponse createFallbackGameSuggestion() {
+        return new GameSuggestionResponse(
+                "Dixit",
+                "Jeu d'imagination et de créativité où les joueurs doivent deviner des cartes illustrées.",
+                "ambiance",
+                "Un classique apprécié pour son originalité et son accessibilité.",
+                null
+        );
+    }
+
+    @SuppressWarnings("unused")
+    private GameSuggestionResponse suggestGameFallback(List<RatedGameInfo> ratedGames, Exception e) {
+        log.warn("Claude API unavailable for game suggestion, circuit breaker activated: {}", e.getMessage());
+        return createFallbackGameSuggestion();
     }
 }

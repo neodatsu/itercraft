@@ -1,0 +1,255 @@
+databaseChangeLog:
+  # ============================================
+  # UPDATE JEU images - Real BoardGameGeek images
+  # ============================================
+  - changeSet:
+      id: 006-1-update-jeu-images
+      author: claude
+      changes:
+        # Scrabble
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/mVmmntn2oQd0PfFrWBvwIQ__itemrep/img/xtiNZzN_7T6xZ3EPxzgYcBz9Ydk=/fit-in/246x300/filters:strip_icc()/pic404651.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000001'
+
+        # Monopoly Game of Thrones
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/oPVOcTwSpbuV1KQZnnhA0w__itemrep/img/8vuLHR4ZlR2vLvSYidf0Ltl5StM=/fit-in/246x300/filters:strip_icc()/pic4418781.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000002'
+
+        # Monopoly Star Wars
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/MH_iUD0GMVEiWxDXHR9DYA__itemrep/img/Nw0XayhOuRmxPVuJbT6scBQuBHw=/fit-in/246x300/filters:strip_icc()/pic5269318.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000003'
+
+        # Monopoly Tricheurs (Cheaters Edition)
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/78dZB2GPUrjMXQyOnqZ65Q__itemrep/img/E0BmI6S17mJxIc9ksGjtMNvxXK0=/fit-in/246x300/filters:strip_icc()/pic4187117.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000004'
+
+        # Exploding Kittens
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/N8bL53-pRU7zaXDTrEaYrw__itemrep/img/ON0bQporMQQ9KJlVC2UP8LAa_WI=/fit-in/246x300/filters:strip_icc()/pic2691976.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000005'
+
+        # Azul
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/aPSHJO0d0XOpQR5X-wJonw__itemrep/img/6oRLPDvy4zz3gOZM6e6NzIk8Seg=/fit-in/246x300/filters:strip_icc()/pic6973671.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000006'
+
+        # Viva Catrina
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/do_dV5pnwccEOZNTt-pEYA__itemrep/img/aT41Km9Zd96UkVtWjSswnGEuKbM=/fit-in/246x300/filters:strip_icc()/pic8930641.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000007'
+
+        # Trou Noir
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/oFlg0naa707Ui4qduLwgtg__itemrep/img/lvh5SS_cCbdsPn5iiqNZmIpu0m0=/fit-in/246x300/filters:strip_icc()/pic8165901.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000008'
+
+        # Trivial Pursuit
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/Efd5ONOBnMBhewyduUYp0Q__itemrep/img/o8YwOIUpmlbyyvLHL9znEVekBuc=/fit-in/246x300/filters:strip_icc()/pic443598.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000009'
+
+        # Gravity Maze
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cdn.shoplightspeed.com/shops/628164/files/27588993/1652x1652x2/thinkfun-gravity-maze.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000010'
+
+        # Quoridor
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/I1YNAhee09mryaqfEo8MwA__itemrep/img/9zmEmuXEhZhPTsRW47oDE8vMuAc=/fit-in/246x300/filters:strip_icc()/pic3488232.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000011'
+
+        # Le Tour du Monde en 1000 Questions
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://img.lonelyplanet.fr/s3fs-public/styles/large/public/import/images/LNP/P3/9782384923670.jpg.webp?itok=3BAo-qcQ" }
+            where: id = 'd1000000-0000-0000-0000-000000000012'
+
+        # La Boite de la Mythologie
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://media.electre-ng.com/images/image-id/2c4aef5436b82058b1460b96b3a122cf7d93e4b34e3cc0dac4ac7b643234d3cf.webp" }
+            where: id = 'd1000000-0000-0000-0000-000000000013'
+
+        # Taboo
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/TdOB9V-wTf0LenXk8QWo-A__itemrep/img/WD49k-3w45-G1k3auXVhMcAgBw4=/fit-in/246x300/filters:strip_icc()/pic8377520.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000014'
+
+        # Ni Oui Ni Non
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/zxVVmggfpHJpmnJY9j-k1w__itemrep/img/Py7CTY0tSBSwKQ0sgVjRFfsVUZU=/fit-in/246x300/filters:strip_icc()/pic1657689.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000015'
+
+        # Puissance 4 (Connect Four)
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/I_ZPIWEvFlrMa8caT4UD-w__itemrep/img/qJJIhcEFG5NnuBx7ltB_exsRiTE=/fit-in/246x300/filters:strip_icc()/pic859430.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000016'
+
+        # 1000 Bornes (Mille Bornes)
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/kzLZY_DHTh-hBcqXP34a5w__itemrep/img/03900Mg7512a9ig4XEp6epY7omw=/fit-in/246x300/filters:strip_icc()/pic4330533.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000017'
+
+        # Micro Macro Crime City
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/bLL3P-G25nIUkFjHxfJfnw__itemrep/img/CHbB8dFjnR8N3Mzuq0OQpSCLfJ4=/fit-in/246x300/filters:strip_icc()/pic7632081.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000018'
+
+        # Unlock Mystery Adventures
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/GeFlXKbZORHBWca3Sl8tSQ__itemrep/img/e5JFmBGQsxZ3v4Pj4KcI5BdXElw=/fit-in/246x300/filters:strip_icc()/pic3588255.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000019'
+
+        # Unlock Extraordinary Adventures
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/f27DU2PwKawcXqE9RcvWpg__itemrep/img/C_7oOMZi5r5P-ruqG80J4nD6gsg=/fit-in/246x300/filters:strip_icc()/pic7169212.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000020'
+
+        # Unlock Game Adventures
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/A6-wiP1KFOpTmNNAJ9kizQ__itemrep/img/8P2I3gYgUf3mm5YX5p6mZdCHwSo=/fit-in/246x300/filters:strip_icc()/pic6498928.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000021'
+
+        # Mimetix
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/r2mYaRaDvESNkMFTPVbq5g__itemrep/img/pz9Gzh0eakyrBhpPQ9_TP5g1uWQ=/fit-in/246x300/filters:strip_icc()/pic4922049.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000022'
+
+        # Agent Avenue
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/qC5YwZANir1Cmg6d-1UUpQ__itemrep/img/5jSC45FpskSLCOMvutpNgjS4cWo=/fit-in/246x300/filters:strip_icc()/pic8427963.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000023'
+
+        # Bridgerton: The High Society Game
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/WrOV088iXCmTgWZpp3Xurg__itemrep/img/xTheVUVM2XO9bOlPH_jdwX36NuU=/fit-in/246x300/filters:strip_icc()/pic7609902.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000024'
+
+        # Les Gens Qui
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/jlOBErFXNsntt9sPm_3Yug__itemrep/img/Zzn4beVXewtYOp3H66IYMze32hw=/fit-in/246x300/filters:strip_icc()/pic9047168.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000025'
+
+        # Shit Happens
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/-DIfXIDpTWS7m3J9yg87oQ__itemrep/img/ZIQPsB1ABX1AAwtoCIhd-zEH_7A=/fit-in/246x300/filters:strip_icc()/pic3943080.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000026'
+
+        # Kluster Duo
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/vesb98lgFIrGfRLqkNGbMA__itemrep/img/Xu4iC-vcDp-DvSxY5YGiNZi7m4A=/fit-in/246x300/filters:strip_icc()/pic7899762.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000027'
+
+        # Behind
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cdn2.philibertnet.com/730540-large_default/behind.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000028'
+
+        # Tokaido Duo
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/bWkS8Be-RH01twI9w8z5rA__itemrep/img/RN4PEQ0az9-W4WOkIfSVgF_DgDs=/fit-in/246x300/filters:strip_icc()/pic9077577.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000029'
+
+        # Pigeon Pigeon
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/ZAbpmtpUeq92kQxIC1_SqA__itemrep/img/5kkh65OeJ34qFAg2fdAD2PF2PvY=/fit-in/246x300/filters:strip_icc()/pic7645818.png" }
+            where: id = 'd1000000-0000-0000-0000-000000000030'
+
+        # Yahtzee
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: image_url, value: "https://cf.geekdo-images.com/dp-pJkUemCjhrwi9QItrPA__itemrep/img/um-kb7NmyEy9YrdOT8aF62QW2TU=/fit-in/246x300/filters:strip_icc()/pic378237.jpg" }
+            where: id = 'd1000000-0000-0000-0000-000000000031'

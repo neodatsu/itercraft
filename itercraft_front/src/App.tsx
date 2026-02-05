@@ -14,6 +14,7 @@ import { ArchitecturePage } from './pages/architecture/ArchitecturePage';
 import { SseDiagramsPage } from './pages/sse/SseDiagramsPage';
 import { ActivitiesPage } from './pages/activities/ActivitiesPage';
 import { ResiliencePage } from './pages/resilience/ResiliencePage';
+import { LudothequePage } from './pages/ludotheque/LudothequePage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 
 function App() {
@@ -42,6 +43,11 @@ function App() {
                 <Route path="/activites" element={
                   <ProtectedRoute>
                     <ActivitiesPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ludotheque" element={
+                  <ProtectedRoute>
+                    <LudothequePage />
                   </ProtectedRoute>
                 } />
               </Routes>

@@ -15,6 +15,7 @@ export function Header() {
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>
             <Link to="/activites" className="app-header-link">Activités</Link>
+            <Link to="/ludotheque" className="app-header-link">Ma Ludothèque</Link>
             <button
               className="app-header-button"
               onClick={() => keycloak.logout({ redirectUri: globalThis.location.origin })}

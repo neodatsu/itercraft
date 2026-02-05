@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-1-fix-behind-game
+      author: claude
+      comment: "Fix Behind game - it's a puzzle/reflexion game, not a skill game"
+      changes:
+        - update:
+            schemaName: itercraft
+            tableName: jeu
+            columns:
+              - column: { name: type_jeu_id, value: "a1000000-0000-0000-0000-000000000007" }
+              - column: { name: description, value: "Jeu de réflexion et de déduction où vous devez reconstituer une scène en observant ce qui se passe derrière vous. Un puzzle original et captivant." }
+            where: id = 'd1000000-0000-0000-0000-000000000028'
