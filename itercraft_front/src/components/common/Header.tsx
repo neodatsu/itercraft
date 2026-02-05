@@ -14,7 +14,7 @@ export function Header() {
         {authenticated ? (
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>
-            <Link to="/meteo" className="app-header-link">Météo</Link>
+            <Link to="/activites" className="app-header-link">Activités</Link>
             <button
               className="app-header-button"
               onClick={() => keycloak.logout({ redirectUri: globalThis.location.origin })}

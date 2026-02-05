@@ -46,6 +46,17 @@ classDiagram
             -OffsetDateTime usedAt
         }
 
+        class ActivityAnalysis {
+            <<entity>>
+            -UUID id
+            -String locationName
+            -BigDecimal latitude
+            -BigDecimal longitude
+            -LocalDate analysisDate
+            -String responseJson
+            -OffsetDateTime createdAt
+        }
+
         class AppUserRepository {
             <<interface>>
             +findByKeycloakSub(String) Optional~AppUser~
@@ -67,6 +78,11 @@ classDiagram
             <<interface>>
             +countBySubscription(Subscription) long
             +findBySubscriptionOrderByUsedAtDesc(Subscription) List~ServiceUsage~
+        }
+
+        class ActivityAnalysisRepository {
+            <<interface>>
+            +findByLocationNameAndAnalysisDate(String, LocalDate) Optional~ActivityAnalysis~
         }
     }
 
@@ -99,6 +115,7 @@ classDiagram
         class ClaudeService {
             <<interface>>
             +analyzeWeatherImage(byte[], String, String) String
+            +suggestActivities(Map, String) ActivitySuggestion
         }
 
         class ClaudeServiceImpl {
@@ -117,6 +134,32 @@ classDiagram
             <<service>>
             -RestClient restClient
             -String apiToken
+        }
+
+        class Activity {
+            <<record>>
+            +String name
+            +String description
+            +String icon
+        }
+
+        class ActivitySuggestion {
+            <<record>>
+            +String location
+            +Map activities
+            +String summary
+        }
+
+        class ActivityService {
+            <<interface>>
+            +getSuggestions(double, double, String) ActivitySuggestion
+        }
+
+        class ActivityServiceImpl {
+            <<service>>
+            -ActivityAnalysisRepository analysisRepository
+            -MeteoService meteoService
+            -ClaudeService claudeService
         }
     }
 
@@ -140,6 +183,11 @@ classDiagram
             <<controller>>
             +getMap(String, double, double, int, int) ResponseEntity~byte[]~
             +analyzeWeatherMap(String, double, double, String) ResponseEntity
+        }
+
+        class ActivitiesController {
+            <<controller>>
+            +suggestActivities(double, double, String) ResponseEntity~ActivitySuggestion~
         }
 
         class SseController {
@@ -192,12 +240,14 @@ classDiagram
     SubscriptionServiceImpl ..|> SubscriptionService
     ClaudeServiceImpl ..|> ClaudeService
     MeteoServiceImpl ..|> MeteoService
+    ActivityServiceImpl ..|> ActivityService
 
     %% Controller dependencies
     HealthCheckController --> HealthCheckService
     SubscriptionController --> SubscriptionService
     MeteoController --> MeteoService
     MeteoController --> ClaudeService
+    ActivitiesController --> ActivityService
     SseController --> SseService
 
     %% Service dependencies
@@ -206,4 +256,7 @@ classDiagram
     SubscriptionServiceImpl --> SubscriptionRepository
     SubscriptionServiceImpl --> ServiceUsageRepository
     SubscriptionServiceImpl --> SseService
+    ActivityServiceImpl --> ActivityAnalysisRepository
+    ActivityServiceImpl --> MeteoService
+    ActivityServiceImpl --> ClaudeService
 ```

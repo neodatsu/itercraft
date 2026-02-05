@@ -18,7 +18,7 @@ C4Context
   System_Ext(ga, "Google Analytics", "Mesure d'audience (consentement RGPD)")
   System_Ext(slack, "Slack", "Notifications CI/CD + ChatOps /infra")
   System_Ext(meteofrance, "Météo France", "API AROME PI (cartes WMS)")
-  System_Ext(claude, "Claude API", "API Anthropic (analyse d'images météo)")
+  System_Ext(claude, "Claude API", "API Anthropic (suggestions d'activités)")
 
   Rel(user, itercraft, "Utilise", "HTTPS")
   Rel(itercraft, keycloak, "Authentification", "OAuth2/OIDC PKCE")
@@ -30,7 +30,7 @@ C4Context
   Rel(itercraft, ga, "Envoie métriques", "HTTPS")
   Rel(itercraft, aws, "Hébergé sur", "EC2")
   Rel(itercraft, meteofrance, "Cartes météo", "HTTPS")
-  Rel(itercraft, claude, "Analyse météo", "HTTPS")
+  Rel(itercraft, claude, "Suggestions activités", "HTTPS")
 `;
 
 const iotDiagram = `
@@ -115,7 +115,7 @@ C4Container
     Container(grafana, "Grafana", "Tableaux de bord", "Métriques, logs et traces unifiés")
   }
 
-  System_Ext(claude2, "Claude API", "API Anthropic (analyse vision)")
+  System_Ext(claude2, "Claude API", "API Anthropic (suggestions activités)")
   System_Ext(meteofrance2, "Météo France", "API AROME PI (cartes WMS)")
 
   Rel(user, traefik, "HTTPS", "443")
@@ -134,7 +134,7 @@ C4Container
   Rel(grafana, prom, "Requêtes", "PromQL")
   Rel(grafana, loki, "Requêtes", "LogQL")
   Rel(grafana, tempo, "Requêtes", "TraceQL")
-  Rel(api, claude2, "Analyse image", "HTTPS")
+  Rel(api, claude2, "Suggestions activités", "HTTPS")
   Rel(api, meteofrance2, "Cartes WMS", "HTTPS")
 `;
 

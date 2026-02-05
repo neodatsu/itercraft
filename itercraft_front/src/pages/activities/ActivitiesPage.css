@@ -1,0 +1,158 @@
+.activities-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.activities-container h1 {
+  margin-bottom: 1.5rem;
+}
+
+.activities-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.activities-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.activities-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.activities-field input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 120px;
+}
+
+.activities-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.activities-address {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.activities-loading {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+}
+
+.activities-error {
+  color: #c0392b;
+  text-align: center;
+  padding: 1rem;
+}
+
+.activities-summary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.activities-summary p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.activities-content {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+}
+
+.activities-map h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.activities-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.activities-timeslot h3 {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.activities-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.activity-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  min-width: 200px;
+  flex: 1 1 200px;
+  max-width: 300px;
+}
+
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.activity-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.activity-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .activities-content {
+    grid-template-columns: 1fr;
+  }
+
+  .activities-map {
+    order: 2;
+  }
+
+  .activities-suggestions {
+    order: 1;
+  }
+}
+
+@media (max-width: 500px) {
+  .activity-card {
+    min-width: 100%;
+    max-width: 100%;
+  }
+}

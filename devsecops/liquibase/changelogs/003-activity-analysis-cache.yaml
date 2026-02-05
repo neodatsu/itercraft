@@ -1,0 +1,61 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 006-create-activity-analysis
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: activity_analysis
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: location_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: decimal(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: decimal(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: analysis_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: response_json
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: itercraft
+            tableName: activity_analysis
+            columnNames: location_name, analysis_date
+            constraintName: uq_activity_analysis_location_date
+        - createIndex:
+            schemaName: itercraft
+            tableName: activity_analysis
+            indexName: idx_activity_analysis_location_date
+            columns:
+              - column:
+                  name: location_name
+              - column:
+                  name: analysis_date
