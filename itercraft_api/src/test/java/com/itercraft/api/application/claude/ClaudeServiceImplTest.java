@@ -7,6 +7,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,5 +202,194 @@ class ClaudeServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.location()).isEqualTo("Marseille");
         assertThat(result.activities()).isNotEmpty();
+    }
+
+    @Test
+    void fillGameInfo_shouldReturnGameInfo() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "{\\"nom\\": \\"Catan\\", \\"description\\": \\"Jeu de colonisation\\", \\"typeCode\\": \\"strategie\\", \\"joueursMin\\": 3, \\"joueursMax\\": 4, \\"ageCode\\": \\"tout_public\\", \\"dureeMoyenneMinutes\\": 90, \\"complexiteNiveau\\": 3, \\"imageUrl\\": null}"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andExpect(method(org.springframework.http.HttpMethod.POST))
+                .andExpect(header("x-api-key", "test-api-key"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        GameInfoResponse result = service.fillGameInfo("Catan");
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Catan");
+        assertThat(result.description()).isEqualTo("Jeu de colonisation");
+        assertThat(result.typeCode()).isEqualTo("strategie");
+        assertThat(result.joueursMin()).isEqualTo((short) 3);
+        assertThat(result.joueursMax()).isEqualTo((short) 4);
+        assertThat(result.ageCode()).isEqualTo("tout_public");
+        assertThat(result.dureeMoyenneMinutes()).isEqualTo((short) 90);
+        assertThat(result.complexiteNiveau()).isEqualTo((short) 3);
+        mockServer.verify();
+    }
+
+    @Test
+    void fillGameInfo_shouldReturnFallbackOnEmptyContent() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": ""
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        GameInfoResponse result = service.fillGameInfo("Unknown Game");
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Unknown Game");
+        assertThat(result.typeCode()).isEqualTo("ambiance");
+    }
+
+    @Test
+    void fillGameInfo_shouldReturnFallbackOnInvalidJson() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "not valid json"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        GameInfoResponse result = service.fillGameInfo("Bad Game");
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Bad Game");
+        assertThat(result.description()).isEqualTo("Jeu de société");
+    }
+
+    @Test
+    void fillGameInfo_shouldReturnFallbackOnParseException() {
+        String invalidJson = "completely invalid";
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
+
+        GameInfoResponse result = service.fillGameInfo("Error Game");
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Error Game");
+    }
+
+    @Test
+    void suggestGame_shouldReturnSuggestion() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "{\\"nom\\": \\"Terraforming Mars\\", \\"description\\": \\"Colonisez Mars\\", \\"typeCode\\": \\"strategie\\", \\"raison\\": \\"Vous aimez les jeux de stratégie\\", \\"imageUrl\\": null}"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andExpect(method(org.springframework.http.HttpMethod.POST))
+                .andExpect(header("x-api-key", "test-api-key"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        List<RatedGameInfo> ratedGames = List.of(
+                new RatedGameInfo("Catan", "strategie", (short) 4, "Jeu de colonisation")
+        );
+        GameSuggestionResponse result = service.suggestGame(ratedGames);
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Terraforming Mars");
+        assertThat(result.description()).isEqualTo("Colonisez Mars");
+        assertThat(result.typeCode()).isEqualTo("strategie");
+        assertThat(result.raison()).isEqualTo("Vous aimez les jeux de stratégie");
+        mockServer.verify();
+    }
+
+    @Test
+    void suggestGame_shouldReturnFallbackOnEmptyContent() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": ""
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        List<RatedGameInfo> ratedGames = List.of(
+                new RatedGameInfo("Test", "ambiance", (short) 3, "Test game")
+        );
+        GameSuggestionResponse result = service.suggestGame(ratedGames);
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Dixit");
+        assertThat(result.typeCode()).isEqualTo("ambiance");
+    }
+
+    @Test
+    void suggestGame_shouldReturnFallbackOnInvalidJson() {
+        String responseJson = """
+                {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "invalid json content"
+                        }
+                    ]
+                }
+                """;
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
+
+        List<RatedGameInfo> ratedGames = List.of(
+                new RatedGameInfo("Test", "strategie", (short) 5, "Test")
+        );
+        GameSuggestionResponse result = service.suggestGame(ratedGames);
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Dixit");
+    }
+
+    @Test
+    void suggestGame_shouldReturnFallbackOnParseException() {
+        String invalidJson = "not json at all";
+
+        mockServer.expect(requestTo("https://api.anthropic.com/v1/messages"))
+                .andRespond(withSuccess(invalidJson, MediaType.APPLICATION_JSON));
+
+        List<RatedGameInfo> ratedGames = List.of(
+                new RatedGameInfo("Game", "reflexion", (short) 2, "Description")
+        );
+        GameSuggestionResponse result = service.suggestGame(ratedGames);
+
+        assertThat(result).isNotNull();
+        assertThat(result.nom()).isEqualTo("Dixit");
     }
 }

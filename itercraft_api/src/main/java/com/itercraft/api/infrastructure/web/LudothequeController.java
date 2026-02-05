@@ -6,9 +6,12 @@ import com.itercraft.api.application.ludotheque.JeuDto;
 import com.itercraft.api.application.ludotheque.JeuUserDto;
 import com.itercraft.api.application.ludotheque.LudothequeService;
 import com.itercraft.api.application.ludotheque.ReferenceTablesDto;
+import com.itercraft.api.application.ludotheque.UpdateNoteRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,11 +85,10 @@ public class LudothequeController {
     @PutMapping("/mes-jeux/{jeuId}/note")
     public ResponseEntity<Void> updateNote(
             @PathVariable UUID jeuId,
-            @RequestBody Map<String, Short> body,
+            @Valid @RequestBody UpdateNoteRequest request,
             JwtAuthenticationToken auth) {
         String userSub = getUserSub(auth);
-        Short note = body.get("note");
-        ludothequeService.updateNote(userSub, jeuId, note);
+        ludothequeService.updateNote(userSub, jeuId, request.note());
         return ResponseEntity.ok().build();
     }
 
@@ -152,5 +154,15 @@ public class LudothequeController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .findFirst()
+                .orElse("Données invalides");
+        return ResponseEntity.badRequest().body(message);
     }
 }

@@ -74,27 +74,24 @@ export function LudothequePage() {
     return () => es.close();
   }, [refresh]);
 
+  const matchesDuree = (duree: number, filter: string): boolean => {
+    switch (filter) {
+      case 'court': return duree <= 30;
+      case 'moyen': return duree > 30 && duree <= 60;
+      case 'long': return duree > 60;
+      default: return true;
+    }
+  };
+
   const filteredJeux = useMemo(() => {
     return jeux.filter((ju) => {
-      if (filterNom && !ju.jeu.nom.toLowerCase().includes(filterNom.toLowerCase())) {
-        return false;
-      }
-      if (filterType && ju.jeu.typeCode !== filterType) {
-        return false;
-      }
-      if (filterAge && ju.jeu.ageCode !== filterAge) {
-        return false;
-      }
-      if (filterNote !== null && (ju.note === null || ju.note < filterNote)) {
-        return false;
-      }
-      if (filterDuree) {
-        const duree = ju.jeu.dureeMoyenneMinutes ?? 0;
-        if (filterDuree === 'court' && duree > 30) return false;
-        if (filterDuree === 'moyen' && (duree <= 30 || duree > 60)) return false;
-        if (filterDuree === 'long' && duree <= 60) return false;
-      }
-      return true;
+      const matchesNom = !filterNom || ju.jeu.nom.toLowerCase().includes(filterNom.toLowerCase());
+      const matchesType = !filterType || ju.jeu.typeCode === filterType;
+      const matchesAge = !filterAge || ju.jeu.ageCode === filterAge;
+      const matchesNote = filterNote === null || (ju.note !== null && ju.note >= filterNote);
+      const matchesDureeFilter = !filterDuree || matchesDuree(ju.jeu.dureeMoyenneMinutes ?? 0, filterDuree);
+
+      return matchesNom && matchesType && matchesAge && matchesNote && matchesDureeFilter;
     });
   }, [jeux, filterNom, filterType, filterAge, filterNote, filterDuree]);
 
@@ -408,9 +405,21 @@ export function LudothequePage() {
 
       {/* Modal Ajout */}
       {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Ajouter un jeu</h2>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAddModal(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowAddModal(false)}
+          role="presentation"
+        >
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-modal-title"
+          >
+            <h2 id="add-modal-title">Ajouter un jeu</h2>
             <form onSubmit={handleAddGame}>
               <div className="form-group">
                 <label htmlFor="new-game-title">Nom du jeu</label>
@@ -452,9 +461,21 @@ export function LudothequePage() {
 
       {/* Modal Suggestion */}
       {showSuggestionModal && (
-        <div className="modal-overlay" onClick={() => setShowSuggestionModal(false)}>
-          <div className="modal suggestion-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Suggestion IA</h2>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowSuggestionModal(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowSuggestionModal(false)}
+          role="presentation"
+        >
+          <div
+            className="modal suggestion-modal"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="suggestion-modal-title"
+          >
+            <h2 id="suggestion-modal-title">Suggestion IA</h2>
             {loadingSuggestion && (
               <div className="suggestion-loading">
                 <div className="spinner" />

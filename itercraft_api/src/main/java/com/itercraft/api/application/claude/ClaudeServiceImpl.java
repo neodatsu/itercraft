@@ -255,7 +255,7 @@ public class ClaudeServiceImpl implements ClaudeService {
         if (arrayNode.isArray()) {
             for (JsonNode actNode : arrayNode) {
                 String name = actNode.path("name").stringValue();
-                String description = actNode.path("description").stringValue();
+                String description = actNode.path(DESCRIPTION_KEY).stringValue();
                 String icon = actNode.path("icon").stringValue();
                 if (name != null && !name.isBlank()) {
                     activities.add(new Activity(name, description != null ? description : "", icon != null ? icon : "walk"));
@@ -348,14 +348,14 @@ public class ClaudeServiceImpl implements ClaudeService {
 
             return new GameInfoResponse(
                     root.path("nom").stringValue(),
-                    root.path("description").stringValue(),
+                    root.path(DESCRIPTION_KEY).stringValue(),
                     root.path("typeCode").stringValue(),
                     root.path("joueursMin").shortValue(),
                     root.path("joueursMax").shortValue(),
                     root.path("ageCode").stringValue(),
                     root.path("dureeMoyenneMinutes").isNull() ? null : root.path("dureeMoyenneMinutes").shortValue(),
                     root.path("complexiteNiveau").shortValue(),
-                    root.path("imageUrl").isNull() ? null : root.path("imageUrl").stringValue()
+                    root.path(IMAGE_URL_KEY).isNull() ? null : root.path(IMAGE_URL_KEY).stringValue()
             );
         } catch (Exception e) {
             log.error("Failed to parse game info JSON", e);
@@ -459,10 +459,10 @@ public class ClaudeServiceImpl implements ClaudeService {
 
             return new GameSuggestionResponse(
                     root.path("nom").stringValue(),
-                    root.path("description").stringValue(),
+                    root.path(DESCRIPTION_KEY).stringValue(),
                     root.path("typeCode").stringValue(),
                     root.path("raison").stringValue(),
-                    root.path("imageUrl").isNull() ? null : root.path("imageUrl").stringValue()
+                    root.path(IMAGE_URL_KEY).isNull() ? null : root.path(IMAGE_URL_KEY).stringValue()
             );
         } catch (Exception e) {
             log.error("Failed to parse game suggestion JSON", e);

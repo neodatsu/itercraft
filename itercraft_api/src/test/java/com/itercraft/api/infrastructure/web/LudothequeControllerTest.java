@@ -114,6 +114,30 @@ class LudothequeControllerTest {
     }
 
     @Test
+    void updateNote_shouldReturn400WhenNoteBelow1() throws Exception {
+        UUID jeuId = UUID.randomUUID();
+
+        mockMvc.perform(put("/api/ludotheque/mes-jeux/" + jeuId + "/note")
+                        .with(jwt().jwt(j -> j.subject(SUB)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"note\": 0}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateNote_shouldReturn400WhenNoteAbove5() throws Exception {
+        UUID jeuId = UUID.randomUUID();
+
+        mockMvc.perform(put("/api/ludotheque/mes-jeux/" + jeuId + "/note")
+                        .with(jwt().jwt(j -> j.subject(SUB)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"note\": 6}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void initializeAll_shouldReturn200() throws Exception {
         when(ludothequeService.initializeAllGames(SUB)).thenReturn(10);
 

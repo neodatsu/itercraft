@@ -65,7 +65,7 @@ public class LudothequeServiceImpl implements LudothequeService {
 
         // Auto-initialiser si c'est l'utilisateur configuré et sa collection est vide
         if (userJeux.isEmpty() && shouldAutoInitialize(userEmail)) {
-            int added = initializeAllGames(userSub);
+            int added = doInitializeAllGames(userSub);
             if (added > 0) {
                 userJeux = jeuUserRepository.findByUserSub(userSub);
             }
@@ -94,7 +94,9 @@ public class LudothequeServiceImpl implements LudothequeService {
     @Transactional
     public void addJeuToUser(String userSub, UUID jeuId) {
         if (jeuUserRepository.findByUserSubAndJeuId(userSub, jeuId).isPresent()) {
-            log.info("Jeu {} déjà dans la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+            if (log.isInfoEnabled()) {
+                log.info("Jeu {} déjà dans la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+            }
             return;
         }
 
@@ -103,14 +105,18 @@ public class LudothequeServiceImpl implements LudothequeService {
 
         JeuUser jeuUser = new JeuUser(userSub, jeu);
         jeuUserRepository.save(jeuUser);
-        log.info("Jeu {} ajouté à la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+        if (log.isInfoEnabled()) {
+            log.info("Jeu {} ajouté à la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+        }
     }
 
     @Override
     @Transactional
     public void removeJeuFromUser(String userSub, UUID jeuId) {
         jeuUserRepository.deleteByUserSubAndJeuId(userSub, jeuId);
-        log.info("Jeu {} retiré de la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+        if (log.isInfoEnabled()) {
+            log.info("Jeu {} retiré de la ludothèque de {}", jeuId, sanitizeForLog(userSub));
+        }
         sseService.broadcast(SSE_EVENT_LUDOTHEQUE);
     }
 
@@ -122,13 +128,19 @@ public class LudothequeServiceImpl implements LudothequeService {
 
         jeuUser.setNote(note);
         jeuUserRepository.save(jeuUser);
-        log.info("Note mise à jour pour jeu {} de {}: {}", jeuId, sanitizeForLog(userSub), note);
+        if (log.isInfoEnabled()) {
+            log.info("Note mise à jour pour jeu {} de {}", jeuId, sanitizeForLog(userSub));
+        }
         sseService.broadcast(SSE_EVENT_LUDOTHEQUE);
     }
 
     @Override
     @Transactional
     public int initializeAllGames(String userSub) {
+        return doInitializeAllGames(userSub);
+    }
+
+    private int doInitializeAllGames(String userSub) {
         List<Jeu> allJeux = jeuRepository.findAll();
         int added = 0;
 
@@ -140,8 +152,10 @@ public class LudothequeServiceImpl implements LudothequeService {
             }
         }
 
-        log.info("Ludothèque initialisée pour {}: {} jeux ajoutés sur {} disponibles",
-                sanitizeForLog(userSub), added, allJeux.size());
+        if (log.isInfoEnabled()) {
+            log.info("Ludothèque initialisée pour {}: {} jeux ajoutés sur {} disponibles",
+                    sanitizeForLog(userSub), added, allJeux.size());
+        }
         return added;
     }
 
@@ -175,7 +189,9 @@ public class LudothequeServiceImpl implements LudothequeService {
                     .build();
 
             jeu = jeuRepository.save(jeu);
-            log.info("Nouveau jeu créé via Claude: {}", sanitizeForLog(jeu.getNom()));
+            if (log.isInfoEnabled()) {
+                log.info("Nouveau jeu créé via Claude: {}", sanitizeForLog(jeu.getNom()));
+            }
         }
 
         // Vérifier si l'utilisateur n'a pas déjà ce jeu
@@ -185,7 +201,9 @@ public class LudothequeServiceImpl implements LudothequeService {
 
         JeuUser jeuUser = new JeuUser(userSub, jeu);
         jeuUser = jeuUserRepository.save(jeuUser);
-        log.info("Jeu {} ajouté à la ludothèque de {}", jeu.getId(), sanitizeForLog(userSub));
+        if (log.isInfoEnabled()) {
+            log.info("Jeu {} ajouté à la ludothèque de {}", jeu.getId(), sanitizeForLog(userSub));
+        }
 
         sseService.broadcast(SSE_EVENT_LUDOTHEQUE);
         return toJeuUserDto(jeuUser);

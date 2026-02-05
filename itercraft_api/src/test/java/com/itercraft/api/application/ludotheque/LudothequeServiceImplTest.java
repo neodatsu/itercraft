@@ -208,6 +208,107 @@ class LudothequeServiceImplTest {
         assertThat(result.complexites()).hasSize(1);
     }
 
+    @Test
+    void initializeAllGames_shouldAddAllGamesToUser() {
+        Jeu jeu1 = createMockJeu();
+        Jeu jeu2 = createMockJeuWithName("7 Wonders");
+        when(jeuRepository.findAll()).thenReturn(List.of(jeu1, jeu2));
+        when(jeuUserRepository.findByUserSubAndJeuId(any(), any())).thenReturn(Optional.empty());
+        when(jeuUserRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        int added = ludothequeService.initializeAllGames(SUB);
+
+        assertThat(added).isEqualTo(2);
+    }
+
+    @Test
+    void initializeAllGames_shouldSkipAlreadyOwned() {
+        Jeu jeu1 = createMockJeu();
+        Jeu jeu2 = createMockJeuWithName("7 Wonders");
+        JeuUser existing = new JeuUser(SUB, jeu1);
+        when(jeuRepository.findAll()).thenReturn(List.of(jeu1, jeu2));
+        when(jeuUserRepository.findByUserSubAndJeuId(SUB, jeu1.getId())).thenReturn(Optional.of(existing));
+        when(jeuUserRepository.findByUserSubAndJeuId(SUB, jeu2.getId())).thenReturn(Optional.empty());
+        when(jeuUserRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        int added = ludothequeService.initializeAllGames(SUB);
+
+        assertThat(added).isEqualTo(1);
+    }
+
+    @Test
+    void addJeuToUser_shouldThrowWhenGameNotFound() {
+        UUID jeuId = UUID.randomUUID();
+        when(jeuUserRepository.findByUserSubAndJeuId(SUB, jeuId)).thenReturn(Optional.empty());
+        when(jeuRepository.findById(jeuId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> ludothequeService.addJeuToUser(SUB, jeuId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Jeu non trouvé");
+    }
+
+    @Test
+    void addJeuByTitle_shouldUseFallbackTypeWhenNotFound() {
+        String nom = "Jeu Inconnu";
+        GameInfoResponse gameInfo = new GameInfoResponse(
+                nom, "Description", "unknown_type",
+                (short) 2, (short) 4, "unknown_age",
+                (short) 60, (short) 99, null
+        );
+        TypeJeu fallbackType = createTypeJeu();
+        AgeJeu fallbackAge = createAgeJeu();
+        ComplexiteJeu fallbackComplexite = createComplexiteJeu();
+
+        when(jeuRepository.findByNomIgnoreCase(nom)).thenReturn(Optional.empty());
+        when(claudeService.fillGameInfo(nom)).thenReturn(gameInfo);
+        when(typeJeuRepository.findByCode("unknown_type")).thenReturn(Optional.empty());
+        when(typeJeuRepository.findByCode("ambiance")).thenReturn(Optional.of(fallbackType));
+        when(ageJeuRepository.findByCode("unknown_age")).thenReturn(Optional.empty());
+        when(ageJeuRepository.findByCode("tout_public")).thenReturn(Optional.of(fallbackAge));
+        when(complexiteJeuRepository.findByNiveau((short) 99)).thenReturn(Optional.empty());
+        when(complexiteJeuRepository.findByNiveau((short) 2)).thenReturn(Optional.of(fallbackComplexite));
+        when(jeuRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(jeuUserRepository.findByUserSubAndJeuId(any(), any())).thenReturn(Optional.empty());
+        when(jeuUserRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        JeuUserDto result = ludothequeService.addJeuByTitle(SUB, nom);
+
+        assertThat(result.jeu().nom()).isEqualTo(nom);
+    }
+
+    @Test
+    void addJeuByTitle_shouldAddExistingGameToUser() {
+        Jeu existingJeu = createMockJeu();
+        when(jeuRepository.findByNomIgnoreCase("Catan")).thenReturn(Optional.of(existingJeu));
+        when(jeuUserRepository.findByUserSubAndJeuId(SUB, existingJeu.getId())).thenReturn(Optional.empty());
+        when(jeuUserRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        JeuUserDto result = ludothequeService.addJeuByTitle(SUB, "Catan");
+
+        assertThat(result.jeu().nom()).isEqualTo("Catan");
+        verify(sseService).broadcast("ludotheque-change");
+    }
+
+    @Test
+    void getSuggestion_shouldUseFallbackTypeLibelle() {
+        Jeu jeu = createMockJeu();
+        JeuUser jeuUser = new JeuUser(SUB, jeu);
+        jeuUser.setNote((short) 4);
+
+        GameSuggestionResponse suggestion = new GameSuggestionResponse(
+                "New Game", "Description", "unknown_type",
+                "Raison", null
+        );
+
+        when(jeuUserRepository.findRatedByUserSub(SUB)).thenReturn(List.of(jeuUser));
+        when(claudeService.suggestGame(any())).thenReturn(suggestion);
+        when(typeJeuRepository.findByCode("unknown_type")).thenReturn(Optional.empty());
+
+        GameSuggestionDto result = ludothequeService.getSuggestion(SUB);
+
+        assertThat(result.typeLibelle()).isEqualTo("unknown_type");
+    }
+
     private Jeu createMockJeu() {
         TypeJeu typeJeu = createTypeJeu();
         AgeJeu ageJeu = createAgeJeu();
@@ -236,5 +337,23 @@ class LudothequeServiceImplTest {
 
     private ComplexiteJeu createComplexiteJeu() {
         return new ComplexiteJeu(UUID.randomUUID(), (short) 3, "Intermédiaire");
+    }
+
+    private Jeu createMockJeuWithName(String name) {
+        TypeJeu typeJeu = createTypeJeu();
+        AgeJeu ageJeu = createAgeJeu();
+        ComplexiteJeu complexite = createComplexiteJeu();
+
+        return new Jeu.Builder()
+                .nom(name)
+                .description("Description de " + name)
+                .typeJeu(typeJeu)
+                .joueursMin((short) 2)
+                .joueursMax((short) 6)
+                .ageJeu(ageJeu)
+                .dureeMoyenneMinutes((short) 45)
+                .complexite(complexite)
+                .imageUrl(null)
+                .build();
     }
 }
