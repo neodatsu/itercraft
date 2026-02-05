@@ -34,6 +34,7 @@ services:
       KC_HOSTNAME: localhost
       KEYCLOAK_HEALTHCHECK_PASSWORD: healthcheck
       KEYCLOAK_LAURENT_PASSWORD: ${KEYCLOAK_LAURENT_PASSWORD:-changeme}
+      KEYCLOAK_SSL_REQUIRED: none
     healthcheck:
       test: ["CMD-SHELL", "cat < /dev/null > /dev/tcp/localhost/8180"]
       interval: 10s
