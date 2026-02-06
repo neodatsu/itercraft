@@ -428,7 +428,6 @@ export function LudothequePage() {
         className="modal"
         aria-labelledby="add-modal-title"
         onClose={() => setShowAddModal(false)}
-        onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}
       >
         <h2 id="add-modal-title">Ajouter un jeu</h2>
         <form onSubmit={handleAddGame}>
@@ -474,7 +473,6 @@ export function LudothequePage() {
         className="modal suggestion-modal"
         aria-labelledby="suggestion-modal-title"
         onClose={() => setShowSuggestionModal(false)}
-        onClick={(e) => { if (e.target === e.currentTarget) setShowSuggestionModal(false); }}
       >
         <h2 id="suggestion-modal-title">Suggestion IA</h2>
         {loadingSuggestion && (
