@@ -510,10 +510,12 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `PUT`    | `/api/ludotheque/mes-jeux/{jeuId}/note`   | Bearer + CSRF | Update rating (1-5 stars)  |
 | `POST`   | `/api/ludotheque/suggestion`              | Bearer + CSRF | AI game suggestion         |
 | `GET`    | `/api/maintenance/activities`                | Bearer        | Maintenance activities     |
+| `POST`   | `/api/maintenance/activities`                | Bearer + CSRF | Create new activity        |
 | `POST`   | `/api/maintenance/activities/{code}/start`   | Bearer + CSRF | Start activity timer       |
 | `POST`   | `/api/maintenance/activities/{code}/stop`    | Bearer + CSRF | Stop activity timer        |
 | `GET`    | `/api/maintenance/totals`                    | Bearer        | Aggregated time totals     |
 | `GET`    | `/api/maintenance/activities/{code}/history` | Bearer        | Activity session history   |
+| `DELETE` | `/api/maintenance/sessions/{id}`             | Bearer + CSRF | Delete a session           |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 
