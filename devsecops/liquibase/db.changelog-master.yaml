@@ -20,3 +20,6 @@ databaseChangeLog:
   - include:
       file: changelogs/007-ludotheque-data-fix.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changelogs/008-maintenance-sessions.yaml
+      relativeToChangelogFile: true

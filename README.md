@@ -7,6 +7,7 @@ Itercraft is a cloud-native web application deployed on AWS (eu-west-1), built w
 ## Features
 
 - **Subscriptions** — Manage service subscriptions with usage tracking
+- **Entretien** — Track home maintenance activities with time logging and auto-stop
 - **Weather Activities** — AI-powered activity suggestions based on weather analysis (Claude + Météo France)
 - **Ma Ludothèque** — Personal board game collection with AI-powered game info and suggestions
 - **IoT Sensors** — MQTT-based sensor data collection (ESP32, TLS 1.3)
@@ -151,6 +152,42 @@ classDiagram
 - **TypeJeu**: lettres_mots, strategie, enquete_escape, culture_quiz, ambiance, classique, reflexion, adresse
 - **AgeJeu**: enfant, tout_public, adulte
 - **ComplexiteJeu**: 1 (Très simple), 2 (Simple), 3 (Moyen), 4 (Complexe), 5 (Expert)
+
+## Domain Model — Maintenance Sessions
+
+```mermaid
+classDiagram
+    direction LR
+
+    class MaintenanceSession {
+        UUID id
+        OffsetDateTime startedAt
+        OffsetDateTime endedAt
+        Integer durationMinutes
+        Boolean autoStopped
+    }
+
+    class AppUser {
+        UUID id
+        String keycloakSub
+    }
+
+    class ServiceEntity {
+        UUID id
+        String code
+        String label
+    }
+
+    MaintenanceSession "*" -- "1" AppUser : user
+    MaintenanceSession "*" -- "1" ServiceEntity : service
+```
+
+**Features:**
+
+- Time tracking with start/stop buttons
+- Automatic stop after 4 hours
+- Duration aggregation by day/week/month/year
+- SSE real-time updates
 
 ## Project Structure
 
@@ -472,6 +509,11 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `DELETE` | `/api/ludotheque/mes-jeux/{jeuId}`        | Bearer + CSRF | Remove game                |
 | `PUT`    | `/api/ludotheque/mes-jeux/{jeuId}/note`   | Bearer + CSRF | Update rating (1-5 stars)  |
 | `POST`   | `/api/ludotheque/suggestion`              | Bearer + CSRF | AI game suggestion         |
+| `GET`    | `/api/maintenance/activities`                | Bearer        | Maintenance activities     |
+| `POST`   | `/api/maintenance/activities/{code}/start`   | Bearer + CSRF | Start activity timer       |
+| `POST`   | `/api/maintenance/activities/{code}/stop`    | Bearer + CSRF | Stop activity timer        |
+| `GET`    | `/api/maintenance/totals`                    | Bearer        | Aggregated time totals     |
+| `GET`    | `/api/maintenance/activities/{code}/history` | Bearer        | Activity session history   |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 

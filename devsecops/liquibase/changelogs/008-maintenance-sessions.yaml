@@ -1,0 +1,98 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 008-create-maintenance-session
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: maintenance_session
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ended_at
+                  type: timestamp with time zone
+              - column:
+                  name: duration_minutes
+                  type: int
+              - column:
+                  name: auto_stopped
+                  type: boolean
+                  defaultValueBoolean: false
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: maintenance_session
+            baseColumnNames: user_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: app_user
+            referencedColumnNames: id
+            constraintName: fk_session_user
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: maintenance_session
+            baseColumnNames: service_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: service
+            referencedColumnNames: id
+            constraintName: fk_session_service
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: itercraft
+            tableName: maintenance_session
+            indexName: idx_session_user_started
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: started_at
+                  descending: true
+
+  - changeSet:
+      id: 008-update-service-labels
+      author: itercraft
+      changes:
+        - update:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: label
+                  value: Passer la tondeuse
+            where: code = 'tondeuse'
+        - update:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: label
+                  value: Passer le Karcher
+            where: code = 'karcher'
+        - update:
+            schemaName: itercraft
+            tableName: service
+            columns:
+              - column:
+                  name: label
+                  value: Nettoyer la piscine
+            where: code = 'piscine'

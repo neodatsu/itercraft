@@ -27,6 +27,13 @@ public class ServiceEntity {
 
     protected ServiceEntity() {}
 
+    public ServiceEntity(String code, String label) {
+        this.id = UUID.randomUUID();
+        this.code = code;
+        this.label = label;
+        this.createdAt = OffsetDateTime.now();
+    }
+
     public UUID getId() { return id; }
     public String getCode() { return code; }
     public String getLabel() { return label; }

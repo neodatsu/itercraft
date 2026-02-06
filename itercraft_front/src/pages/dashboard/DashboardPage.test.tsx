@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
 import { DashboardPage } from './DashboardPage';
 
 class MockEventSource {
@@ -15,10 +16,7 @@ vi.mock('../../auth/AuthProvider', () => ({
 
 vi.mock('../../api/subscriptionApi', () => ({
   getSubscriptions: vi.fn(),
-  getServices: vi.fn(),
   getUsageHistory: vi.fn(),
-  subscribe: vi.fn(),
-  unsubscribe: vi.fn(),
   addUsage: vi.fn(),
   removeUsage: vi.fn(),
 }));
@@ -28,10 +26,7 @@ import * as api from '../../api/subscriptionApi';
 
 const mockUseAuth = vi.mocked(useAuth);
 const mockGetSubscriptions = vi.mocked(api.getSubscriptions);
-const mockGetServices = vi.mocked(api.getServices);
 const mockGetUsageHistory = vi.mocked(api.getUsageHistory);
-const mockSubscribe = vi.mocked(api.subscribe);
-const mockUnsubscribe = vi.mocked(api.unsubscribe);
 const mockAddUsage = vi.mocked(api.addUsage);
 const mockRemoveUsage = vi.mocked(api.removeUsage);
 
@@ -44,17 +39,20 @@ function setupAuth(username = 'testuser') {
   });
 }
 
+function renderWithRouter(component: React.ReactNode) {
+  return render(<BrowserRouter>{component}</BrowserRouter>);
+}
+
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupAuth();
     mockGetSubscriptions.mockResolvedValue([]);
-    mockGetServices.mockResolvedValue([]);
     mockGetUsageHistory.mockResolvedValue([]);
   });
 
   it('renders username and dashboard title', async () => {
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
       expect(screen.getByText('testuser')).toBeInTheDocument();
     });
@@ -68,14 +66,14 @@ describe('DashboardPage', () => {
       initialized: true,
       ensureInit: vi.fn().mockResolvedValue(true),
     });
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
       expect(screen.getByText('Utilisateur')).toBeInTheDocument();
     });
   });
 
   it('shows empty message when no subscriptions', async () => {
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
       expect(screen.getByText('Aucun abonnement pour le moment.')).toBeInTheDocument();
     });
@@ -83,68 +81,24 @@ describe('DashboardPage', () => {
 
   it('renders subscription section with service label', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 3 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Passer la tondeuse', usageCount: 3 },
     ]);
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('Tondeuse')).toBeInTheDocument();
+      expect(screen.getByText('Passer la tondeuse')).toBeInTheDocument();
     });
-  });
-
-  it('shows available services to subscribe', async () => {
-    mockGetServices.mockResolvedValue([
-      { code: 'piscine', label: 'Piscine', description: 'desc' },
-    ]);
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('Piscine')).toBeInTheDocument();
-    });
-  });
-
-  it('calls subscribe when adding a service', async () => {
-    mockGetServices.mockResolvedValue([
-      { code: 'piscine', label: 'Piscine', description: 'desc' },
-    ]);
-    mockSubscribe.mockResolvedValue(undefined);
-    const user = userEvent.setup();
-
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('Piscine')).toBeInTheDocument();
-    });
-
-    await user.selectOptions(screen.getByRole('combobox'), 'piscine');
-    await user.click(screen.getByText("S'abonner"));
-
-    expect(mockSubscribe).toHaveBeenCalledWith('fake-token', 'piscine');
-  });
-
-  it('calls unsubscribe when clicking Se désabonner', async () => {
-    mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 0 },
-    ]);
-    mockUnsubscribe.mockResolvedValue(undefined);
-    const user = userEvent.setup();
-
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('Tondeuse')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('Se désabonner'));
-    expect(mockUnsubscribe).toHaveBeenCalledWith('fake-token', 'tondeuse');
   });
 
   it('calls addUsage when clicking + Usage', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 1 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Passer la tondeuse', usageCount: 1 },
     ]);
     mockAddUsage.mockResolvedValue(undefined);
     const user = userEvent.setup();
 
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('Tondeuse')).toBeInTheDocument();
+      expect(screen.getByText('Passer la tondeuse')).toBeInTheDocument();
     });
 
     await user.click(screen.getByText('+ Usage'));
@@ -153,7 +107,7 @@ describe('DashboardPage', () => {
 
   it('calls removeUsage with usage id when clicking Supprimer on a usage row', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 1 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Passer la tondeuse', usageCount: 1 },
     ]);
     mockGetUsageHistory.mockResolvedValue([
       { id: 'usage-123', usedAt: '2026-01-15T10:30:00Z' },
@@ -161,9 +115,9 @@ describe('DashboardPage', () => {
     mockRemoveUsage.mockResolvedValue(undefined);
     const user = userEvent.setup();
 
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('Tondeuse')).toBeInTheDocument();
+      expect(screen.getByText('Passer la tondeuse')).toBeInTheDocument();
     });
     await waitFor(() => {
       expect(screen.getByText('Supprimer')).toBeInTheDocument();
@@ -175,15 +129,15 @@ describe('DashboardPage', () => {
 
   it('renders usage history table with dates', async () => {
     mockGetSubscriptions.mockResolvedValue([
-      { serviceCode: 'tondeuse', serviceLabel: 'Tondeuse', usageCount: 2 },
+      { serviceCode: 'tondeuse', serviceLabel: 'Passer la tondeuse', usageCount: 2 },
     ]);
     mockGetUsageHistory.mockResolvedValue([
       { id: 'u1', usedAt: '2026-01-15T10:30:00Z' },
       { id: 'u2', usedAt: '2025-06-20T14:00:00Z' },
     ]);
-    render(<DashboardPage />);
+    renderWithRouter(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('Tondeuse')).toBeInTheDocument();
+      expect(screen.getByText('Passer la tondeuse')).toBeInTheDocument();
     });
     await waitFor(() => {
       expect(screen.getByText('2 usages')).toBeInTheDocument();

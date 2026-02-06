@@ -14,6 +14,7 @@ export function Header() {
         {authenticated ? (
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>
+            <Link to="/entretien" className="app-header-link">Entretien</Link>
             <Link to="/activites" className="app-header-link">Activités</Link>
             <Link to="/ludotheque" className="app-header-link">Ma Ludothèque</Link>
             <button

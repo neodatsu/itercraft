@@ -2,14 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import {
   getSubscriptions,
-  getServices,
   getUsageHistory,
-  subscribe,
-  unsubscribe,
   addUsage,
   removeUsage,
   type UserSubscription,
-  type ServiceInfo,
   type UsageRecord,
 } from '../../api/subscriptionApi';
 import './DashboardPage.css';
@@ -90,20 +86,14 @@ export function DashboardPage() {
     ?? 'Utilisateur';
 
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([]);
-  const [services, setServices] = useState<ServiceInfo[]>([]);
-  const [selectedService, setSelectedService] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const token = keycloak.token ?? '';
 
   const refresh = useCallback(async () => {
-    const [subs, svcs] = await Promise.all([
-      getSubscriptions(token),
-      getServices(token),
-    ]);
+    const subs = await getSubscriptions(token);
     setSubscriptions(subs);
-    setServices(svcs);
     setRefreshKey(k => k + 1);
   }, [token]);
 
@@ -117,22 +107,6 @@ export function DashboardPage() {
     es.addEventListener('subscription-change', () => { refresh(); });
     return () => es.close();
   }, [refresh]);
-
-  const availableServices = services.filter(
-    s => !subscriptions.some(sub => sub.serviceCode === s.code)
-  );
-
-  async function handleSubscribe() {
-    if (!selectedService) return;
-    await subscribe(token, selectedService);
-    setSelectedService('');
-    await refresh();
-  }
-
-  async function handleUnsubscribe(code: string) {
-    await unsubscribe(token, code);
-    await refresh();
-  }
 
   async function handleAddUsage(code: string) {
     await addUsage(token, code);
@@ -159,36 +133,12 @@ export function DashboardPage() {
                 <h2>{sub.serviceLabel}</h2>
                 <div className="dashboard-actions">
                   <button className="btn btn-sm btn-primary" onClick={() => handleAddUsage(sub.serviceCode)}>+ Usage</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleUnsubscribe(sub.serviceCode)}>Se désabonner</button>
                 </div>
               </div>
               <UsageTable serviceCode={sub.serviceCode} token={token} refreshKey={refreshKey} onRefresh={refresh} />
             </section>
           ))}
         </div>
-      )}
-
-      {availableServices.length > 0 && (
-        <section className="dashboard-section">
-          <h2>Ajouter un service</h2>
-          <div className="dashboard-add">
-            <select
-              className="dashboard-select"
-              value={selectedService}
-              onChange={e => setSelectedService(e.target.value)}
-            >
-              <option value="">-- Choisir --</option>
-              {availableServices.map(s => (
-                <option key={s.code} value={s.code}>{s.label}</option>
-              ))}
-            </select>
-            <button
-              className="btn btn-primary"
-              onClick={handleSubscribe}
-              disabled={!selectedService}
-            >S'abonner</button>
-          </div>
-        </section>
       )}
     </div>
   );
