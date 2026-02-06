@@ -107,13 +107,13 @@
 }
 
 .btn-stop {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #d83d3d, #dc2626);
   color: #fff;
   font-size: 1rem;
 }
 
 .btn-stop:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f87171, #ef4444);
+  background: linear-gradient(135deg, #ef4444, #d83d3d);
 }
 
 /* Totals section */

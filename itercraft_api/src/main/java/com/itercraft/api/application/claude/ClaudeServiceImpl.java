@@ -242,7 +242,9 @@ public class ClaudeServiceImpl implements ClaudeService {
             activities.put(AFTERNOON, parseActivities(root.path(AFTERNOON)));
             activities.put(EVENING, parseActivities(root.path(EVENING)));
 
-            log.info("Activity suggestions parsed successfully for {}", sanitizeForLog(location));
+            if (log.isInfoEnabled()) {
+                log.info("Activity suggestions parsed successfully for {}", sanitizeForLog(location));
+            }
             return new ActivitySuggestion(location, activities, summary);
         } catch (Exception e) {
             log.error("Failed to parse activity JSON", e);

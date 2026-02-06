@@ -15,6 +15,14 @@ import {
 import { StarRating } from '../../components/ludotheque/StarRating';
 import './LudothequePage.css';
 
+function getComplexiteClass(niveau: number): string {
+  if (niveau <= 1) return 'complexite-facile';
+  if (niveau <= 2) return 'complexite-accessible';
+  if (niveau <= 3) return 'complexite-moyen';
+  if (niveau <= 4) return 'complexite-avance';
+  return 'complexite-expert';
+}
+
 export function LudothequePage() {
   const { keycloak } = useAuth();
   const token = keycloak.token ?? '';
@@ -56,7 +64,7 @@ export function LudothequePage() {
       setJeux(jeuxData);
       setReferences(refsData);
       setError(null);
-    } catch (e) {
+    } catch {
       setError('Erreur lors du chargement de la ludothèque');
     }
   }, [token]);
@@ -183,14 +191,6 @@ export function LudothequePage() {
     }
   }
 
-  function getComplexiteClass(niveau: number): string {
-    if (niveau <= 1) return 'complexite-facile';
-    if (niveau <= 2) return 'complexite-accessible';
-    if (niveau <= 3) return 'complexite-moyen';
-    if (niveau <= 4) return 'complexite-avance';
-    return 'complexite-expert';
-  }
-
   if (loading) {
     return (
       <div className="ludotheque-container">
@@ -276,11 +276,12 @@ export function LudothequePage() {
         </div>
 
         <div className="filter-group">
-          <label>Note min.</label>
+          <span id="filter-note-label" className="filter-label">Note min.</span>
           <div className="filter-stars">
             <StarRating
               value={filterNote}
               onChange={(v) => setFilterNote(filterNote === v ? null : v)}
+              aria-labelledby="filter-note-label"
             />
             {filterNote !== null && (
               <button
@@ -365,7 +366,7 @@ export function LudothequePage() {
 
           <div className="pagination">
             <div className="pagination-info">
-              {filteredJeux.length} jeu{filteredJeux.length !== 1 ? 'x' : ''} trouvé{filteredJeux.length !== 1 ? 's' : ''}
+              {filteredJeux.length} jeu{filteredJeux.length === 1 ? '' : 'x'} trouvé{filteredJeux.length === 1 ? '' : 's'}
             </div>
             <div className="pagination-controls">
               <button
@@ -407,14 +408,11 @@ export function LudothequePage() {
       {showAddModal && (
         <div
           className="modal-overlay"
-          onClick={() => setShowAddModal(false)}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}
           onKeyDown={(e) => e.key === 'Escape' && setShowAddModal(false)}
-          role="presentation"
         >
           <div
             className="modal"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"
@@ -463,14 +461,11 @@ export function LudothequePage() {
       {showSuggestionModal && (
         <div
           className="modal-overlay"
-          onClick={() => setShowSuggestionModal(false)}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSuggestionModal(false); }}
           onKeyDown={(e) => e.key === 'Escape' && setShowSuggestionModal(false)}
-          role="presentation"
         >
           <div
             className="modal suggestion-modal"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="suggestion-modal-title"

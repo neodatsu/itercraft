@@ -4,9 +4,10 @@ interface StarRatingProps {
   value: number | null;
   onChange?: (value: number) => void;
   readonly?: boolean;
+  'aria-labelledby'?: string;
 }
 
-export function StarRating({ value, onChange, readonly = false }: Readonly<StarRatingProps>) {
+export function StarRating({ value, onChange, readonly = false, 'aria-labelledby': ariaLabelledBy }: Readonly<StarRatingProps>) {
   const handleClick = (starIndex: number) => {
     if (!readonly && onChange) {
       onChange(starIndex);
@@ -21,7 +22,7 @@ export function StarRating({ value, onChange, readonly = false }: Readonly<StarR
   };
 
   return (
-    <div className={`star-rating ${readonly ? 'readonly' : ''}`} role="group" aria-label="Note du jeu">
+    <div className={`star-rating ${readonly ? 'readonly' : ''}`} role="group" aria-label={ariaLabelledBy ? undefined : "Note du jeu"} aria-labelledby={ariaLabelledBy}>
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}

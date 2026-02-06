@@ -50,11 +50,15 @@ public class ActivityServiceImpl implements ActivityService {
         // Check cache first
         Optional<ActivityAnalysis> cached = analysisRepository.findByLocationNameAndAnalysisDate(location, today);
         if (cached.isPresent()) {
-            log.info("Cache hit for location={} date={}", sanitizeForLog(location), today);
+            if (log.isInfoEnabled()) {
+                log.info("Cache hit for location={} date={}", sanitizeForLog(location), today);
+            }
             return deserializeSuggestion(cached.get().getResponseJson(), location);
         }
 
-        log.info("Cache miss for location={} date={}, fetching from APIs", sanitizeForLog(location), today);
+        if (log.isInfoEnabled()) {
+            log.info("Cache miss for location={} date={}, fetching from APIs", sanitizeForLog(location), today);
+        }
 
         // Fetch weather images
         Map<String, byte[]> weatherImages = new LinkedHashMap<>();
@@ -71,9 +75,13 @@ public class ActivityServiceImpl implements ActivityService {
             String json = objectMapper.writeValueAsString(suggestion);
             ActivityAnalysis analysis = new ActivityAnalysis(location, lat, lon, json);
             analysisRepository.save(analysis);
-            log.info("Cached analysis for location={} date={}", sanitizeForLog(location), today);
+            if (log.isInfoEnabled()) {
+                log.info("Cached analysis for location={} date={}", sanitizeForLog(location), today);
+            }
         } catch (Exception e) {
-            log.warn("Failed to cache analysis for location={}: {}", sanitizeForLog(location), e.getMessage());
+            if (log.isWarnEnabled()) {
+                log.warn("Failed to cache analysis for location={}: {}", sanitizeForLog(location), e.getMessage());
+            }
         }
 
         return suggestion;
@@ -83,7 +91,9 @@ public class ActivityServiceImpl implements ActivityService {
         try {
             return objectMapper.readValue(json, ActivitySuggestion.class);
         } catch (Exception e) {
-            log.error("Failed to deserialize cached suggestion for location={}", sanitizeForLog(location), e);
+            if (log.isErrorEnabled()) {
+                log.error("Failed to deserialize cached suggestion for location={}", sanitizeForLog(location), e);
+            }
             return createFallbackSuggestion(location);
         }
     }
