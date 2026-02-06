@@ -9,6 +9,7 @@ const labels: Record<string, string> = {
   '/confidentialite': 'Confidentialité',
   '/architecture': 'Architecture',
   '/sse': 'Server-Sent Events',
+  '/resilience': 'Résilience',
   '/meteo': 'Météo',
 };
 

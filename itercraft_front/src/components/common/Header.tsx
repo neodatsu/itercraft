@@ -11,6 +11,7 @@ export function Header() {
       <nav className="app-header-nav">
         <Link to="/architecture" className="app-header-link">Architecture</Link>
         <Link to="/sse" className="app-header-link">SSE</Link>
+        <Link to="/resilience" className="app-header-link">Résilience</Link>
         {authenticated ? (
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>

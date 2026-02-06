@@ -38,6 +38,8 @@ describe('Header', () => {
     expect(screen.getByText('Architecture').closest('a')).toHaveAttribute('href', '/architecture');
     expect(screen.getByText('SSE')).toBeInTheDocument();
     expect(screen.getByText('SSE').closest('a')).toHaveAttribute('href', '/sse');
+    expect(screen.getByText('Résilience')).toBeInTheDocument();
+    expect(screen.getByText('Résilience').closest('a')).toHaveAttribute('href', '/resilience');
   });
 
   it('renders Connexion button when not authenticated', () => {
