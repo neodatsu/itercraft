@@ -77,3 +77,10 @@ variable "grafana_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "slack_webhook_url" {
+  description = "Slack webhook URL for Falco security alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

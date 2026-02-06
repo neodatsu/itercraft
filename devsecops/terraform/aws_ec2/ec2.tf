@@ -353,7 +353,7 @@ resource "aws_instance" "app" {
                 tempo:
                   image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_tempo:latest
                   volumes:
-                    - tempo-data:/tmp/tempo
+                    - tempo-data:/var/tempo
                   networks:
                     - internal
                   restart: always
@@ -362,12 +362,39 @@ resource "aws_instance" "app" {
                     interval: 30s
                     timeout: 10s
                     retries: 3
+
+                falcosidekick:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_falcosidekick:latest
+                  environment:
+                    - SLACK_WEBHOOK_URL=${var.slack_webhook_url}
+                  depends_on:
+                    loki:
+                      condition: service_healthy
+                  networks:
+                    - internal
+                  restart: always
+
+                falco:
+                  image: ${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/itercraft_falco:latest
+                  privileged: true
+                  volumes:
+                    - /var/run/docker.sock:/var/run/docker.sock:ro
+                    - /dev:/host/dev:ro
+                    - /proc:/host/proc:ro
+                    - /etc:/host/etc:ro
+                    - falco-logs:/var/log/falco
+                  depends_on:
+                    - falcosidekick
+                  networks:
+                    - internal
+                  restart: always
               volumes:
                 pgdata:
                 mosquitto-data:
                 mosquitto-certs:
                 loki-data:
                 tempo-data:
+                falco-logs:
               EOL
 
               docker-compose up -d

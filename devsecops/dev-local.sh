@@ -18,13 +18,14 @@ usage() {
     echo "Usage: $0 [command]"
     echo ""
     echo "Commands:"
-    echo "  start    Build et démarre tous les containers (défaut)"
-    echo "  stop     Arrête tous les containers"
-    echo "  restart  Redémarre tous les containers"
-    echo "  logs     Affiche les logs de tous les containers"
-    echo "  logs-api Affiche les logs de l'API uniquement"
-    echo "  clean    Arrête et supprime les containers et volumes"
-    echo "  status   Affiche le statut des containers"
+    echo "  start       Build et démarre tous les containers (défaut)"
+    echo "  stop        Arrête tous les containers"
+    echo "  restart     Redémarre tous les containers"
+    echo "  logs        Affiche les logs de tous les containers"
+    echo "  logs-api    Affiche les logs de l'API uniquement"
+    echo "  clean       Arrête et supprime les containers et volumes"
+    echo "  status      Affiche le statut des containers"
+    echo "  init-games  Initialise la ludothèque de Laurent (après première connexion)"
     echo ""
     echo "Variables d'environnement optionnelles:"
     echo "  METEOFRANCE_API_TOKEN  Token API Météo France"
@@ -50,6 +51,7 @@ load_env() {
         # Map TF_VAR_ variables to docker-compose expected names
         export METEOFRANCE_API_TOKEN="${TF_VAR_meteo_api_key:-changeme}"
         export ANTHROPIC_API_KEY="${TF_VAR_anthropic_api_key:-changeme}"
+        export KEYCLOAK_LAURENT_PASSWORD="${TF_VAR_keycloak_laurent_password:-changeme}"
     else
         echo -e "${YELLOW}Fichier env.sh non trouvé, utilisation des valeurs par défaut${NC}"
     fi
@@ -118,6 +120,14 @@ status() {
     docker compose -f "$COMPOSE_FILE" ps
 }
 
+init_games() {
+    echo -e "${YELLOW}Initialisation de la ludothèque de Laurent...${NC}"
+    echo -e "${YELLOW}Note: Laurent doit s'être connecté au moins une fois.${NC}"
+    cd "$PROJECT_ROOT"
+    docker exec -i itercraft-postgres psql -U itercraft -d itercraft < "$SCRIPT_DIR/liquibase/scripts/init-laurent-games.sql"
+    echo -e "${GREEN}Ludothèque initialisée${NC}"
+}
+
 check_docker
 
 case "${1:-start}" in
@@ -141,6 +151,9 @@ case "${1:-start}" in
         ;;
     status)
         status
+        ;;
+    init-games)
+        init_games
         ;;
     -h|--help|help)
         usage
