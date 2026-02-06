@@ -1,6 +1,32 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useId, memo } from 'react';
 import mermaid from 'mermaid';
 import './ResiliencePage.css';
+
+mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+interface MermaidDiagramProps {
+  chart: string;
+}
+
+const MermaidDiagram = memo(function MermaidDiagram({ chart }: Readonly<MermaidDiagramProps>) {
+  const id = useId();
+  const [svg, setSvg] = useState<string>('');
+
+  useEffect(() => {
+    const render = async () => {
+      const { svg: renderedSvg } = await mermaid.render(`mermaid-${id.replace(/:/g, '')}`, chart);
+      setSvg(renderedSvg);
+    };
+    render();
+  }, [id, chart]);
+
+  return (
+    <div
+      className="mermaid-diagram"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+});
 
 interface CircuitBreakerStatus {
   name: string;
@@ -102,10 +128,7 @@ flowchart LR
     end
 `;
 
-mermaid.initialize({ startOnLoad: false, theme: 'default' });
-
 export function ResiliencePage() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<ResilienceStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,12 +147,6 @@ export function ResiliencePage() {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      mermaid.run({ nodes: containerRef.current.querySelectorAll('.mermaid-diagram') });
     }
   }, []);
 
@@ -158,7 +175,7 @@ export function ResiliencePage() {
   };
 
   return (
-    <div className="resilience-container" ref={containerRef}>
+    <div className="resilience-container">
       <h1>Resilience Patterns</h1>
 
       <section className="resilience-section intro">
@@ -185,7 +202,7 @@ export function ResiliencePage() {
           Le Circuit Breaker fonctionne comme un disjoncteur électrique. Il surveille les appels vers un service
           et "se déclenche" (OPEN) lorsque trop d'erreurs surviennent.
         </p>
-        <pre className="mermaid-diagram">{circuitBreakerStateDiagram}</pre>
+        <MermaidDiagram chart={circuitBreakerStateDiagram} />
         <div className="state-legend">
           <div className="legend-item">
             <span className="state-badge state-closed">CLOSED</span>
@@ -208,7 +225,7 @@ export function ResiliencePage() {
           Voici comment les différents patterns de résilience s'enchaînent dans Itercraft pour protéger
           les appels vers les APIs externes (Météo France et Claude).
         </p>
-        <pre className="mermaid-diagram">{resiliencePatternsDiagram}</pre>
+        <MermaidDiagram chart={resiliencePatternsDiagram} />
       </section>
 
       <section className="resilience-section">
@@ -216,7 +233,7 @@ export function ResiliencePage() {
         <p>
           Chaque service externe a sa propre configuration de circuit breaker, adaptée à ses caractéristiques.
         </p>
-        <pre className="mermaid-diagram">{configurationDiagram}</pre>
+        <MermaidDiagram chart={configurationDiagram} />
 
         <table className="config-table">
           <thead>
