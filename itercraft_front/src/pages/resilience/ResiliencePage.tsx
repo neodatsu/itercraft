@@ -14,7 +14,7 @@ const MermaidDiagram = memo(function MermaidDiagram({ chart }: Readonly<MermaidD
 
   useEffect(() => {
     const render = async () => {
-      const { svg: renderedSvg } = await mermaid.render(`mermaid-${id.replace(/:/g, '')}`, chart);
+      const { svg: renderedSvg } = await mermaid.render(`mermaid-${id.replaceAll(':', '')}`, chart);
       setSvg(renderedSvg);
     };
     render();
