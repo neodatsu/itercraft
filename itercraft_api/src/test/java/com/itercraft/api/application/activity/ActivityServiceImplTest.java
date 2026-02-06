@@ -91,7 +91,7 @@ class ActivityServiceImplTest {
                 .thenReturn(Optional.empty());
         when(meteoService.getMapImage(anyString(), eq(LAT), eq(LON), eq(512), eq(512)))
                 .thenReturn(fakeImage);
-        when(claudeService.suggestActivities(anyMap(), eq(LOCATION)))
+        when(claudeService.suggestActivities(anyMap(), eq(LOCATION), any(LocalDate.class)))
                 .thenReturn(suggestion);
 
         ActivitySuggestion result = activityService.getSuggestions(LAT, LON, LOCATION);
@@ -101,7 +101,7 @@ class ActivityServiceImplTest {
         assertThat(result.summary()).isEqualTo("Temps variable");
 
         verify(meteoService, times(4)).getMapImage(anyString(), eq(LAT), eq(LON), eq(512), eq(512));
-        verify(claudeService).suggestActivities(anyMap(), eq(LOCATION));
+        verify(claudeService).suggestActivities(anyMap(), eq(LOCATION), eq(LocalDate.now()));
         verify(analysisRepository).save(any(ActivityAnalysis.class));
     }
 
@@ -122,7 +122,7 @@ class ActivityServiceImplTest {
                 .thenReturn(Optional.empty());
         when(meteoService.getMapImage(anyString(), eq(LAT), eq(LON), eq(512), eq(512)))
                 .thenReturn(fakeImage);
-        when(claudeService.suggestActivities(anyMap(), eq(LOCATION)))
+        when(claudeService.suggestActivities(anyMap(), eq(LOCATION), any(LocalDate.class)))
                 .thenReturn(suggestion);
 
         activityService.getSuggestions(LAT, LON, LOCATION);
@@ -172,7 +172,7 @@ class ActivityServiceImplTest {
                 .thenReturn(Optional.empty());
         when(meteoService.getMapImage(anyString(), eq(LAT), eq(LON), eq(512), eq(512)))
                 .thenReturn(fakeImage);
-        when(claudeService.suggestActivities(anyMap(), eq(LOCATION)))
+        when(claudeService.suggestActivities(anyMap(), eq(LOCATION), any(LocalDate.class)))
                 .thenReturn(suggestion);
 
         activityService.getSuggestions(LAT, LON, LOCATION);
@@ -200,7 +200,7 @@ class ActivityServiceImplTest {
                 .thenReturn(Optional.empty());
         when(meteoService.getMapImage(anyString(), eq(LAT), eq(LON), eq(512), eq(512)))
                 .thenReturn(fakeImage);
-        when(claudeService.suggestActivities(anyMap(), eq(LOCATION)))
+        when(claudeService.suggestActivities(anyMap(), eq(LOCATION), any(LocalDate.class)))
                 .thenReturn(suggestion);
         when(analysisRepository.save(any(ActivityAnalysis.class)))
                 .thenThrow(new RuntimeException("Database error"));

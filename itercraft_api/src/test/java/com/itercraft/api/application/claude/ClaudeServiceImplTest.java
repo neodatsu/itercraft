@@ -7,6 +7,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -145,7 +146,7 @@ class ClaudeServiceImplTest {
                 TEMPERATURE_LAYER, new byte[]{0x01, 0x02, 0x03},
                 "Précipitations", new byte[]{0x04, 0x05, 0x06}
         );
-        var result = service.suggestActivities(weatherImages, "Paris");
+        var result = service.suggestActivities(weatherImages, "Paris", LocalDate.of(2026, 2, 6));
 
         assertThat(result).isNotNull();
         assertThat(result.location()).isEqualTo("Paris");
@@ -172,7 +173,7 @@ class ClaudeServiceImplTest {
                 .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
         Map<String, byte[]> weatherImages = Map.of(TEMPERATURE_LAYER, new byte[]{0x01});
-        var result = service.suggestActivities(weatherImages, "Lyon");
+        var result = service.suggestActivities(weatherImages, "Lyon", LocalDate.of(2026, 7, 15));
 
         assertThat(result).isNotNull();
         assertThat(result.location()).isEqualTo("Lyon");
@@ -197,7 +198,7 @@ class ClaudeServiceImplTest {
                 .andRespond(withSuccess(responseJson, MediaType.APPLICATION_JSON));
 
         Map<String, byte[]> weatherImages = Map.of(TEMPERATURE_LAYER, new byte[]{0x01});
-        var result = service.suggestActivities(weatherImages, "Marseille");
+        var result = service.suggestActivities(weatherImages, "Marseille", LocalDate.of(2026, 12, 25));
 
         assertThat(result).isNotNull();
         assertThat(result.location()).isEqualTo("Marseille");

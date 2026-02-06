@@ -68,7 +68,7 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         // Get suggestions from Claude
-        ActivitySuggestion suggestion = claudeService.suggestActivities(weatherImages, location);
+        ActivitySuggestion suggestion = claudeService.suggestActivities(weatherImages, location, today);
 
         // Save to cache
         try {

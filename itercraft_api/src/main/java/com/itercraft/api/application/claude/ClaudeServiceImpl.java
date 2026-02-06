@@ -15,9 +15,12 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.List;
 import java.util.Map;
 
@@ -139,7 +142,7 @@ public class ClaudeServiceImpl implements ClaudeService {
     @Override
     @CircuitBreaker(name = "claude", fallbackMethod = "suggestActivitiesFallback")
     @SuppressWarnings("java:S2629")
-    public ActivitySuggestion suggestActivities(Map<String, byte[]> weatherImages, String location) {
+    public ActivitySuggestion suggestActivities(Map<String, byte[]> weatherImages, String location, LocalDate date) {
         // Build content list with all weather images
         List<Map<String, Object>> contentList = new ArrayList<>();
 
@@ -161,15 +164,22 @@ public class ClaudeServiceImpl implements ClaudeService {
             ));
         }
 
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH));
+        String season = getSeason(date);
+
         String prompt = """
                 Tu es un conseiller en activités de plein air. Analyse ces cartes météo pour la zone de %s.
+                Nous sommes le %s (%s).
                 Les cartes montrent: température, précipitations, vent et couverture nuageuse.
 
-                IMPORTANT: Prends en compte TOUTES les conditions météo pour tes suggestions:
+                IMPORTANT: Prends en compte TOUTES les conditions météo ET le contexte pour tes suggestions:
                 - S'il pleut ou s'il y a des précipitations, privilégie les activités d'intérieur
                 - S'il y a du vent fort, évite les activités comme le vélo ou le pique-nique
                 - S'il fait très chaud, suggère la piscine ou des activités à l'ombre
                 - S'il fait froid, suggère des activités d'intérieur ou bien couvertes
+                - Adapte tes suggestions à la saison (baignade en été, ski en hiver, etc.)
+                - Tiens compte du jour de la semaine (activités familiales le week-end, etc.)
+                - Propose des activités pertinentes pour la ville et sa région
 
                 Réponds UNIQUEMENT en JSON valide avec cette structure exacte (sans commentaires):
                 {
@@ -183,7 +193,7 @@ public class ClaudeServiceImpl implements ClaudeService {
                 Activités possibles: Balade à vélo, Marche, Piscine, Rester à la maison, Course à pied, Randonnée, Pique-nique, Jardinage, Lecture, Yoga, Cinéma
 
                 Adapte tes suggestions aux conditions météo observées. 2-3 activités par créneau maximum.
-                """.formatted(location);
+                """.formatted(location, formattedDate, season);
 
         contentList.add(Map.of("type", "text", "text", prompt));
 
@@ -267,6 +277,15 @@ public class ClaudeServiceImpl implements ClaudeService {
         return activities;
     }
 
+    private static String getSeason(LocalDate date) {
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+        if ((month == 3 && day >= 20) || (month > 3 && month < 6) || (month == 6 && day < 21)) return "printemps";
+        if ((month == 6 && day >= 21) || (month > 6 && month < 9) || (month == 9 && day < 22)) return "été";
+        if ((month == 9 && day >= 22) || (month > 9 && month < 12) || (month == 12 && day < 21)) return "automne";
+        return "hiver";
+    }
+
     private ActivitySuggestion createFallbackSuggestion(String location) {
         Map<String, List<Activity>> activities = new HashMap<>();
         activities.put(MORNING, List.of(new Activity("Marche", "Profitez d'une balade matinale", "walk")));
@@ -276,7 +295,7 @@ public class ClaudeServiceImpl implements ClaudeService {
     }
 
     @SuppressWarnings("unused")
-    private ActivitySuggestion suggestActivitiesFallback(Map<String, byte[]> weatherImages, String location, Exception e) {
+    private ActivitySuggestion suggestActivitiesFallback(Map<String, byte[]> weatherImages, String location, LocalDate date, Exception e) {
         log.warn("Claude API unavailable for activities, circuit breaker activated: {}", e.getMessage());
         return createFallbackSuggestion(location);
     }
