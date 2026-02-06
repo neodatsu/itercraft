@@ -22,7 +22,8 @@ export function StarRating({ value, onChange, readonly = false, 'aria-labelledby
   };
 
   return (
-    <div className={`star-rating ${readonly ? 'readonly' : ''}`} role="group" aria-label={ariaLabelledBy ? undefined : "Note du jeu"} aria-labelledby={ariaLabelledBy}>
+    <fieldset className={`star-rating ${readonly ? 'readonly' : ''}`} aria-labelledby={ariaLabelledBy}>
+      <legend className="sr-only">{ariaLabelledBy ? 'Note' : 'Note du jeu'}</legend>
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
@@ -37,6 +38,6 @@ export function StarRating({ value, onChange, readonly = false, 'aria-labelledby
           ★
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }

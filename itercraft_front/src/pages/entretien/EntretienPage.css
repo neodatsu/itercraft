@@ -98,7 +98,7 @@
 
 .btn-start {
   background: linear-gradient(135deg, #10b981, #059669);
-  color: #fff;
+  color: #052e16;
   font-size: 1rem;
 }
 
@@ -188,11 +188,16 @@
 
 .history-header {
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
   cursor: pointer;
   transition: background 0.15s;
+  background: none;
+  border: none;
+  font: inherit;
+  text-align: left;
 }
 
 .history-header:hover {

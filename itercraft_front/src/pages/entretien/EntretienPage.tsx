@@ -188,27 +188,27 @@ function HistoryItem({ activity, token, onRefresh }: Readonly<{
 
   return (
     <div className="history-item">
-      <div
+      <button
         className="history-header"
+        type="button"
         onClick={() => setOpen(!open)}
-        onKeyDown={(e) => e.key === 'Enter' && setOpen(!open)}
-        tabIndex={0}
-        role="button"
         aria-expanded={open}
       >
         <span className="history-title">{activity.serviceLabel}</span>
         <span className="history-count">
-          {sessions.length > 0 ? `${sessions.length} session${sessions.length === 1 ? '' : 's'}` : ''}
+          {sessions.length > 0 && `${sessions.length} session${sessions.length === 1 ? '' : 's'}`}
         </span>
         <span className={`history-toggle ${open ? 'open' : ''}`}>▼</span>
-      </div>
+      </button>
       {open && (
         <div className="history-content">
-          {loading ? (
+          {loading && (
             <p className="history-empty">Chargement...</p>
-          ) : sessions.length === 0 ? (
+          )}
+          {!loading && sessions.length === 0 && (
             <p className="history-empty">Aucune session enregistrée</p>
-          ) : (
+          )}
+          {!loading && sessions.length > 0 && (
             <table className="history-table">
               <thead>
                 <tr>
@@ -230,7 +230,7 @@ function HistoryItem({ activity, token, onRefresh }: Readonly<{
                         : 'En cours'}
                       {session.autoStopped && <span className="auto-stopped">(auto)</span>}
                     </td>
-                    <td>{session.durationMinutes !== null ? formatDuration(session.durationMinutes) : '-'}</td>
+                    <td>{session.durationMinutes === null ? '-' : formatDuration(session.durationMinutes)}</td>
                     <td className="history-actions">
                       <button
                         className="btn btn-delete"

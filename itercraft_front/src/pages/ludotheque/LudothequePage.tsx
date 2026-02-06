@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import {
   getMesJeux,
@@ -51,6 +51,24 @@ export function LudothequePage() {
 
   // Modal suggestion
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+
+  // Dialog refs
+  const addDialogRef = useRef<HTMLDialogElement>(null);
+  const suggestionDialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = addDialogRef.current;
+    if (!dialog) return;
+    if (showAddModal && !dialog.open) dialog.showModal();
+    if (!showAddModal && dialog.open) dialog.close();
+  }, [showAddModal]);
+
+  useEffect(() => {
+    const dialog = suggestionDialogRef.current;
+    if (!dialog) return;
+    if (showSuggestionModal && !dialog.open) dialog.showModal();
+    if (!showSuggestionModal && dialog.open) dialog.close();
+  }, [showSuggestionModal]);
   const [suggestion, setSuggestion] = useState<GameSuggestionDto | null>(null);
   const [loadingSuggestion, setLoadingSuggestion] = useState(false);
   const [suggestionError, setSuggestionError] = useState<string | null>(null);
@@ -405,117 +423,103 @@ export function LudothequePage() {
       </section>
 
       {/* Modal Ajout */}
-      {showAddModal && (
-        <div
-          className="modal-overlay"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}
-          onKeyDown={(e) => e.key === 'Escape' && setShowAddModal(false)}
-        >
-          <div
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-modal-title"
-          >
-            <h2 id="add-modal-title">Ajouter un jeu</h2>
-            <form onSubmit={handleAddGame}>
-              <div className="form-group">
-                <label htmlFor="new-game-title">Nom du jeu</label>
-                <input
-                  id="new-game-title"
-                  type="text"
-                  value={newGameTitle}
-                  onChange={(e) => setNewGameTitle(e.target.value)}
-                  placeholder="Ex: Catan, 7 Wonders..."
-                  disabled={addingGame}
-                  autoFocus
-                />
-                <p className="form-hint">
-                  Notre IA remplira automatiquement les détails du jeu.
-                </p>
-              </div>
-              {addError && <div className="modal-error">{addError}</div>}
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowAddModal(false)}
-                  disabled={addingGame}
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={addingGame || !newGameTitle.trim()}
-                >
-                  {addingGame ? 'Ajout en cours...' : 'Ajouter'}
-                </button>
-              </div>
-            </form>
+      <dialog
+        ref={addDialogRef}
+        className="modal"
+        aria-labelledby="add-modal-title"
+        onClose={() => setShowAddModal(false)}
+        onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}
+      >
+        <h2 id="add-modal-title">Ajouter un jeu</h2>
+        <form onSubmit={handleAddGame}>
+          <div className="form-group">
+            <label htmlFor="new-game-title">Nom du jeu</label>
+            <input
+              id="new-game-title"
+              type="text"
+              value={newGameTitle}
+              onChange={(e) => setNewGameTitle(e.target.value)}
+              placeholder="Ex: Catan, 7 Wonders..."
+              disabled={addingGame}
+              autoFocus
+            />
+            <p className="form-hint">
+              Notre IA remplira automatiquement les détails du jeu.
+            </p>
           </div>
-        </div>
-      )}
+          {addError && <div className="modal-error">{addError}</div>}
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowAddModal(false)}
+              disabled={addingGame}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={addingGame || !newGameTitle.trim()}
+            >
+              {addingGame ? 'Ajout en cours...' : 'Ajouter'}
+            </button>
+          </div>
+        </form>
+      </dialog>
 
       {/* Modal Suggestion */}
-      {showSuggestionModal && (
-        <div
-          className="modal-overlay"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowSuggestionModal(false); }}
-          onKeyDown={(e) => e.key === 'Escape' && setShowSuggestionModal(false)}
-        >
-          <div
-            className="modal suggestion-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="suggestion-modal-title"
-          >
-            <h2 id="suggestion-modal-title">Suggestion IA</h2>
-            {loadingSuggestion && (
-              <div className="suggestion-loading">
-                <div className="spinner" />
-                <p>Analyse de vos préférences...</p>
-              </div>
+      <dialog
+        ref={suggestionDialogRef}
+        className="modal suggestion-modal"
+        aria-labelledby="suggestion-modal-title"
+        onClose={() => setShowSuggestionModal(false)}
+        onClick={(e) => { if (e.target === e.currentTarget) setShowSuggestionModal(false); }}
+      >
+        <h2 id="suggestion-modal-title">Suggestion IA</h2>
+        {loadingSuggestion && (
+          <div className="suggestion-loading">
+            <div className="spinner" />
+            <p>Analyse de vos préférences...</p>
+          </div>
+        )}
+        {suggestionError && (
+          <div className="modal-error">{suggestionError}</div>
+        )}
+        {suggestion && (
+          <div className="suggestion-content">
+            {suggestion.imageUrl && (
+              <img src={suggestion.imageUrl} alt={suggestion.nom} className="suggestion-image" />
             )}
-            {suggestionError && (
-              <div className="modal-error">{suggestionError}</div>
-            )}
-            {suggestion && (
-              <div className="suggestion-content">
-                {suggestion.imageUrl && (
-                  <img src={suggestion.imageUrl} alt={suggestion.nom} className="suggestion-image" />
-                )}
-                <h3>{suggestion.nom}</h3>
-                <span className="badge badge-type">{suggestion.typeLibelle}</span>
-                <p className="suggestion-description">{suggestion.description}</p>
-                <div className="suggestion-raison">
-                  <strong>Pourquoi ce jeu ?</strong>
-                  <p>{suggestion.raison}</p>
-                </div>
-              </div>
-            )}
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setShowSuggestionModal(false)}
-              >
-                Fermer
-              </button>
-              {suggestion && (
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleAddSuggestedGame}
-                  disabled={addingGame}
-                >
-                  {addingGame ? 'Ajout...' : 'Ajouter à ma ludothèque'}
-                </button>
-              )}
+            <h3>{suggestion.nom}</h3>
+            <span className="badge badge-type">{suggestion.typeLibelle}</span>
+            <p className="suggestion-description">{suggestion.description}</p>
+            <div className="suggestion-raison">
+              <strong>Pourquoi ce jeu ?</strong>
+              <p>{suggestion.raison}</p>
             </div>
           </div>
+        )}
+        <div className="modal-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setShowSuggestionModal(false)}
+          >
+            Fermer
+          </button>
+          {suggestion && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAddSuggestedGame}
+              disabled={addingGame}
+            >
+              {addingGame ? 'Ajout...' : 'Ajouter à ma ludothèque'}
+            </button>
+          )}
         </div>
-      )}
+      </dialog>
     </div>
   );
 }

@@ -16,6 +16,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #333;
 }
 
 .resilience-section h2 {
@@ -240,6 +241,7 @@
 .api-table th {
   background: #f8f9fa;
   font-weight: 600;
+  color: #16213e;
 }
 
 .api-table code {
@@ -248,6 +250,7 @@
   border-radius: 3px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.9rem;
+  color: #1a1a2e;
 }
 
 /* Responsive */

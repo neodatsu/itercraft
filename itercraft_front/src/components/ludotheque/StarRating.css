@@ -1,6 +1,19 @@
 .star-rating {
   display: inline-flex;
   gap: 0.125rem;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-inline-size: auto;
+}
+
+.star-rating .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .star-rating .star {
