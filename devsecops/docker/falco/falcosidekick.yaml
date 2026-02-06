@@ -27,12 +27,11 @@ loki:
   hostport: "http://loki:3100"
   minimumpriority: "notice"
   tenant: "itercraft"
-  customheaders: ""
-  extralabels: "source:falco,type:security"
+  extralabels: "source=falco,type=security"
 
 # Prometheus metrics for Grafana dashboards
 prometheus:
-  extralabels: "source:falco"
+  extralabels: "source=falco"
 
 # Grafana OnCall integration (optional)
 grafanaoncall:
