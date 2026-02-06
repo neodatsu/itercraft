@@ -27,7 +27,7 @@ resource "aws_lambda_function" "slack_github_bridge" {
   function_name    = "itercraft-slack-github-bridge"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   timeout          = 10
 
