@@ -293,7 +293,7 @@ export function ResiliencePage() {
           </div>
         )}
 
-        {status && (
+        {status?.circuitBreakers && (
           <>
             <div className="status-grid">
               {status.circuitBreakers.map((cb) => (
