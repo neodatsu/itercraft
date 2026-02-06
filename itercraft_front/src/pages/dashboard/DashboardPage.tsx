@@ -120,26 +120,19 @@ export function DashboardPage() {
       <h1>Tableau de bord</h1>
       <p className="dashboard-welcome">Bienvenue, <strong>{name}</strong></p>
 
-      {subscriptions.length === 0 ? (
-        <section className="dashboard-section">
-          <h2>Mes services</h2>
-          <p className="dashboard-empty">Aucun abonnement pour le moment.</p>
-        </section>
-      ) : (
-        <div className="services-grid">
-          {subscriptions.map(sub => (
-            <section key={sub.serviceCode} className="dashboard-section">
-              <div className="service-header">
-                <h2>{sub.serviceLabel}</h2>
-                <div className="dashboard-actions">
-                  <button className="btn btn-sm btn-primary" onClick={() => handleAddUsage(sub.serviceCode)}>+ Usage</button>
-                </div>
+      <div className="services-grid">
+        {subscriptions.map(sub => (
+          <section key={sub.serviceCode} className="dashboard-section">
+            <div className="service-header">
+              <h2>{sub.serviceLabel}</h2>
+              <div className="dashboard-actions">
+                <button className="btn btn-sm btn-primary" onClick={() => handleAddUsage(sub.serviceCode)}>+ Usage</button>
               </div>
-              <UsageTable serviceCode={sub.serviceCode} token={token} refreshKey={refreshKey} onRefresh={refresh} />
-            </section>
-          ))}
-        </div>
-      )}
+            </div>
+            <UsageTable serviceCode={sub.serviceCode} token={token} refreshKey={refreshKey} onRefresh={refresh} />
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

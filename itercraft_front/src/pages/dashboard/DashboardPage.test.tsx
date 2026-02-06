@@ -72,13 +72,6 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('shows empty message when no subscriptions', async () => {
-    renderWithRouter(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('Aucun abonnement pour le moment.')).toBeInTheDocument();
-    });
-  });
-
   it('renders subscription section with service label', async () => {
     mockGetSubscriptions.mockResolvedValue([
       { serviceCode: 'tondeuse', serviceLabel: 'Passer la tondeuse', usageCount: 3 },
