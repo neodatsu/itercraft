@@ -114,7 +114,7 @@
   output: >
     Unexpected network connection
     (user=%user.name container=%container.name image=%container.image.repository
-    connection=%fd.name sport=%fd.sport dport=%fd.dport)
+    connection=%fd.name lport=%fd.lport rport=%fd.rport)
   priority: NOTICE
   tags: [container, network, exfiltration]
 
