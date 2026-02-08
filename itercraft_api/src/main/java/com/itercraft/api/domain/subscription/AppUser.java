@@ -17,6 +17,9 @@ public class AppUser {
     @Column(name = "keycloak_sub", nullable = false, unique = true)
     private String keycloakSub;
 
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -30,5 +33,7 @@ public class AppUser {
 
     public UUID getId() { return id; }
     public String getKeycloakSub() { return keycloakSub; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 }

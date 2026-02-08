@@ -46,8 +46,9 @@ C4Container
 
   System_Boundary(itercraft_iot, "Itercraft IoT") {
     Container(mosquitto, "Mosquitto", "MQTT Broker", "TLS 1.3, auth par mot de passe, ACL")
-    Container(api2, "Backend API", "Spring Boot", "Consomme les events MQTT, stocke en BDD")
-    ContainerDb(db2, "PostgreSQL", "Base de données", "Mesures IoT, historique")
+    Container(api2, "Backend API", "Spring Boot", "Spring Integration MQTT, subscribe sensors/#")
+    ContainerDb(db2, "PostgreSQL", "Base de données", "sensor_device, sensor_data")
+    Container(dashboard, "Dashboard", "React + recharts", "Graphiques temps réel, filtre dates, SSE")
   }
 
   System_Boundary(dns, "DNS & Sécurité") {
@@ -60,6 +61,9 @@ C4Container
   Rel(esp32, mosquitto, "Publie", "MQTTS 8883")
   Rel(mosquitto, api2, "Forward", "Subscribe sensors/#")
   Rel(api2, db2, "Stocke", "JDBC")
+  Rel(dashboard, api2, "GET /api/sensors/data", "HTTPS")
+  Rel(api2, dashboard, "SSE sensor-data-change", "EventSource")
+  Rel(homeowner, dashboard, "Consulte", "HTTPS")
 `;
 
 const chatOpsDiagram = `

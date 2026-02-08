@@ -189,6 +189,40 @@ classDiagram
 - Duration aggregation by day/week/month/year
 - SSE real-time updates
 
+## Domain Model — IoT Sensors
+
+```mermaid
+classDiagram
+    direction LR
+
+    class SensorDevice {
+        UUID id
+        String name
+        OffsetDateTime createdAt
+    }
+
+    class SensorData {
+        UUID id
+        OffsetDateTime measuredAt
+        OffsetDateTime receivedAt
+        Double dhtTemperature
+        Double dhtHumidity
+        Double ntcTemperature
+        Double luminosity
+    }
+
+    class AppUser {
+        UUID id
+        String keycloakSub
+        String email
+    }
+
+    SensorDevice "*" -- "1" AppUser : user
+    SensorData "*" -- "1" SensorDevice : device
+```
+
+**Data flow:** ESP32 → MQTTS 8883 → Mosquitto → Spring Integration → `SensorDataService` → PostgreSQL → REST API → Dashboard (recharts)
+
 ## Project Structure
 
 ```
@@ -309,6 +343,11 @@ The backend is configured via environment variables (with defaults for local dev
 | `METEOFRANCE_API_TOKEN`  | `changeme`                                 | Météo France API key                   |
 | `ANTHROPIC_API_KEY`      | `changeme`                                 | Anthropic API key (Claude)             |
 | `ANTHROPIC_MODEL`        | `claude-sonnet-4-20250514`                 | Claude model for image analysis        |
+| `MQTT_HOST`              | `localhost`                                | MQTT broker host                       |
+| `MQTT_PORT`              | `8883`                                     | MQTT broker port (TLS)                 |
+| `MQTT_BACKEND_USER`      | `itercraft-backend`                        | MQTT service account username          |
+| `MQTT_BACKEND_PASSWORD`  | `changeme`                                 | MQTT service account password          |
+| `MQTT_TRUST_ALL_CERTS`   | `false`                                    | Trust self-signed certs (dev only)     |
 
 The frontend uses a `.env` file:
 
@@ -516,6 +555,7 @@ Then, use `/infra apply ec2` or `/infra destroy ec2` from Slack.
 | `GET`    | `/api/maintenance/totals`                    | Bearer        | Aggregated time totals     |
 | `GET`    | `/api/maintenance/activities/{code}/history` | Bearer        | Activity session history   |
 | `DELETE` | `/api/maintenance/sessions/{id}`             | Bearer + CSRF | Delete a session           |
+| `GET`    | `/api/sensors/data?from=...&to=...`          | Bearer        | Sensor data (default: 7 days) |
 
 Mutation endpoints require an `X-XSRF-TOKEN` header matching the `XSRF-TOKEN` cookie.
 

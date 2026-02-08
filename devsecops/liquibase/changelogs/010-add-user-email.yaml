@@ -1,0 +1,13 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 010-add-user-email
+      author: itercraft
+      changes:
+        - addColumn:
+            schemaName: itercraft
+            tableName: app_user
+            columns:
+              - column:
+                  name: email
+                  type: varchar(255)

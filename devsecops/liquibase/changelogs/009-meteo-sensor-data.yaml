@@ -1,0 +1,108 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 009-create-sensor-device
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: sensor_device
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: itercraft
+            tableName: sensor_device
+            columnNames: user_id, name
+            constraintName: uq_sensor_device_user_name
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: sensor_device
+            baseColumnNames: user_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: app_user
+            referencedColumnNames: id
+            constraintName: fk_sensor_device_user
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 009-create-sensor-data
+      author: itercraft
+      changes:
+        - createTable:
+            schemaName: itercraft
+            tableName: sensor_data
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: device_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: measured_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: received_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dht_temperature
+                  type: double
+              - column:
+                  name: dht_humidity
+                  type: double
+              - column:
+                  name: ntc_temperature
+                  type: double
+              - column:
+                  name: luminosity
+                  type: double
+        - addForeignKeyConstraint:
+            baseTableSchemaName: itercraft
+            baseTableName: sensor_data
+            baseColumnNames: device_id
+            referencedTableSchemaName: itercraft
+            referencedTableName: sensor_device
+            referencedColumnNames: id
+            constraintName: fk_sensor_data_device
+            onDelete: CASCADE
+        - createIndex:
+            schemaName: itercraft
+            tableName: sensor_data
+            indexName: idx_sensor_data_device_measured
+            columns:
+              - column:
+                  name: device_id
+              - column:
+                  name: measured_at
+                  descending: true

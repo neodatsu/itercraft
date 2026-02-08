@@ -7,11 +7,13 @@ services:
     restart: unless-stopped
     ports:
       - "8883:8883"
+    environment:
+      - MQTT_USER=${TF_VAR_mqtt_user}
+      - MQTT_PASSWORD=${TF_VAR_mqtt_password}
     volumes:
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
       - ./certs:/mosquitto/config/certs:ro
-      - ./passwd:/mosquitto/config/passwd:ro
     networks:
       - itercraft-network
     healthcheck:

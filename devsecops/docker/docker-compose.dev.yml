@@ -64,6 +64,11 @@ services:
       METEOFRANCE_API_TOKEN: ${METEOFRANCE_API_TOKEN:-changeme}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-changeme}
       OTLP_ENDPOINT: http://localhost:4318/v1/traces
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "8883"
+      MQTT_BACKEND_USER: itercraft-backend
+      MQTT_BACKEND_PASSWORD: ${MQTT_BACKEND_PASSWORD:-changeme}
+      MQTT_TRUST_ALL_CERTS: "true"
       INIT_USER_EMAIL: ${INIT_USER_EMAIL:-laurent@itercraft.com}
     depends_on:
       postgres:
@@ -89,9 +94,27 @@ services:
     networks:
       - itercraft-dev
 
+  mosquitto:
+    build:
+      context: ../../iot/mosquitto
+      dockerfile: Dockerfile
+    container_name: itercraft-mosquitto
+    ports:
+      - "8883:8883"
+    environment:
+      MQTT_USER: ${MQTT_USER:-laurent@itercraft.com}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-changeme}
+      MQTT_BACKEND_USER: itercraft-backend
+      MQTT_BACKEND_PASSWORD: ${MQTT_BACKEND_PASSWORD:-changeme}
+    volumes:
+      - mosquitto-data:/mosquitto/data
+    networks:
+      - itercraft-dev
+
 networks:
   itercraft-dev:
     driver: bridge
 
 volumes:
   postgres-data:
+  mosquitto-data:

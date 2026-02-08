@@ -241,6 +241,10 @@ resource "aws_instance" "app" {
                     - CORS_ORIGINS=https://www.${var.domain_name}
                     - METEOFRANCE_API_TOKEN=${var.meteo_api_key}
                     - ANTHROPIC_API_KEY=${var.anthropic_api_key}
+                    - MQTT_HOST=mosquitto
+                    - MQTT_PORT=8883
+                    - MQTT_BACKEND_USER=itercraft-backend
+                    - MQTT_BACKEND_PASSWORD=${var.mqtt_backend_password}
                   networks:
                     - public
                     - internal
@@ -311,6 +315,10 @@ resource "aws_instance" "app" {
                   ports:
                     - "8883:8883"
                   environment:
+                    - MQTT_USER=${var.mqtt_user}
+                    - MQTT_PASSWORD=${var.mqtt_password}
+                    - MQTT_BACKEND_USER=itercraft-backend
+                    - MQTT_BACKEND_PASSWORD=${var.mqtt_backend_password}
                     - S3_CA_BUCKET=itercraft-mqtt-certs
                     - AWS_DEFAULT_REGION=${var.aws_region}
                   volumes:

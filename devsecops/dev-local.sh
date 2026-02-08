@@ -52,6 +52,9 @@ load_env() {
         export METEOFRANCE_API_TOKEN="${TF_VAR_meteo_api_key:-changeme}"
         export ANTHROPIC_API_KEY="${TF_VAR_anthropic_api_key:-changeme}"
         export KEYCLOAK_LAURENT_PASSWORD="${TF_VAR_keycloak_laurent_password:-changeme}"
+        export MQTT_USER="${TF_VAR_mqtt_user:-laurent@itercraft.com}"
+        export MQTT_PASSWORD="${TF_VAR_mqtt_password:-changeme}"
+        export MQTT_BACKEND_PASSWORD="${TF_VAR_mqtt_backend_password:-changeme}"
     else
         echo -e "${YELLOW}Fichier env.sh non trouvé, utilisation des valeurs par défaut${NC}"
     fi
@@ -79,6 +82,7 @@ start() {
     echo "  - API:       http://localhost:8080"
     echo "  - Keycloak:  http://localhost:8180 (admin/admin)"
     echo "  - PostgreSQL: localhost:5432 (itercraft/itercraft)"
+    echo "  - MQTT:       localhost:8883 (TLS)"
     echo ""
     echo "Commandes utiles:"
     echo "  $0 logs     - Voir les logs"

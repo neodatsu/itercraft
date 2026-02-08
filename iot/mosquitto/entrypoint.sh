@@ -55,12 +55,22 @@ EOF
     fi
 fi
 
-# Create empty passwd file if it doesn't exist
+# Create passwd file and add user from environment variables
 if [ ! -f "/mosquitto/config/passwd" ]; then
-    echo "=== Creating empty password file ==="
     touch /mosquitto/config/passwd
-    chown mosquitto:mosquitto /mosquitto/config/passwd
 fi
+
+if [ -n "$MQTT_USER" ] && [ -n "$MQTT_PASSWORD" ]; then
+    echo "=== Adding MQTT user: $MQTT_USER ==="
+    mosquitto_passwd -b /mosquitto/config/passwd "$MQTT_USER" "$MQTT_PASSWORD"
+fi
+
+if [ -n "$MQTT_BACKEND_USER" ] && [ -n "$MQTT_BACKEND_PASSWORD" ]; then
+    echo "=== Adding MQTT backend user: $MQTT_BACKEND_USER ==="
+    mosquitto_passwd -b /mosquitto/config/passwd "$MQTT_BACKEND_USER" "$MQTT_BACKEND_PASSWORD"
+fi
+
+chown mosquitto:mosquitto /mosquitto/config/passwd
 
 # Ensure correct ownership
 chown -R mosquitto:mosquitto /mosquitto

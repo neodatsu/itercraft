@@ -2,3 +2,7 @@
 .claude/
 itercraft.code-workspace
 coverage/
+
+# MQTT secrets
+iot/mosquitto/passwd
+iot/mosquitto/certs/

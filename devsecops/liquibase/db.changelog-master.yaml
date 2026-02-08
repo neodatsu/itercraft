@@ -23,3 +23,9 @@ databaseChangeLog:
   - include:
       file: changelogs/008-maintenance-sessions.yaml
       relativeToChangelogFile: true
+  - include:
+      file: changelogs/009-meteo-sensor-data.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changelogs/010-add-user-email.yaml
+      relativeToChangelogFile: true

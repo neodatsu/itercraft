@@ -78,6 +78,24 @@ variable "grafana_admin_password" {
   sensitive   = true
 }
 
+variable "mqtt_user" {
+  description = "MQTT broker username"
+  type        = string
+  sensitive   = true
+}
+
+variable "mqtt_password" {
+  description = "MQTT broker password"
+  type        = string
+  sensitive   = true
+}
+
+variable "mqtt_backend_password" {
+  description = "MQTT backend service account password"
+  type        = string
+  sensitive   = true
+}
+
 variable "slack_webhook_url" {
   description = "Slack webhook URL for Falco security alerts"
   type        = string
