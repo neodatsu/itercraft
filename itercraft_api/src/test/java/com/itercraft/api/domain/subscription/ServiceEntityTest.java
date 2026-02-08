@@ -34,6 +34,16 @@ class ServiceEntityTest {
     }
 
     @Test
+    void constructor_shouldInitializeFields() {
+        ServiceEntity service = new ServiceEntity("tondeuse", "Tondeuse");
+
+        assertThat(service.getId()).isNotNull();
+        assertThat(service.getCode()).isEqualTo("tondeuse");
+        assertThat(service.getLabel()).isEqualTo("Tondeuse");
+        assertThat(service.getCreatedAt()).isNotNull();
+    }
+
+    @Test
     void protectedConstructor_shouldCreateEmptyEntity() {
         ServiceEntity service = new ServiceEntity();
 
