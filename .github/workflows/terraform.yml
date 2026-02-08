@@ -76,6 +76,9 @@ jobs:
           TF_VAR_meteo_api_key: ${{ secrets.METEO_API_KEY }}
           TF_VAR_anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           TF_VAR_slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TF_VAR_mqtt_user: ${{ secrets.MQTT_USER }}
+          TF_VAR_mqtt_password: ${{ secrets.MQTT_PASSWORD }}
+          TF_VAR_mqtt_backend_password: ${{ secrets.MQTT_BACKEND_PASSWORD }}
 
       - name: Terraform Apply
         if: inputs.action == 'apply'
@@ -96,6 +99,9 @@ jobs:
           TF_VAR_meteo_api_key: ${{ secrets.METEO_API_KEY }}
           TF_VAR_anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           TF_VAR_slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TF_VAR_mqtt_user: ${{ secrets.MQTT_USER }}
+          TF_VAR_mqtt_password: ${{ secrets.MQTT_PASSWORD }}
+          TF_VAR_mqtt_backend_password: ${{ secrets.MQTT_BACKEND_PASSWORD }}
 
       - name: Terraform Destroy
         if: inputs.action == 'destroy'
@@ -116,6 +122,9 @@ jobs:
           TF_VAR_meteo_api_key: ${{ secrets.METEO_API_KEY }}
           TF_VAR_anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           TF_VAR_slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TF_VAR_mqtt_user: ${{ secrets.MQTT_USER }}
+          TF_VAR_mqtt_password: ${{ secrets.MQTT_PASSWORD }}
+          TF_VAR_mqtt_backend_password: ${{ secrets.MQTT_BACKEND_PASSWORD }}
 
       - name: Notify Slack
         if: always()

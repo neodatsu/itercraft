@@ -16,6 +16,10 @@ buffered_outputs: false
 outputs_queue:
   capacity: 0
 
+# Use modern eBPF engine (built-in, no external driver needed)
+engine:
+  kind: modern_ebpf
+
 # File output for Promtail to scrape
 file_output:
   enabled: true
@@ -32,14 +36,12 @@ http_output:
   url: http://falcosidekick:2801
   user_agent: "falco/itercraft"
 
-# gRPC server for Falcosidekick
+# gRPC disabled (using HTTP output to Falcosidekick)
 grpc:
-  enabled: true
-  bind_address: "0.0.0.0:5060"
-  threadiness: 8
+  enabled: false
 
 grpc_output:
-  enabled: true
+  enabled: false
 
 # Syscall event source
 syscall_event_drops:
@@ -54,6 +56,6 @@ syscall_event_drops:
 watch_config_files: true
 
 # Rules files
-rules_file:
+rules_files:
   - /etc/falco/falco_rules.yaml
   - /etc/falco/rules.d

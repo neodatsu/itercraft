@@ -1,10 +1,6 @@
 # Itercraft-specific Falco rules
 # Runtime security monitoring
 
-# List of allowed processes in containers
-- list: itercraft_allowed_processes
-  items: [java, node, nginx, postgres, keycloak, grafana, prometheus, loki, tempo, promtail, mosquitto]
-
 # Macro for itercraft containers
 - macro: itercraft_container
   condition: (container.image.repository contains "itercraft" or container.name startswith "itercraft")
