@@ -82,18 +82,21 @@ variable "mqtt_user" {
   description = "MQTT broker username"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "mqtt_password" {
   description = "MQTT broker password"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "mqtt_backend_password" {
   description = "MQTT backend service account password"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "slack_webhook_url" {
