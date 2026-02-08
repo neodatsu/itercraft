@@ -245,6 +245,7 @@ resource "aws_instance" "app" {
                     - MQTT_PORT=8883
                     - MQTT_BACKEND_USER=itercraft-backend
                     - MQTT_BACKEND_PASSWORD=${var.mqtt_backend_password}
+                    - MQTT_TRUST_ALL_CERTS=true
                   networks:
                     - public
                     - internal
