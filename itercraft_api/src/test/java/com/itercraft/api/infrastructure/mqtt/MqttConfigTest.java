@@ -17,7 +17,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -73,6 +76,15 @@ class MqttConfigTest {
             assertThat(options.getSocketFactory()).isNotNull();
             assertThat(options.getSSLProperties())
                     .containsEntry("com.ibm.ssl.trustManager", "TrustAllCertificates");
+        }
+    }
+
+    @Test
+    void connect_shouldNotCrashAppOnFailure() {
+        try (MockedConstruction<MqttClient> ignored = mockConstruction(MqttClient.class,
+                (mock, context) -> doThrow(new MqttException(1)).when(mock).connect(any()))) {
+
+            assertThatCode(() -> mqttConfig.connect()).doesNotThrowAnyException();
         }
     }
 

@@ -54,7 +54,15 @@ public class MqttConfig {
     }
 
     @PostConstruct
-    public void connect() throws MqttException {
+    public void connect() {
+        try {
+            doConnect();
+        } catch (Exception e) {
+            LOGGER.error("MQTT connection failed at startup (will retry via auto-reconnect): {}", e.getMessage());
+        }
+    }
+
+    private void doConnect() throws MqttException {
         MqttConnectionOptions options = new MqttConnectionOptions();
         options.setServerURIs(new String[]{brokerUrl});
         options.setUserName(username);
