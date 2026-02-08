@@ -329,7 +329,7 @@ resource "aws_instance" "app" {
                     - internal
                   restart: always
                   healthcheck:
-                    test: ["CMD", "nc", "-z", "localhost", "8883"]
+                    test: ["CMD-SHELL", "echo | openssl s_client -connect localhost:8883 -CAfile /mosquitto/config/certs/ca.crt 2>&1 | grep -q CONNECTED"]
                     interval: 30s
                     timeout: 10s
                     retries: 3

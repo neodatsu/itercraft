@@ -9,6 +9,10 @@
 - macro: itercraft_container
   condition: (container.image.repository contains "itercraft" or container.name startswith "itercraft")
 
+# Macro removed from Falco 0.39+ default rules
+- macro: container_started
+  condition: evt.type=container
+
 # ============================================================================
 # HIGH PRIORITY - Critical security events
 # ============================================================================

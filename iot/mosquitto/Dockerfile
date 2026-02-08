@@ -18,9 +18,9 @@ RUN mkdir -p /mosquitto/config/certs && \
 # Expose MQTT over TLS (8883) - NO unencrypted port exposed
 EXPOSE 8883
 
-# Health check - verify TLS port is listening
+# Health check - verify TLS handshake succeeds (nc -z causes SSL errors on TLS port)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD nc -z localhost 8883 || exit 1
+    CMD echo | openssl s_client -connect localhost:8883 -CAfile /mosquitto/config/certs/ca.crt 2>&1 | grep -q "CONNECTED" || exit 1
 
 # Run as root initially, entrypoint will drop to mosquitto user
 ENTRYPOINT ["/entrypoint.sh"]
