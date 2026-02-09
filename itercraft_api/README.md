@@ -19,7 +19,9 @@ classDiagram
             <<entity>>
             -UUID id
             -String keycloakSub
+            -String email
             -OffsetDateTime createdAt
+            +setEmail(String) void
         }
 
         class ServiceEntity {
@@ -60,6 +62,7 @@ classDiagram
         class AppUserRepository {
             <<interface>>
             +findByKeycloakSub(String) Optional~AppUser~
+            +findByEmail(String) Optional~AppUser~
         }
 
         class ServiceRepository {
@@ -83,6 +86,38 @@ classDiagram
         class ActivityAnalysisRepository {
             <<interface>>
             +findByLocationNameAndAnalysisDate(String, LocalDate) Optional~ActivityAnalysis~
+        }
+
+        class SensorDevice {
+            <<entity>>
+            -UUID id
+            -AppUser user
+            -String name
+            -OffsetDateTime createdAt
+            +create(AppUser, String)$ SensorDevice
+        }
+
+        class SensorData {
+            <<entity>>
+            -UUID id
+            -SensorDevice device
+            -OffsetDateTime measuredAt
+            -OffsetDateTime receivedAt
+            -Double dhtTemperature
+            -Double dhtHumidity
+            -Double ntcTemperature
+            -Double luminosity
+            +create(SensorDevice, OffsetDateTime, Double, Double, Double, Double)$ SensorData
+        }
+
+        class SensorDeviceRepository {
+            <<interface>>
+            +findByUserAndName(AppUser, String) Optional~SensorDevice~
+        }
+
+        class SensorDataRepository {
+            <<interface>>
+            +findByUserAndDateRange(AppUser, OffsetDateTime, OffsetDateTime) List~SensorData~
         }
     }
 
@@ -161,6 +196,20 @@ classDiagram
             -MeteoService meteoService
             -ClaudeService claudeService
         }
+
+        class SensorDataService {
+            <<interface>>
+            +ingestSensorData(String, String, OffsetDateTime, Double, Double, Double, Double) void
+            +getSensorData(String, OffsetDateTime, OffsetDateTime) List~SensorDataPointDto~
+        }
+
+        class SensorDataServiceImpl {
+            <<service>>
+            -AppUserRepository appUserRepository
+            -SensorDeviceRepository sensorDeviceRepository
+            -SensorDataRepository sensorDataRepository
+            -SseService sseService
+        }
     }
 
     namespace Infrastructure {
@@ -228,12 +277,53 @@ classDiagram
             +UUID id
             +OffsetDateTime usedAt
         }
+
+        class SensorDataController {
+            <<controller>>
+            +getSensorData(JwtAuthenticationToken, OffsetDateTime, OffsetDateTime) ResponseEntity
+        }
+
+        class SensorDataPointDto {
+            <<record>>
+            +OffsetDateTime measuredAt
+            +String deviceName
+            +Double dhtTemperature
+            +Double dhtHumidity
+            +Double ntcTemperature
+            +Double luminosity
+        }
+
+        class MqttConfig {
+            <<configuration>>
+            -String brokerUrl
+            -String topic
+            +connect() void
+            +disconnect() void
+        }
+
+        class MqttSensorListener {
+            <<component>>
+            +handleMessage(String) void
+        }
+
+        class MqttSensorPayload {
+            <<record>>
+            +OffsetDateTime timestamp
+            +String user
+            +String device
+            +Double dhtTemperature
+            +Double dhtHumidity
+            +Double ntcTemperature
+            +Double luminosity
+        }
     }
 
     %% Domain relationships
     AppUser "1" --o "*" Subscription
     ServiceEntity "1" --o "*" Subscription
     Subscription "1" --o "*" ServiceUsage
+    AppUser "1" --o "*" SensorDevice
+    SensorDevice "1" --o "*" SensorData
 
     %% Interface implementations
     HealthCheckServiceImpl ..|> HealthCheckService
@@ -241,6 +331,7 @@ classDiagram
     ClaudeServiceImpl ..|> ClaudeService
     MeteoServiceImpl ..|> MeteoService
     ActivityServiceImpl ..|> ActivityService
+    SensorDataServiceImpl ..|> SensorDataService
 
     %% Controller dependencies
     HealthCheckController --> HealthCheckService
@@ -249,6 +340,7 @@ classDiagram
     MeteoController --> ClaudeService
     ActivitiesController --> ActivityService
     SseController --> SseService
+    SensorDataController --> SensorDataService
 
     %% Service dependencies
     SubscriptionServiceImpl --> AppUserRepository
@@ -259,4 +351,12 @@ classDiagram
     ActivityServiceImpl --> ActivityAnalysisRepository
     ActivityServiceImpl --> MeteoService
     ActivityServiceImpl --> ClaudeService
+    SensorDataServiceImpl --> AppUserRepository
+    SensorDataServiceImpl --> SensorDeviceRepository
+    SensorDataServiceImpl --> SensorDataRepository
+    SensorDataServiceImpl --> SseService
+
+    %% MQTT dependencies
+    MqttConfig --> MqttSensorListener
+    MqttSensorListener --> SensorDataService
 ```

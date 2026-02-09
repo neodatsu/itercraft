@@ -15,6 +15,7 @@ scrape_configs:
       - targets:
           - localhost
         labels:
+          job: containerlogs
           __path__: /var/lib/docker/containers/*/*log
 
     pipeline_stages:
@@ -29,13 +30,13 @@ scrape_configs:
       # Extract container/service name from attrs
       - json:
           expressions:
-            service: com.docker.compose.service
+            container_name: com.docker.compose.service
             project: com.docker.compose.project
           source: attrs
 
-      # Use service name as job label for easier querying
+      # Use container_name and stream as labels
       - labels:
-          job: service
+          container_name:
           stream:
 
       # Use the log content as the actual log line

@@ -246,6 +246,8 @@ resource "aws_instance" "app" {
                     - MQTT_BACKEND_USER=itercraft-backend
                     - MQTT_BACKEND_PASSWORD=${var.mqtt_backend_password}
                     - MQTT_TRUST_ALL_CERTS=true
+                    - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+                    - OTEL_SERVICE_NAME=itercraft-api
                   networks:
                     - public
                     - internal
