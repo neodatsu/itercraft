@@ -14,6 +14,7 @@ import { ArchitecturePage } from './pages/architecture/ArchitecturePage';
 import { SseDiagramsPage } from './pages/sse/SseDiagramsPage';
 import { ActivitiesPage } from './pages/activities/ActivitiesPage';
 import { ResiliencePage } from './pages/resilience/ResiliencePage';
+import { IotPage } from './pages/iot/IotPage';
 import { LudothequePage } from './pages/ludotheque/LudothequePage';
 import { EntretienPage } from './pages/entretien/EntretienPage';
 import { ProtectedRoute } from './auth/ProtectedRoute';
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/architecture" element={<ArchitecturePage />} />
                 <Route path="/sse" element={<SseDiagramsPage />} />
                 <Route path="/resilience" element={<ResiliencePage />} />
+                <Route path="/iot" element={<IotPage />} />
                 <Route path="/activites" element={
                   <ProtectedRoute>
                     <ActivitiesPage />

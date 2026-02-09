@@ -10,6 +10,7 @@ const labels: Record<string, string> = {
   '/architecture': 'Architecture',
   '/sse': 'Server-Sent Events',
   '/resilience': 'Résilience',
+  '/iot': 'IoT',
   '/meteo': 'Météo',
 };
 

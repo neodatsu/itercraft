@@ -12,6 +12,7 @@ export function Header() {
         <Link to="/architecture" className="app-header-link">Architecture</Link>
         <Link to="/sse" className="app-header-link">SSE</Link>
         <Link to="/resilience" className="app-header-link">Résilience</Link>
+        <Link to="/iot" className="app-header-link">IoT</Link>
         {authenticated ? (
           <>
             <Link to="/dashboard" className="app-header-link">Tableau de bord</Link>
