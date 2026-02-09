@@ -22,3 +22,10 @@
   padding: 1rem;
   overflow-x: auto;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .architecture-container {
+    padding: 1.5rem 1rem;
+  }
+}

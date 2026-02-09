@@ -9,7 +9,7 @@
 }
 
 .sse-intro {
-  color: #555;
+  color: #b0b0c8;
   margin-bottom: 2rem;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .sse-section p {
-  color: #555;
+  color: #b0b0c8;
   margin-bottom: 1rem;
 }
 
@@ -31,4 +31,11 @@
   border-radius: 8px;
   padding: 1rem;
   overflow-x: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sse-container {
+    padding: 1.5rem 1rem;
+  }
 }

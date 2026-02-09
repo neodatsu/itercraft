@@ -5,41 +5,40 @@
 }
 
 .resilience-container h1 {
-  color: #1a1a2e;
   margin-bottom: 2rem;
   text-align: center;
 }
 
 .resilience-section {
   margin-bottom: 3rem;
-  background: #fff;
+  background: #1f2040;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: #333;
+  border: 1px solid #2a2b50;
+  color: #e0e0e0;
 }
 
 .resilience-section h2 {
-  color: #16213e;
+  color: #e0e0f0;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #0f3460;
+  border-bottom: 2px solid #818cf8;
   padding-bottom: 0.5rem;
 }
 
 .resilience-section p {
-  color: #444;
+  color: #b0b0c8;
   line-height: 1.6;
   margin-bottom: 1rem;
 }
 
 .resilience-section ul {
-  color: #444;
+  color: #b0b0c8;
   line-height: 1.8;
   margin-left: 1.5rem;
 }
 
 .resilience-section.intro {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1f2040 0%, #252650 100%);
 }
 
 .mermaid-diagram {
@@ -57,7 +56,7 @@
   gap: 0.75rem;
   margin-top: 1.5rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: #252640;
   border-radius: 4px;
 }
 
@@ -77,18 +76,18 @@
 }
 
 .state-closed {
-  background: #d4edda;
-  color: #155724;
+  background: #1b4332;
+  color: #95d5b2;
 }
 
 .state-open {
-  background: #f8d7da;
-  color: #721c24;
+  background: #3b1c22;
+  color: #f8b4b4;
 }
 
 .state-half-open {
-  background: #fff3cd;
-  color: #856404;
+  background: #3d3200;
+  color: #ffd966;
 }
 
 /* Configuration Table */
@@ -102,34 +101,38 @@
 .config-table td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #2a2b50;
 }
 
 .config-table th {
-  background: #f8f9fa;
+  background: #252650;
   font-weight: 600;
-  color: #16213e;
+  color: #b0b0c8;
+}
+
+.config-table td {
+  color: #e0e0f0;
 }
 
 .config-table tr:hover {
-  background: #f8f9fa;
+  background: #252640;
 }
 
 /* Status Section */
 .status-section {
-  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  background: linear-gradient(135deg, #1f2040 0%, #252650 100%);
 }
 
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: #9090b0;
 }
 
 .error-message {
   padding: 1rem;
-  background: #f8d7da;
-  color: #721c24;
+  background: #3b1c22;
+  color: #f8b4b4;
   border-radius: 4px;
   margin-bottom: 1rem;
 }
@@ -142,23 +145,23 @@
 }
 
 .circuit-breaker-card {
-  background: #fff;
+  background: #252640;
   border-radius: 8px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #2a2b50;
   border-left: 4px solid #6c757d;
 }
 
 .circuit-breaker-card.state-closed {
-  border-left-color: #28a745;
+  border-left-color: #95d5b2;
 }
 
 .circuit-breaker-card.state-open {
-  border-left-color: #dc3545;
+  border-left-color: #f8b4b4;
 }
 
 .circuit-breaker-card.state-half-open {
-  border-left-color: #ffc107;
+  border-left-color: #ffd966;
 }
 
 .cb-header {
@@ -167,13 +170,13 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #2a2b50;
 }
 
 .cb-name {
   font-weight: 600;
   font-size: 1.1rem;
-  color: #16213e;
+  color: #e0e0f0;
 }
 
 .cb-state {
@@ -196,20 +199,20 @@
 
 .metric-label {
   font-size: 0.75rem;
-  color: #666;
+  color: #9090b0;
   text-transform: uppercase;
 }
 
 .metric-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #16213e;
+  color: #e0e0f0;
 }
 
 .status-timestamp {
   text-align: center;
   margin-top: 1rem;
-  color: #666;
+  color: #9090b0;
   font-size: 0.85rem;
 }
 
@@ -235,22 +238,26 @@
 .api-table td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #2a2b50;
 }
 
 .api-table th {
-  background: #f8f9fa;
+  background: #252650;
   font-weight: 600;
-  color: #16213e;
+  color: #b0b0c8;
+}
+
+.api-table td {
+  color: #e0e0f0;
 }
 
 .api-table code {
-  background: #e9ecef;
+  background: #1e1e1e;
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.9rem;
-  color: #1a1a2e;
+  color: #d4d4d4;
 }
 
 /* Responsive */
@@ -263,12 +270,21 @@
     grid-template-columns: 1fr;
   }
 
-  .config-table {
+  .config-table,
+  .api-table {
     font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
   }
 
   .config-table th,
-  .config-table td {
+  .config-table td,
+  .api-table th,
+  .api-table td {
     padding: 0.5rem;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
   }
 }

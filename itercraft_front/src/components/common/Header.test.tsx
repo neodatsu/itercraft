@@ -77,4 +77,30 @@ describe('Header', () => {
     render(<MemoryRouter><Header /></MemoryRouter>);
     expect(screen.getByText('Connexion').closest('a')).toHaveAttribute('href', '/dashboard');
   });
+
+  it('renders burger menu button with correct aria-label', () => {
+    mockUseAuth.mockReturnValue({
+      keycloak: {} as never,
+      authenticated: false,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
+    });
+    render(<MemoryRouter><Header /></MemoryRouter>);
+    const burger = screen.getByLabelText('Menu de navigation');
+    expect(burger).toBeInTheDocument();
+    expect(burger).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('toggles menu open state on burger click', async () => {
+    mockUseAuth.mockReturnValue({
+      keycloak: {} as never,
+      authenticated: false,
+      initialized: true,
+      ensureInit: vi.fn().mockResolvedValue(true),
+    });
+    render(<MemoryRouter><Header /></MemoryRouter>);
+    const burger = screen.getByLabelText('Menu de navigation');
+    await userEvent.click(burger);
+    expect(burger).toHaveAttribute('aria-expanded', 'true');
+  });
 });

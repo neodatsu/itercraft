@@ -3,41 +3,14 @@ import { Link } from 'react-router-dom';
 import './CookieConsent.css';
 
 const STORAGE_KEY = 'cookie-consent';
-const GA_ID = 'G-NMSXHLBJZK';
 
 declare global {
   // eslint-disable-next-line no-var
-  var dataLayer: unknown[] | undefined;
-}
-
-function gtag(...args: unknown[]) {
-  globalThis.dataLayer = globalThis.dataLayer ?? [];
-  globalThis.dataLayer.push(args);
-}
-
-// Set default consent to denied BEFORE loading gtag.js (Consent Mode v2)
-gtag('consent', 'default', {
-  analytics_storage: 'denied',
-  ad_storage: 'denied',
-  ad_user_data: 'denied',
-  ad_personalization: 'denied',
-});
-
-function loadGtagScript() {
-  if (document.getElementById('ga-script')) return;
-
-  gtag('js', new Date());
-  gtag('config', GA_ID);
-
-  const script = document.createElement('script');
-  script.id = 'ga-script';
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
+  var gtag: ((...args: unknown[]) => void) | undefined;
 }
 
 function grantAnalyticsConsent() {
-  gtag('consent', 'update', {
+  globalThis.gtag?.('consent', 'update', {
     analytics_storage: 'granted',
   });
 }
@@ -46,7 +19,6 @@ export function CookieConsent() {
   const [visible, setVisible] = useState(() => !localStorage.getItem(STORAGE_KEY));
 
   useEffect(() => {
-    loadGtagScript();
     if (localStorage.getItem(STORAGE_KEY) === 'accepted') {
       grantAnalyticsConsent();
     }

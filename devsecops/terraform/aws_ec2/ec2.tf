@@ -180,6 +180,20 @@ resource "aws_instance" "app" {
               #!/bin/bash
               apt update && apt install -y docker.io docker-compose awscli
               systemctl enable docker
+
+              # Configure Docker daemon to include compose labels in log attrs
+              # Required for Promtail to extract container_name from Docker JSON logs
+              mkdir -p /etc/docker
+              cat > /etc/docker/daemon.json << DAEMON
+              {
+                "log-driver": "json-file",
+                "log-opts": {
+                  "labels": "com.docker.compose.service,com.docker.compose.project"
+                }
+              }
+              DAEMON
+              systemctl restart docker
+
               mkdir -p /opt/app && cd /opt/app
 
               # Login ECR automatique
@@ -246,8 +260,7 @@ resource "aws_instance" "app" {
                     - MQTT_BACKEND_USER=itercraft-backend
                     - MQTT_BACKEND_PASSWORD=${var.mqtt_backend_password}
                     - MQTT_TRUST_ALL_CERTS=true
-                    - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
-                    - OTEL_SERVICE_NAME=itercraft-api
+                    - OTLP_ENDPOINT=http://tempo:4318/v1/traces
                   networks:
                     - public
                     - internal
