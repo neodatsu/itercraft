@@ -78,7 +78,7 @@ describe('ActivitiesPage', () => {
       expect(mockFetchActivitySuggestions).toHaveBeenCalledWith(
         'fake-token',
         43.9283,
-        2.1480,
+        2.148,
         expect.any(String)
       );
     });

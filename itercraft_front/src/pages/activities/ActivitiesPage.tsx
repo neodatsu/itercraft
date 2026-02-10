@@ -5,7 +5,7 @@ import type { ActivitySuggestion, Activity } from '../../api/activitiesApi';
 import './ActivitiesPage.css';
 
 const DEFAULT_LAT = 43.9283;
-const DEFAULT_LON = 2.1480;
+const DEFAULT_LON = 2.148;
 
 const ICON_MAP: Record<string, string> = {
   bike: 'https://cdn-icons-png.flaticon.com/32/2972/2972185.png',
