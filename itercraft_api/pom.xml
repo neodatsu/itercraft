@@ -58,10 +58,16 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Distributed Tracing (OpenTelemetry) -->
+        <!-- Distributed Tracing (OpenTelemetry) — exclude OTLP metrics registry (we use Prometheus) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-opentelemetry</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-registry-otlp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Resilience4j (Circuit Breaker, Retry, Rate Limiter) -->
