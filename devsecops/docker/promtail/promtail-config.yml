@@ -28,10 +28,11 @@ scrape_configs:
             attrs: attrs
 
       # Extract container/service name from attrs
+      # Keys contain dots — JMESPath requires quoted identifiers for literal dotted keys
       - json:
           expressions:
-            container_name: com.docker.compose.service
-            project: com.docker.compose.project
+            container_name: '"com.docker.compose.service"'
+            project: '"com.docker.compose.project"'
           source: attrs
 
       # Use container_name and stream as labels
