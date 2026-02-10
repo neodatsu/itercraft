@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import './ArchitecturePage.css';
+import '../public-page.css';
 
 const contextDiagram = `
 C4Context
@@ -183,30 +183,30 @@ export function ArchitecturePage() {
   }, []);
 
   return (
-    <div className="architecture-container" ref={containerRef}>
+    <div className="public-page" ref={containerRef}>
       <h1>Architecture</h1>
 
-      <section className="architecture-section">
+      <section aria-label="Contexte">
         <h2>Contexte (C4 Level 1)</h2>
         <pre className="mermaid-diagram">{contextDiagram}</pre>
       </section>
 
-      <section className="architecture-section">
+      <section aria-label="Conteneurs">
         <h2>Conteneurs (C4 Level 2)</h2>
         <pre className="mermaid-diagram">{containerDiagram}</pre>
       </section>
 
-      <section className="architecture-section">
+      <section aria-label="ChatOps Infrastructure">
         <h2>ChatOps Infrastructure (C4 Dynamic)</h2>
         <pre className="mermaid-diagram">{chatOpsDiagram}</pre>
       </section>
 
-      <section className="architecture-section">
+      <section aria-label="IoT Architecture">
         <h2>IoT Architecture (MQTT)</h2>
         <pre className="mermaid-diagram">{iotDiagram}</pre>
       </section>
 
-      <section className="architecture-section">
+      <section aria-label="Observability Stack">
         <h2>Observability Stack (Logs, Traces, Metrics)</h2>
         <pre className="mermaid-diagram">{observabilityDiagram}</pre>
       </section>

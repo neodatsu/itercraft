@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import './IotPage.css';
+import '../public-page.css';
 
 const pipelineDiagram = `
 flowchart LR
@@ -72,10 +72,10 @@ export function IotPage() {
   }, []);
 
   return (
-    <div className="iot-container" ref={containerRef}>
+    <div className="public-page" ref={containerRef}>
       <h1>IoT — Pipeline de données capteurs</h1>
 
-      <section className="iot-section" aria-label="Vue d'ensemble">
+      <section aria-label="Vue d'ensemble">
         <h2>Vue d'ensemble</h2>
         <p>
           Le pipeline IoT d'Itercraft collecte des mesures environnementales (température,
@@ -86,7 +86,7 @@ export function IotPage() {
         <pre className="mermaid-diagram">{pipelineDiagram}</pre>
       </section>
 
-      <section className="iot-section" aria-label="ESP32 et capteurs">
+      <section aria-label="ESP32 et capteurs">
         <h2>ESP32 &amp; Capteurs</h2>
         <p>
           L'ESP32 est un microcontrôleur WiFi qui lit les capteurs à intervalles réguliers
@@ -103,10 +103,10 @@ export function IotPage() {
           Chaque mesure est publiée sur le topic <code>sensors/&lt;email&gt;/&lt;device&gt;</code> au
           format JSON :
         </p>
-        <pre className="iot-code-block">{sensorPayloadExample}</pre>
+        <pre className="code-block">{sensorPayloadExample}</pre>
       </section>
 
-      <section className="iot-section" aria-label="Broker MQTT">
+      <section aria-label="Broker MQTT">
         <h2>Broker MQTT — Mosquitto</h2>
         <p>
           Le broker MQTT <strong>Eclipse Mosquitto</strong> assure le transport des messages
@@ -118,13 +118,13 @@ export function IotPage() {
           <li><strong>ACL (Access Control List)</strong> — L'ESP32 ne peut publier que sur son topic, le backend ne peut que lire</li>
         </ul>
         <h3>Structure des topics</h3>
-        <pre className="iot-code-block">sensors/&lt;email&gt;/&lt;device&gt;</pre>
+        <pre className="code-block">sensors/&lt;email&gt;/&lt;device&gt;</pre>
         <p>
           Exemple : <code>sensors/laurent@itercraft.com/meteoStation_1</code>
         </p>
       </section>
 
-      <section className="iot-section" aria-label="Backend">
+      <section aria-label="Backend">
         <h2>Backend — Spring Boot</h2>
         <p>
           Le backend s'abonne au topic <code>sensors/#</code> via un client MQTT intégré.
@@ -137,7 +137,7 @@ export function IotPage() {
           <li>Notifie le frontend via SSE (Server-Sent Events) pour rafraîchir le graphique</li>
         </ol>
         <h3>Modèle de données</h3>
-        <table className="iot-table">
+        <table>
           <thead>
             <tr>
               <th>Table</th>
@@ -160,7 +160,7 @@ export function IotPage() {
         </table>
       </section>
 
-      <section className="iot-section" aria-label="Affichage">
+      <section aria-label="Affichage">
         <h2>Affichage — Dashboard</h2>
         <p>
           Le tableau de bord affiche les données capteurs sous forme de graphiques interactifs
@@ -179,7 +179,7 @@ export function IotPage() {
         </p>
       </section>
 
-      <section className="iot-section" aria-label="Architecture détaillée">
+      <section aria-label="Architecture détaillée">
         <h2>Architecture détaillée (C4)</h2>
         <pre className="mermaid-diagram">{architectureDiagram}</pre>
       </section>

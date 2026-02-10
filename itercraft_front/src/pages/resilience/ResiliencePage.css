@@ -1,52 +1,25 @@
-.resilience-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+/* ResiliencePage — page-specific styles only */
+/* Shared styles (container, section, h2, p, table, code-block, mermaid) come from public-page.css */
 
-.resilience-container h1 {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.resilience-section {
-  margin-bottom: 3rem;
-  background: #1f2040;
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid #2a2b50;
-  color: #e0e0e0;
-}
-
-.resilience-section h2 {
-  color: #e0e0f0;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #818cf8;
-  padding-bottom: 0.5rem;
-}
-
-.resilience-section p {
-  color: #b0b0c8;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.resilience-section ul {
-  color: #b0b0c8;
-  line-height: 1.8;
-  margin-left: 1.5rem;
-}
-
-.resilience-section.intro {
+/* Status Section (gradient variant) */
+.status-section {
   background: linear-gradient(135deg, #1f2040 0%, #252650 100%);
 }
 
-.mermaid-diagram {
-  background: #f8f9fa;
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #9090b0;
+}
+
+/* Error Message */
+.error-message {
   padding: 1rem;
+  background: #3b1c22;
+  color: #f8b4b4;
   border-radius: 4px;
-  overflow-x: auto;
-  margin: 1rem 0;
+  margin-bottom: 1rem;
 }
 
 /* State Legend */
@@ -90,53 +63,7 @@
   color: #ffd966;
 }
 
-/* Configuration Table */
-.config-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.config-table th,
-.config-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #2a2b50;
-}
-
-.config-table th {
-  background: #252650;
-  font-weight: 600;
-  color: #b0b0c8;
-}
-
-.config-table td {
-  color: #e0e0f0;
-}
-
-.config-table tr:hover {
-  background: #252640;
-}
-
-/* Status Section */
-.status-section {
-  background: linear-gradient(135deg, #1f2040 0%, #252650 100%);
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #9090b0;
-}
-
-.error-message {
-  padding: 1rem;
-  background: #3b1c22;
-  color: #f8b4b4;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
+/* Circuit Breaker Cards */
 .status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -216,72 +143,10 @@
   font-size: 0.85rem;
 }
 
-/* Code Block */
-.code-block {
-  background: #1e1e1e;
-  color: #d4d4d4;
-  padding: 1rem;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-/* API Table */
-.api-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.api-table th,
-.api-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #2a2b50;
-}
-
-.api-table th {
-  background: #252650;
-  font-weight: 600;
-  color: #b0b0c8;
-}
-
-.api-table td {
-  color: #e0e0f0;
-}
-
-.api-table code {
-  background: #1e1e1e;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
-  color: #d4d4d4;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-  .resilience-container {
-    padding: 1rem;
-  }
-
   .cb-metrics {
     grid-template-columns: 1fr;
-  }
-
-  .config-table,
-  .api-table {
-    font-size: 0.85rem;
-    display: block;
-    overflow-x: auto;
-  }
-
-  .config-table th,
-  .config-table td,
-  .api-table th,
-  .api-table td {
-    padding: 0.5rem;
   }
 
   .status-grid {

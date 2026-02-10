@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import './SseDiagramsPage.css';
+import '../public-page.css';
 
 const connectionDiagram = `
 sequenceDiagram
@@ -105,31 +105,34 @@ export function SseDiagramsPage() {
   }, []);
 
   return (
-    <div className="sse-container" ref={containerRef}>
+    <div className="public-page" ref={containerRef}>
       <h1>Server-Sent Events (SSE)</h1>
-      <p className="sse-intro">
-        Diagrammes de séquence UML décrivant le fonctionnement du temps réel dans Itercraft.
-      </p>
 
-      <section className="sse-section">
+      <section className="intro" aria-label="Introduction">
+        <p>
+          Diagrammes de séquence UML décrivant le fonctionnement du temps réel dans Itercraft.
+        </p>
+      </section>
+
+      <section aria-label="Connexion SSE">
         <h2>1. Connexion SSE</h2>
         <p>Le navigateur ouvre une connexion persistante vers <code>/api/events</code> (endpoint public, sans authentification).</p>
         <pre className="mermaid-diagram">{connectionDiagram}</pre>
       </section>
 
-      <section className="sse-section">
+      <section aria-label="Abonnement à un service">
         <h2>2. Abonnement à un service</h2>
         <p>Lorsqu'un utilisateur s'abonne, le backend notifie tous les clients connectés via SSE.</p>
         <pre className="mermaid-diagram">{subscribeDiagram}</pre>
       </section>
 
-      <section className="sse-section">
+      <section aria-label="Ajout d'un usage">
         <h2>3. Ajout d'un usage</h2>
         <p>L'ajout d'un usage déclenche le même mécanisme de broadcast SSE, incluant la protection CSRF.</p>
         <pre className="mermaid-diagram">{usageDiagram}</pre>
       </section>
 
-      <section className="sse-section">
+      <section aria-label="Déconnexion et nettoyage">
         <h2>4. Déconnexion et nettoyage</h2>
         <p>Quand le composant React se démonte, la connexion SSE est fermée proprement.</p>
         <pre className="mermaid-diagram">{disconnectDiagram}</pre>

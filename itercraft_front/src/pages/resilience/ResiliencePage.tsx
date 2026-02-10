@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useId, memo } from 'react';
 import mermaid from 'mermaid';
+import '../public-page.css';
 import './ResiliencePage.css';
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
@@ -175,10 +176,10 @@ export function ResiliencePage() {
   };
 
   return (
-    <div className="resilience-container">
+    <div className="public-page">
       <h1>Resilience Patterns</h1>
 
-      <section className="resilience-section intro">
+      <section className="intro" aria-label="Introduction">
         <h2>Introduction</h2>
         <p>
           Les systèmes distribués modernes dépendent de nombreux services externes (APIs, bases de données, etc.).
@@ -196,7 +197,7 @@ export function ResiliencePage() {
         </ul>
       </section>
 
-      <section className="resilience-section">
+      <section aria-label="Circuit Breaker - États">
         <h2>Circuit Breaker - États</h2>
         <p>
           Le Circuit Breaker fonctionne comme un disjoncteur électrique. Il surveille les appels vers un service
@@ -219,7 +220,7 @@ export function ResiliencePage() {
         </div>
       </section>
 
-      <section className="resilience-section">
+      <section aria-label="Architecture des Patterns">
         <h2>Architecture des Patterns</h2>
         <p>
           Voici comment les différents patterns de résilience s'enchaînent dans Itercraft pour protéger
@@ -228,14 +229,14 @@ export function ResiliencePage() {
         <MermaidDiagram chart={resiliencePatternsDiagram} />
       </section>
 
-      <section className="resilience-section">
+      <section aria-label="Configuration">
         <h2>Configuration</h2>
         <p>
           Chaque service externe a sa propre configuration de circuit breaker, adaptée à ses caractéristiques.
         </p>
         <MermaidDiagram chart={configurationDiagram} />
 
-        <table className="config-table">
+        <table>
           <thead>
             <tr>
               <th>Paramètre</th>
@@ -279,7 +280,7 @@ export function ResiliencePage() {
         </table>
       </section>
 
-      <section className="resilience-section status-section">
+      <section className="status-section" aria-label="État en temps réel">
         <h2>État en temps réel</h2>
         <p>
           Statut actuel des circuit breakers de l'application. Les données sont rafraîchies toutes les 5 secondes.
@@ -336,7 +337,7 @@ export function ResiliencePage() {
         )}
       </section>
 
-      <section className="resilience-section">
+      <section aria-label="Code Example">
         <h2>Code Example</h2>
         <p>
           Voici comment le circuit breaker est implémenté dans le service Météo France :
@@ -361,9 +362,9 @@ private byte[] getMapImageFallback(String layer, double lat, double lon,
         </pre>
       </section>
 
-      <section className="resilience-section">
+      <section aria-label="API Endpoints">
         <h2>API Endpoints</h2>
-        <table className="api-table">
+        <table>
           <thead>
             <tr>
               <th>Endpoint</th>

@@ -1,0 +1,133 @@
+/* Shared styles for public pages (Architecture, SSE, IoT, Resilience) */
+
+/* Container */
+.public-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.public-page h1 {
+  margin-bottom: 2rem;
+}
+
+/* Sections */
+.public-page section {
+  margin-bottom: 3rem;
+  background: #1f2040;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #2a2b50;
+  color: #e0e0e0;
+}
+
+.public-page section h2 {
+  color: #e0e0f0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #818cf8;
+  padding-bottom: 0.5rem;
+}
+
+.public-page section h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.public-page section p {
+  color: #b0b0c8;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.public-page section ul,
+.public-page section ol {
+  color: #b0b0c8;
+  margin: 0.5rem 0 1rem 1.5rem;
+  line-height: 1.8;
+}
+
+/* Intro section (gradient variant) */
+.public-page .intro {
+  background: linear-gradient(135deg, #1f2040 0%, #252650 100%);
+}
+
+/* Mermaid diagrams */
+.public-page .mermaid-diagram {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* Code blocks */
+.public-page .code-block {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #2a2b50;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Tables */
+.public-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.public-page table th,
+.public-page table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #2a2b50;
+}
+
+.public-page table th {
+  background: #252650;
+  font-weight: 600;
+  color: #b0b0c8;
+}
+
+.public-page table td {
+  color: #e0e0f0;
+}
+
+.public-page table tr:hover {
+  background: #252640;
+}
+
+.public-page table code {
+  background: #1e1e1e;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+  color: #d4d4d4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .public-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .public-page table {
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .public-page table th,
+  .public-page table td {
+    padding: 0.5rem;
+  }
+
+  .public-page .code-block {
+    font-size: 0.8rem;
+  }
+}
