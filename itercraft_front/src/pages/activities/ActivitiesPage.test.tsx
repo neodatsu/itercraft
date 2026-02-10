@@ -21,7 +21,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 const mockActivitySuggestion = {
-  location: 'Paris',
+  location: 'Albi',
   summary: 'Journée idéale pour les activités de plein air.',
   activities: {
     morning: [{ name: 'Marche', description: 'Balade matinale', icon: 'walk' }],
@@ -42,7 +42,7 @@ describe('ActivitiesPage', () => {
     mockFetchActivitySuggestions.mockResolvedValue(mockActivitySuggestion);
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ display_name: 'Paris, France' }),
+      json: () => Promise.resolve({ display_name: 'Albi, Tarn, France' }),
     });
   });
 
@@ -77,8 +77,8 @@ describe('ActivitiesPage', () => {
     await waitFor(() => {
       expect(mockFetchActivitySuggestions).toHaveBeenCalledWith(
         'fake-token',
-        48.8566,
-        2.3522,
+        43.9283,
+        2.1480,
         expect.any(String)
       );
     });
@@ -88,7 +88,7 @@ describe('ActivitiesPage', () => {
     render(<ActivitiesPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Paris, France')).toBeInTheDocument();
+      expect(screen.getByText('Albi, Tarn, France')).toBeInTheDocument();
     });
   });
 
@@ -260,7 +260,7 @@ describe('ActivitiesPage', () => {
       expect(mockFetchActivitySuggestions).toHaveBeenCalled();
     });
 
-    expect(screen.queryByText('Paris, France')).not.toBeInTheDocument();
+    expect(screen.queryByText('Albi, Tarn, France')).not.toBeInTheDocument();
   });
 
   it('renders OpenStreetMap iframe', async () => {
